@@ -1,9 +1,9 @@
 import { createBrowserRouter, Navigate } from "react-router";
 import { Layout } from "../widgets/layout/ui/Layout";
-import Dashboard from "../pages/dashboard";
-import Firmware from "../pages/firmware";
-import Advertisement from "../pages/advertisement";
-import Monitoring from "../pages/monitoring";
+import { Dashboard } from "../pages/dashboard";
+import { Firmware } from "../pages/firmware";
+import { Advertisement } from "../pages/advertisement";
+import { Monitoring } from "../pages/monitoring";
 
 export const Router = createBrowserRouter([
   {

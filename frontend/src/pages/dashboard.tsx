@@ -1,5 +1,9 @@
-const Dashboard = () => {
-  return <div>This is Dashboard page.</div>;
-};
+import { TitleTile } from "../widgets/layout/ui/TitleTile";
 
-export default Dashboard;
+export const Dashboard = () => {
+  return (
+    <div>
+      <TitleTile title="대시보드" description="디바이스 정보 및 최근 활동" />
+    </div>
+  );
+};
