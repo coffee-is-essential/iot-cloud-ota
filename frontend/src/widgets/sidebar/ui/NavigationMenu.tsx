@@ -10,7 +10,7 @@ export const NavigationMenu = () => {
   const currentPath = location.pathname;
 
   return (
-    <div className="flex flex-col items-start gap-12 px-16">
+    <div className="flex flex-col items-start gap-12 pl-16">
       {navigationItems.map((item) => (
         <Link to={item.path} key={item.id}>
           <NavigationItem
