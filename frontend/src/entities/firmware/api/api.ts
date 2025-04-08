@@ -1,7 +1,7 @@
 import { Firmware, FirmwareDto } from "../model/types";
 import { mapFirmwareDto } from "../model/mappers";
 import { apiClient } from "../../../shared/api/client";
-import { ApiReponse } from "../../../shared/api/types";
+import { ApiResponse } from "../../../shared/api/types";
 
 /**
  * Service responsible for handling firmware-related API requests
@@ -24,7 +24,7 @@ export const firmwareApiService = {
    */
   getAll: async (page: number = 1, limit: number = 10): Promise<Firmware[]> => {
     try {
-      const { data } = await apiClient.get<ApiReponse<FirmwareDto[]>>(
+      const { data } = await apiClient.get<ApiResponse<FirmwareDto[]>>(
         `/api/firmware`,
         { params: { page: page, limit: limit } }
       );
@@ -55,7 +55,7 @@ export const firmwareApiService = {
    */
   getOneById: async (id: number): Promise<Firmware | null> => {
     try {
-      const { data } = await apiClient.get<ApiReponse<FirmwareDto>>(
+      const { data } = await apiClient.get<ApiResponse<FirmwareDto>>(
         `api/firmware/${id}`
       );
 
@@ -78,7 +78,7 @@ export const firmwareApiService = {
    */
   search: async (query: string): Promise<Firmware[]> => {
     try {
-      const { data } = await apiClient.get<ApiReponse<FirmwareDto[]>>(
+      const { data } = await apiClient.get<ApiResponse<FirmwareDto[]>>(
         `/api/firmware/search`,
         { params: { query: query } }
       );

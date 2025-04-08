@@ -2,7 +2,7 @@
  * Generic API response wrapper
  * @template T Type of the data contained in the response
  */
-export interface ApiReponse<T> {
+export interface ApiResponse<T> {
   /** The main data payload returned from the API */
   data: T;
   /** Optional metadata  */
