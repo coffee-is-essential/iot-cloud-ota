@@ -51,6 +51,33 @@ export const handlers = [
     });
   }),
 
+  http.get("/api/firmware/search", ({ request }) => {
+    const url = new URL(request.url);
+    const query = url.searchParams.get("query") || "";
+    const page = parseInt(url.searchParams.get("page") || "1");
+    const limit = parseInt(url.searchParams.get("limit") || "10");
+    const startIdx = (page - 1) * limit;
+    const endIdx = page * limit;
+
+    const filteredFirmwares = firmwares.filter((firmware) =>
+      firmware.version.includes(query)
+    );
+
+    const paginatedData = filteredFirmwares.slice(startIdx, endIdx);
+    const total_count = filteredFirmwares.length;
+    const total_page = Math.ceil(total_count / limit);
+    const meta = {
+      page,
+      total_count,
+      limit,
+      total_page,
+    };
+    return HttpResponse.json({
+      data: paginatedData,
+      meta,
+    });
+  }),
+
   http.get("/api/firmware/:id", ({ params }) => {
     const id = parseInt(params.id as string);
 
