@@ -14,7 +14,7 @@ export interface ButtonProps {
  * A reusable button component with consistent styling
  * @param {ButtonProps} props - The component props
  * @param {JSX.Element} [props.icon] - Optional icon to display inside the button
- * @param {string} props.title - Text to dispaly inside the button
+ * @param {string} props.title - Text to display inside the button
  * @param {Function} [props.onClick] - Optional click handler function
  * @param {boolean} [props.disabled] - Optional flag to disable the button
  * @returns {JSX.Element} Rendered button component
@@ -33,6 +33,7 @@ export const Button = ({
     <button
       className={`px-4 py-1.5 flex gap-2 items-center justify-center text-sm text-white transition-all duration-200 rounded-md bg-slate-900 focus:ring-2 focus:ring-offset-2 ${disabledStyles}`}
       onClick={onClick}
+      disabled={disabled}
     >
       {icon && <span>{icon}</span>}
       {title}
