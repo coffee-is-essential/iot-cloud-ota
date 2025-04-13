@@ -2,6 +2,7 @@ import { Download } from "lucide-react";
 import { Button } from "../../../shared/ui/Button";
 import { Firmware } from "../model/types";
 import { JSX } from "react";
+import { LabeledValue } from "../../../shared/ui/LabeledValue";
 
 /**
  * Props interface for the FirmwareDetail component
@@ -38,32 +39,28 @@ export const FirmwareDetail = ({
   return (
     <div className="flex justify-between">
       <div className="flex flex-col gap-8">
-        <div className="flex flex-col gap-2">
-          <div className="text-sm font-normal text-neutral-600">
-            펌웨어 버전
-          </div>
-          <div className="text-base font-medium text-neutral-800">
-            {firmware?.version}
-          </div>
-        </div>
-        <div className="flex flex-col gap-2">
-          <div className="text-sm font-normal text-neutral-600">파일명</div>
-          <div className="text-base font-medium text-neutral-800">{`${firmware?.version}.ino`}</div>
-        </div>
-        <div className="flex flex-col gap-2">
-          <div className="text-sm font-normal text-neutral-600">
-            업로드 일자
-          </div>
-          <div className="text-base font-medium text-neutral-800">
-            {firmware?.createdAt.toLocaleString()}
-          </div>
-        </div>
+        <LabeledValue
+          label="펌웨어 버전"
+          value={firmware?.version ?? null}
+          size="sm"
+        />
+        <LabeledValue
+          label="파일명"
+          value={`${firmware?.version}.ino`}
+          size="sm"
+        />
+        <LabeledValue
+          label="업로드 일자"
+          value={firmware?.createdAt.toLocaleString() ?? null}
+          size="sm"
+        />
         <div className="self-start">
           <Button
             icon={<Download className="w-4" />}
             title="펌웨어 다운로드"
+            // TODO: Implement download functionality
             onClick={() => {}}
-            disabled={true}
+            disabled={false}
           />
         </div>
       </div>
