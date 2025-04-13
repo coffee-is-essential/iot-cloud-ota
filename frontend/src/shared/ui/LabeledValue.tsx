@@ -4,7 +4,7 @@ import { JSX } from "react";
  * Interface for LabeledValue component props
  * @interface LabeledValueProps
  * @property {string} label - The label text to display
- * @property {string} value - The value text to display
+ * @property {string | null} value - The value text to display, can be null
  * @property {"sm" | "md" | "lg"} [size] - The size of the label and value text
  */
 export interface LabeledValueProps {
@@ -50,7 +50,7 @@ export const LabeledValue = ({
   return (
     <div className={`flex flex-col ${gapStyles}`}>
       <div className={labelStyles}>{label}</div>
-      <div className={valueStyles}>{value}</div>
+      <div className={valueStyles}>{value ?? ""}</div>
     </div>
   );
 };
