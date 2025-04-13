@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { Firmware } from "../model/types";
 
 /**
@@ -45,7 +46,8 @@ export const FirmwareList = ({
       ) : (
         <div className="divide-y divide-gray-100">
           {firmwares.map((firmware) => (
-            <div
+            <Link
+              to={`/firmware/${firmware.id}`}
               key={firmware.id}
               className="grid grid-cols-7 gap-4 p-4 transition-colors hover:bg-gray-50"
             >
@@ -58,7 +60,7 @@ export const FirmwareList = ({
               <div className="col-span-4 text-sm text-neutral-600">
                 {firmware.releaseNote}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

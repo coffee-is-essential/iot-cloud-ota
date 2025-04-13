@@ -17,7 +17,7 @@ export const NavigationMenu = () => {
             key={item.id}
             icon={item.icon}
             name={item.name}
-            isActive={currentPath === item.path}
+            isActive={currentPath.startsWith(item.path)}
           />
         </Link>
       ))}

@@ -4,7 +4,7 @@ import { SearchBar } from "../shared/ui/SearchBar";
 import { MainTile } from "../widgets/layout/ui/MainTile";
 import { TitleTile } from "../widgets/layout/ui/TitleTile";
 
-export const Firmware = () => {
+export const FirmwarePage = () => {
   const { firmwares, isLoading, error, handleSearch } = useFirmwareSearch();
 
   return (
