@@ -54,6 +54,11 @@ export const FirmwareDetail = ({
           value={firmware?.createdAt.toLocaleString() ?? null}
           size="sm"
         />
+        <LabeledValue
+          label="수정 일자"
+          value={firmware?.updatedAt.toLocaleString() ?? null}
+          size="sm"
+        />
         <div className="self-start">
           <Button
             icon={<Download className="w-4" />}

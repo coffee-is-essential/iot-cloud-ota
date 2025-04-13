@@ -6,6 +6,7 @@ const firmwares = [
     version: "24.04.01",
     release_note: "광고가 표시되지 않는 버그를 수정했습니다.",
     created_at: "2025-03-01T10:00:00",
+    updated_at: "2025-03-01T11:00:00",
     device_count: 1023,
   },
   {
@@ -13,6 +14,7 @@ const firmwares = [
     version: "24.04.02",
     release_note: "원두 선택 버튼이 클릭되지 않는 버그를 수정했습니다",
     created_at: "2025-03-02T11:00:00",
+    updated_at: "2025-03-02T12:00:00",
     device_count: 547,
   },
   {
@@ -20,6 +22,7 @@ const firmwares = [
     version: "24.04.03",
     release_note: "연두해요 연두 광고를 업로드하였습니다.",
     created_at: "2025-03-03T12:00:00",
+    updated_at: "2025-03-02T13:00:00",
     device_count: 219,
   },
   {
@@ -27,6 +30,7 @@ const firmwares = [
     version: "24.04.04",
     release_note: "동원참치 캔 광고가 표시되지 않는 버그를 수정하였습니다.",
     created_at: "2025-03-04T13:00:00",
+    updated_at: "2025-03-04T14:00:00",
     device_count: 1321,
   },
 ];

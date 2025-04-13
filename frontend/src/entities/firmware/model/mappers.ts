@@ -12,6 +12,7 @@ export const mapFirmwareDto = (dto: FirmwareDto): Firmware => {
     version: dto.version,
     releaseNote: dto.release_note,
     createdAt: new Date(dto.created_at),
+    updatedAt: new Date(dto.updated_at),
     deviceCount: dto.device_count,
   };
 };

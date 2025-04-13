@@ -6,6 +6,7 @@ export interface FirmwareDto {
   version: string;
   release_note: string;
   created_at: string;
+  updated_at: string;
   device_count: number;
 }
 
@@ -26,6 +27,7 @@ export interface Firmware {
   version: string;
   releaseNote: string;
   createdAt: Date;
+  updatedAt: Date;
   deviceCount: number;
 }
 
