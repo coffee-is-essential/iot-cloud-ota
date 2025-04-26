@@ -33,6 +33,78 @@ const firmwares = [
     updated_at: "2025-03-04T14:00:00",
     device_count: 1321,
   },
+  {
+    id: 5,
+    version: "24.04.05",
+    release_note: "원두 선택 버튼이 클릭되지 않는 버그를 수정했습니다",
+    created_at: "2025-03-05T14:00:00",
+    updated_at: "2025-03-05T15:00:00",
+    device_count: 547,
+  },
+  {
+    id: 6,
+    version: "24.04.06",
+    release_note: "연두해요 연두 광고를 업로드하였습니다.",
+    created_at: "2025-03-06T15:00:00",
+    updated_at: "2025-03-06T16:00:00",
+    device_count: 219,
+  },
+  {
+    id: 7,
+    version: "24.04.07",
+    release_note: "동원참치 캔 광고가 표시되지 않는 버그를 수정하였습니다.",
+    created_at: "2025-03-07T16:00:00",
+    updated_at: "2025-03-07T17:00:00",
+    device_count: 1321,
+  },
+  {
+    id: 8,
+    version: "24.04.08",
+    release_note: "원두 선택 버튼이 클릭되지 않는 버그를 수정했습니다",
+    created_at: "2025-03-08T17:00:00",
+    updated_at: "2025-03-08T18:00:00",
+    device_count: 547,
+  },
+  {
+    id: 9,
+    version: "24.04.09",
+    release_note: "연두해요 연두 광고를 업로드하였습니다.",
+    created_at: "2025-03-09T18:00:00",
+    updated_at: "2025-03-09T19:00:00",
+    device_count: 219,
+  },
+  {
+    id: 10,
+    version: "24.04.10",
+    release_note: "동원참치 캔 광고가 표시되지 않는 버그를 수정하였습니다.",
+    created_at: "2025-03-10T19:00:00",
+    updated_at: "2025-03-10T20:00:00",
+    device_count: 1321,
+  },
+  {
+    id: 11,
+    version: "24.04.11",
+    release_note: "원두 선택 버튼이 클릭되지 않는 버그를 수정했습니다",
+    created_at: "2025-03-11T20:00:00",
+    updated_at: "2025-03-11T21:00:00",
+    device_count: 547,
+  },
+  {
+    id: 12,
+    version: "24.04.12",
+    release_note: "연두해요 연두 광고를 업로드하였습니다.",
+    created_at: "2025-03-12T21:00:00",
+    updated_at: "2025-03-12T22:00:00",
+    device_count: 219,
+  },
+  {
+    id: 13,
+    version: "24.04.13",
+    release_note: "동원참치 캔 광고가 표시되지 않는 버그를 수정하였습니다.",
+    created_at: "2025-03-13T22:00:00",
+    updated_at: "2025-03-13T23:00:00",
+    device_count: 1321,
+  },
 ];
 
 export const handlers = [
@@ -45,13 +117,18 @@ export const handlers = [
     const endIdx = page * limit;
     const paginatedData = firmwares.slice(startIdx, endIdx);
 
+    const total_page = Math.ceil(firmwares.length / limit);
+    const total_count = firmwares.length;
+    const meta = {
+      page,
+      total_count,
+      limit,
+      total_page,
+    };
+
     return HttpResponse.json({
       data: paginatedData,
-      meta: {
-        page,
-        total_count: firmwares.length,
-        limit,
-      },
+      pagination: meta,
     });
   }),
 
@@ -78,7 +155,7 @@ export const handlers = [
     };
     return HttpResponse.json({
       data: paginatedData,
-      meta,
+      pagination: meta,
     });
   }),
 

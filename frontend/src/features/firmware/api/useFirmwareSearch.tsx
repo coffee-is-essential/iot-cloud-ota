@@ -1,44 +1,106 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Firmware } from "../../../entities/firmware/model/types";
 import { firmwareApiService } from "../../../entities/firmware/api/api";
+import { PaginationMeta } from "../../../shared/api/types";
 
 /**
- * Custom hook for searching firmware
+ * Custom hook for searching firmware with pagination
  * @function useFirmwareSearch
- * @description This hook provides functionality to search for firmware by version.
- * It manages the state of the firmware list, loading status, and error messages.
- * It also provides a function to handle the search operation.
- * @returns {firmwares: Firmware[], isLoading: boolean, error: string | null, handleSearch: (query: string) => void}
+ * @description This hook provides functionality to search for firmware by version with pagination.
+ * It manages the state of the firmware list, pagination, loading status, and error messages.
+ * @returns {Object} Firmware data, pagination controls and search functionality
  */
 export const useFirmwareSearch = () => {
   const [firmwares, setFirmwares] = useState<Firmware[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState<string>("");
 
-  const handleSearch = async (query: string) => {
-    try {
-      setIsLoading(true);
-      setError(null);
+  // Add pagination state
+  const [pagination, setPagination] = useState<PaginationMeta>({
+    page: 1,
+    totalCount: 0,
+    limit: 10,
+    totalPage: 1,
+  });
 
-      if (!query.trim()) {
-        const allFirmwares = await firmwareApiService.getAll();
-        setFirmwares(allFirmwares);
-        return;
+  /**
+   * Search handling function
+   * @param {string} searchQuery - The search query string
+   * @param {number} [page=1] - Page number
+   */
+  const handleSearch = useCallback(
+    async (searchQuery: string, page: number = 1) => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        setQuery(searchQuery);
+
+        // Get all firmwares if search query is empty
+        if (!searchQuery.trim()) {
+          const response = await firmwareApiService.getAll(
+            page,
+            pagination.limit
+          );
+          setFirmwares(response.items);
+          setPagination(response.paginationMeta);
+          return;
+        }
+
+        // Search for firmwares based on the query
+        const response = await firmwareApiService.search(
+          searchQuery,
+          page,
+          pagination.limit
+        );
+
+        setFirmwares(response.items);
+        setPagination(response.paginationMeta);
+      } catch (err) {
+        setError("검색 중 오류가 발생했습니다.");
+        console.error("Error searching firmware:", err);
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [pagination.limit]
+  );
 
-      const results = await firmwareApiService.search(query);
-      setFirmwares(results);
-    } catch (err) {
-      setError("검색 중 오류가 발생했습니다.");
-      console.error("Error searching firmware:", err);
-    } finally {
-      setIsLoading(false);
-    }
+  /**
+   * Page change handling function
+   * @param newPage - New page number
+   */
+  const handlePageChange = (newPage: number) => {
+    // Verify if the new page is within the valid range
+    if (newPage < 1 || newPage > pagination.totalPage) return;
+
+    // Search with current query on the new page
+    handleSearch(query, newPage);
   };
 
-  useEffect(() => {
-    handleSearch("");
-  }, []);
+  /**
+   * Items per page change handling function
+   * @param newLimit - New number of items per page
+   */
+  const handleLimitChange = (newLimit: number) => {
+    // After changing the limit, reset to the first page
+    const updatedPagination = { ...pagination, limit: newLimit, page: 1 };
+    setPagination(updatedPagination);
+    handleSearch(query, 1);
+  };
 
-  return { firmwares, isLoading, error, handleSearch };
+  // Load the first page when component mounts
+  useEffect(() => {
+    handleSearch("", 1);
+  }, [handleSearch]);
+
+  return {
+    firmwares,
+    isLoading,
+    error,
+    pagination,
+    handleSearch,
+    handlePageChange,
+    handleLimitChange,
+  };
 };

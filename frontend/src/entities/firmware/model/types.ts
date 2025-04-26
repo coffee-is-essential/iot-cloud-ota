@@ -1,3 +1,5 @@
+import { PaginationMeta } from "../../../shared/api/types";
+
 /**
  * Data transfer object for firmware from API
  */
@@ -8,15 +10,6 @@ export interface FirmwareDto {
   created_at: string;
   updated_at: string;
   device_count: number;
-}
-
-/**
- * Metadata for pagination from API
- */
-export interface MetaDto {
-  page: number;
-  total_count: number;
-  limit: number;
 }
 
 /**
@@ -31,10 +24,7 @@ export interface Firmware {
   deviceCount: number;
 }
 
-/**
- * Domain model for pagination metadata
- */
-export interface Meta {
-  page: number;
-  totalCount: number;
+export interface PaginatedFirmware {
+  items: Firmware[];
+  paginationMeta: PaginationMeta;
 }

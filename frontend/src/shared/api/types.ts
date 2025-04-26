@@ -5,8 +5,24 @@
 export interface ApiResponse<T> {
   /** The main data payload returned from the API */
   data: T;
-  /** Optional metadata  */
-  meta?: PaginationMeta;
+}
+
+export interface PaginatedApiResponse<T> {
+  /** The main data payload returned from the API */
+  data: T[];
+  /** Optional metadata for pagination */
+  pagination: PaginationMetaDto;
+}
+
+export interface PaginationMetaDto {
+  /** Current page number */
+  page: number;
+  /** Total number of items across all pages */
+  total_count: number;
+  /** Maximum number of items per page */
+  limit: number;
+  /** Total number of pages available */
+  total_page: number;
 }
 
 /**
@@ -19,4 +35,6 @@ export interface PaginationMeta {
   totalCount: number;
   /** Maximum number of items per page */
   limit: number;
+  /** Total number of pages available */
+  totalPage: number;
 }
