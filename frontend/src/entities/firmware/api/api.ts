@@ -14,7 +14,7 @@ export const firmwareApiService = {
    * @async
    * @param {number} [page=1] - The page number to retrieve
    * @param {number} [limit=10] - The number of items per page
-   * @returns {Promise<Firmware[]>} - A promise that resolves to an array of Firmware objects
+   * @returns {Promise<PaginatedFirmware>} - A promise that resolves to an array of Firmware objects
    * @throws Will log error and return empty array if API call fails
    * @example
    * // Get first page with default limit
@@ -85,7 +85,9 @@ export const firmwareApiService = {
    * Searches for firmware based on a query string
    * @async
    * @param {string} query - The search query to filter firmware
-   * @returns {Promise<Firmware[]>} - A promise that resolves to an array of Firmware objects matching the query
+   * @param {number} [page=1] - The page number to retrieve
+   * @param {number} [limit=10] - The number of items per page
+   * @returns {Promise<PaginatedFirmware>} - A promise that resolves to an array of Firmware objects matching the query
    * @throws Will log error and return empty array if API call fails
    * @example
    * // Search for firmware with version "1.0"
