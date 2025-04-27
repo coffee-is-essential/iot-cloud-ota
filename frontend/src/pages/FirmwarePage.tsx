@@ -5,6 +5,10 @@ import { SearchBar } from "../shared/ui/SearchBar";
 import { MainTile } from "../widgets/layout/ui/MainTile";
 import { TitleTile } from "../widgets/layout/ui/TitleTile";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "../shared/ui/Button";
+import { useState } from "react";
+import ReactModal from "react-modal";
+import { FirmwareRegisterForm } from "../features/firmware/ui/FirmwareRegister";
 
 export const FirmwarePage = () => {
   const {
@@ -15,6 +19,8 @@ export const FirmwarePage = () => {
     handleSearch,
     handlePageChange,
   } = useFirmwareSearch();
+
+  const [fwRegisterModalOpen, setFwRegisterModalOpen] = useState(false);
 
   const handlePageClick = (event: { selected: number }) => {
     const newPage = event.selected + 1; // ReactPaginate uses zero-based index
@@ -40,7 +46,9 @@ export const FirmwarePage = () => {
             error={error}
           />
 
-          <div className="flex justify-center mt-6 text-neutral-500">
+          <div className="flex items-center justify-between mt-6 text-neutral-500">
+            {/* Empty div to align pagination & button to the right */}
+            <div></div>
             <ReactPaginate
               previousLabel={<ChevronLeft size={18} />}
               nextLabel={<ChevronRight size={18} />}
@@ -57,8 +65,26 @@ export const FirmwarePage = () => {
               breakLabel="..."
               breakClassName="px-2"
             />
+            <Button
+              title="펌웨어 등록"
+              onClick={() => {
+                setFwRegisterModalOpen(true);
+              }}
+            />
           </div>
         </MainTile>
+
+        <ReactModal
+          isOpen={fwRegisterModalOpen}
+          onRequestClose={() => setFwRegisterModalOpen(false)}
+          overlayClassName={"bg-black bg-opacity-50 fixed inset-0"}
+          appElement={document.getElementById("root") || undefined}
+          className={
+            "bg-white w-1/2 h-2/3 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-lg p-6"
+          }
+        >
+          <FirmwareRegisterForm onClose={() => setFwRegisterModalOpen(false)} />
+        </ReactModal>
       </div>
     </div>
   );
