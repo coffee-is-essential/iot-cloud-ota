@@ -31,12 +31,12 @@ export interface FirmwareRegisterFormProps {
  * @returns {JSX.Element} Rendered file upload placeholder component
  */
 const FileUploadPlaceHolder = ({
-  onclick,
+  onClick,
 }: {
-  onclick: () => void;
+  onClick: () => void;
 }): JSX.Element => (
   <div
-    onClick={onclick}
+    onClick={onClick}
     className="flex flex-col items-center justify-center w-full h-32 text-sm text-blue-900 border-2 border-dashed rounded-md cursor-pointer hover:border-blue-500 hover:text-blue-900"
   >
     <Upload size={24} className="mb-2 text-blue-900" />
@@ -238,7 +238,7 @@ export const FirmwareRegisterForm = ({
 
           {!formData.file ? (
             // If no file is selected, show the placeholder
-            <FileUploadPlaceHolder onclick={handleFileClick} />
+            <FileUploadPlaceHolder onClick={handleFileClick} />
           ) : (
             // If a file is selected, show the file preview
             <FilePreview file={formData.file} onRemove={handleRemoveFile} />
