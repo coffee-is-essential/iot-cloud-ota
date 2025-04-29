@@ -128,7 +128,7 @@ export const firmwareApiService = {
    * @param {string} version - The version of the firmware
    * @param {string} releaseNote - The release note for the firmware
    * @param {File} file - The firmware file to be uploaded
-   * @returns {Promise<void>} - A promise that resolves when the registration is complete
+   * @returns {Promise<boolean>} - A promise that resolves to true if registration is successful, false otherwise
    * @throws Will log error if API call fails
    * @example
    * // Register a new firmware
