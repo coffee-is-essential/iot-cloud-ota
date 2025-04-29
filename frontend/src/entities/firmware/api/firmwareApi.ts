@@ -145,16 +145,17 @@ export const firmwareApiService = {
       formData.append("release_note", releaseNote);
       formData.append("file", file);
 
-      // debug print
-      formData.forEach((value, key) => {
-        console.log(key, value);
-      });
+      const response = await apiClient.post(
+        "/api/firmware/register",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-      return await apiClient.post("/api/firmware/register", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      return response.status === 200;
     } catch (error) {
       console.error("Failed to register firmware:", error);
       return false;

@@ -184,9 +184,6 @@ export const FirmwareRegisterForm = ({
     } else {
       alert("펌웨어 등록에 실패했습니다.");
     }
-
-    // Reset form fields after submission
-    handleReset();
   };
 
   return (
