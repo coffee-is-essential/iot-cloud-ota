@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Firmware } from "../../../entities/firmware/model/types";
-import { firmwareApiService } from "../../../entities/firmware/api/api";
+import { firmwareApiService } from "../../../entities/firmware/api/firmwareApi";
 
 /**
  * Interface for the return value of the useFirmwareDetail hook

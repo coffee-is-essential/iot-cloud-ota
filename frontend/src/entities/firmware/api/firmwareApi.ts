@@ -121,4 +121,43 @@ export const firmwareApiService = {
       };
     }
   },
+
+  /**
+   * Registers a new firmware with the given version, release note, and file
+   * @async
+   * @param {string} version - The version of the firmware
+   * @param {string} releaseNote - The release note for the firmware
+   * @param {File} file - The firmware file to be uploaded
+   * @returns {Promise<void>} - A promise that resolves when the registration is complete
+   * @throws Will log error if API call fails
+   * @example
+   * // Register a new firmware
+   * await firmwareApiService.register('1.0', 'Initial release', myFirmwareFile);
+   */
+  register: async (
+    version: string,
+    releaseNote: string,
+    file: File
+  ): Promise<boolean> => {
+    try {
+      const formData = new FormData();
+      formData.append("version", version);
+      formData.append("release_note", releaseNote);
+      formData.append("file", file);
+
+      // debug print
+      formData.forEach((value, key) => {
+        console.log(key, value);
+      });
+
+      return await apiClient.post("/api/firmware/register", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    } catch (error) {
+      console.error("Failed to register firmware:", error);
+      return false;
+    }
+  },
 };

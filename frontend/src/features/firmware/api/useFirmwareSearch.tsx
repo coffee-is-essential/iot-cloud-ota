@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Firmware } from "../../../entities/firmware/model/types";
-import { firmwareApiService } from "../../../entities/firmware/api/api";
+import { firmwareApiService } from "../../../entities/firmware/api/firmwareApi";
 import { PaginationMeta } from "../../../shared/api/types";
 
 /**

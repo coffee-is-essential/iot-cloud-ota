@@ -2,6 +2,8 @@ import { useRef, useState } from "react";
 import { Button } from "../../../shared/ui/Button";
 import { FileText, Upload } from "lucide-react";
 import { JSX } from "@emotion/react/jsx-runtime";
+import { firmwareApiService } from "../../../entities/firmware/api/firmwareApi";
+import { zipFile } from "../../../shared/api/zip";
 
 /**
  * Interface for FirmwareRegisterForm component props
@@ -139,45 +141,49 @@ export const FirmwareRegisterForm = ({
   };
 
   /**
-   * Validates the form data
-   * Checks if all required fields (version, release notes, file) are filled.
-   *
-   * @returns {boolean} - Returns true if the form is valid, otherwise false
-   */
-  const validateForm = (): boolean => {
-    // TODO: Add validation details if needed (e.g., validation message at the right side of the each label)
-    if (!formData.version) {
-      alert("펌웨어 버전을 입력하세요.");
-      return false;
-    }
-    if (!formData.releaseNote) {
-      alert("릴리즈 노트를 입력하세요.");
-      return false;
-    }
-    if (!formData.file) {
-      alert("펌웨어 파일을 선택하세요.");
-      return false;
-    }
-    return true;
-  };
-
-  /**
    * Form submission handler
    * Validates the form data and, if valid, makes an API call.
    * Resets the form upon successful submission.
    *
    * @param event - The form submission event
    */
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!validateForm()) return;
+    // TODO: Implement toast message not alert for better UX
 
-    // TODO: Call API to register firmware
+    if (!formData.version) {
+      alert("펌웨어 버전을 입력하세요.");
+      return;
+    }
+    if (!formData.releaseNote) {
+      alert("릴리즈 노트를 입력하세요.");
+      return;
+    }
+    if (!formData.file) {
+      alert("펌웨어 파일을 선택하세요.");
+      return;
+    }
+
     console.log("펌웨어 등록 요청");
     console.log("버전:", formData.version);
     console.log("릴리즈 노트:", formData.releaseNote);
     console.log("파일:", formData.file);
+
+    const compressedFile = await zipFile(formData.file);
+
+    const success = await firmwareApiService.register(
+      formData.version,
+      formData.releaseNote,
+      compressedFile
+    );
+
+    if (success) {
+      alert("펌웨어 등록이 완료되었습니다.");
+      handleReset();
+    } else {
+      alert("펌웨어 등록에 실패했습니다.");
+    }
 
     // Reset form fields after submission
     handleReset();
