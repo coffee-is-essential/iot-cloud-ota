@@ -84,6 +84,10 @@ data "aws_secretsmanager_secret_version" "public_signing_key" {
   secret_id = "cloudfront/signed_url/public_key"
 }
 
+data "aws_secretsmanager_secret_version" "private_signing_key" {
+  secret_id = "cloudfront/signed_url/private_key"
+}
+
 resource "aws_cloudfront_public_key" "signing_key" {
   name        = "cloudfront-signing-key"
   comment     = "Public key for CloudFront signed URLs"
