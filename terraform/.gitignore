@@ -38,6 +38,3 @@ terraform.rc
 
 # Ignore .ssm directories
 .ssm/
-
-# Ignore .development directories
-.development
