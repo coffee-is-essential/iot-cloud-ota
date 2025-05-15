@@ -36,6 +36,7 @@ resource "aws_cloudfront_distribution" "firmware_distribution" {
     cached_methods         = ["GET", "HEAD"]
     target_origin_id       = local.s3_origin_id
     viewer_protocol_policy = "redirect-to-https"
+    trusted_key_groups     = [aws_cloudfront_key_group.signing_key_group.id]
 
     cache_policy_id          = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
     origin_request_policy_id = "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf" # CORS-S3Origin
@@ -77,4 +78,19 @@ resource "aws_s3_bucket_policy" "allow_cloudfront_access" {
       }
     ]
   })
+}
+
+data "aws_secretsmanager_secret_version" "public_signing_key" {
+  secret_id = "cloudfront/signed_url/public_key"
+}
+
+resource "aws_cloudfront_public_key" "signing_key" {
+  name        = "cloudfront-signing-key"
+  comment     = "Public key for CloudFront signed URLs"
+  encoded_key = data.aws_secretsmanager_secret_version.public_signing_key.secret_string
+}
+
+resource "aws_cloudfront_key_group" "signing_key_group" {
+  name  = "cloudfront-signing-key-group"
+  items = [aws_cloudfront_public_key.signing_key.id]
 }
