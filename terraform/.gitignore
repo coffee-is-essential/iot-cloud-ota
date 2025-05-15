@@ -40,4 +40,4 @@ terraform.rc
 .ssm/
 
 # Ignore .development directories
-development/
+.development/
