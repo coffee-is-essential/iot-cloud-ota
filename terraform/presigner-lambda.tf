@@ -11,12 +11,12 @@ module "lambda_presigner" {
     {
         effect    = "Allow"
         actions   = ["s3:ListBucket"]
-        resources = ["arn:aws:s3:::${aws_s3_bucket.firmware_bucket.bucket}"]
+        resources = [format("arn:aws:s3:::%s", aws_s3_bucket.firmware_bucket.bucket)]
     },
     {
         effect    = "Allow"
         actions   = ["s3:GetObject"]
-        resources = ["arn:aws:s3:::${ aws_s3_bucket.firmware_bucket.bucket}/*"]
+        resources = [format("arn:aws:s3:::%s/*", aws_s3_bucket.firmware_bucket.bucket)]
     }
   ]
   environment_variables = {
