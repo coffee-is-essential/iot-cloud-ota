@@ -80,12 +80,20 @@ resource "aws_s3_bucket_policy" "allow_cloudfront_access" {
   })
 }
 
+data "aws_secretsmanager_secret" "public_signing_key" {
+  name = "cloudfront/signed_url/public_key"
+}
+
 data "aws_secretsmanager_secret_version" "public_signing_key" {
-  secret_id = "cloudfront/signed_url/public_key"
+  secret_id = data.aws_secretsmanager_secret.public_signing_key.id
+}
+
+data "aws_secretsmanager_secret" "private_signing_key" {
+  name = "cloudfront/signed_url/private_key"
 }
 
 data "aws_secretsmanager_secret_version" "private_signing_key" {
-  secret_id = "cloudfront/signed_url/private_key"
+  secret_id = data.aws_secretsmanager_secret.private_signing_key.id
 }
 
 resource "aws_cloudfront_public_key" "signing_key" {
