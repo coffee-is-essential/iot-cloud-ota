@@ -15,7 +15,7 @@ export const deviceApiService = {
   getAll: async (): Promise<Device[]> => {
     const response = await apiClient.get("/api/device");
     if (response.status !== 200) {
-      throw new Error("Failed to fetch devices");
+      throw new Error(`Failed to fetch devices: ${response.status}`);
     }
 
     const data = response.data.data as DeviceDto[];

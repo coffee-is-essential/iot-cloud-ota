@@ -13,7 +13,7 @@ export interface DeviceTableProps {
   devices: Device[];
   selectedDevices: Device[];
   onSelectDevice: (device: Device) => void;
-  onSelectAll: () => void;
+  onSelectAll: (checked: boolean) => void;
 }
 
 /**
