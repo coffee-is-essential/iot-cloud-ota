@@ -1,5 +1,5 @@
 /**
- * Data transfer object for firmware from API
+ * Data transfer object for region from API
  */
 export interface RegionDto {
   id: string;
@@ -15,5 +15,5 @@ export interface Region {
   id: string;
   name: string;
   deviceCount: number;
-  createdAt?: Date;
+  createdAt: Date;
 }

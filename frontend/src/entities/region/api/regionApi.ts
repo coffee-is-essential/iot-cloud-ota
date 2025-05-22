@@ -13,7 +13,7 @@ export const RegionApiService = {
    * @throws Will throw an error if the API call fails.
    */
   getAll: async (): Promise<Region[]> => {
-    const response = await apiClient.get("api/region");
+    const response = await apiClient.get("/api/region");
 
     if (response.status !== 200) {
       throw new Error(`Failed to fetch regions: ${response.status}`);

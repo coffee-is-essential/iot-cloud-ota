@@ -40,6 +40,7 @@ export const RegionTable = ({
                 <input
                   type="checkbox"
                   className="px-4 py-2"
+                  aria-label="Select all regions"
                   checked={
                     regions.length > 0 &&
                     selectedRegions.length === regions.length
