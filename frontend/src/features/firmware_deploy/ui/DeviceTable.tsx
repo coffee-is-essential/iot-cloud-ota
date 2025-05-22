@@ -41,7 +41,7 @@ export const DeviceTable = ({
                   type="checkbox"
                   className="px-4 py-2"
                   checked={selectedDevices.length === devices.length}
-                  onChange={onSelectAll}
+                  onChange={(e) => onSelectAll(e.target.checked)}
                 />
               </th>
               <th className="px-4 py-2 text-left text-sm text-gray-500 font-medium">
