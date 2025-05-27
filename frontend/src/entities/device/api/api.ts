@@ -13,7 +13,7 @@ export const deviceApiService = {
    * @throws Will throw an error if the API call fails.
    */
   getAll: async (): Promise<Device[]> => {
-    const response = await apiClient.get("/api/device");
+    const response = await apiClient.get("/api/devices");
     if (response.status !== 200) {
       throw new Error(`Failed to fetch devices: ${response.status}`);
     }

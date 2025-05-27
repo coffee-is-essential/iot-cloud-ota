@@ -10,17 +10,37 @@ import { DeviceTable } from "./DeviceTable";
 import { Firmware } from "../../../entities/firmware/model/types";
 import { Button } from "../../../shared/ui/Button";
 
+/**
+ * Interface for FirmwareDeploy component props
+ * @interface
+ * @property {Firmware} firmware - The firmware to deploy
+ * @property {() => void} onClose - Callback function to close the deploy modal
+ */
 export interface FirmwareDeployProps {
   firmware: Firmware;
   onClose: () => void;
 }
 
+/**
+ * Interface for the summary of selected items for deployment
+ * @interface
+ * @property {string} message - Summary message to display
+ * @property {number} count - Number of selected items
+ * @property {string} items - Comma-separated list of selected item names or IDs
+ */
 interface DeploySummary {
-  message: string; // Summary message to display
-  count: number; // Number of selected items
-  items: string; // Comma-separated list of selected item names or IDs
+  message: string;
+  count: number;
+  items: string;
 }
 
+/**
+ * Firmware deployment component
+ * Provides UI for selecting regions, devices, or groups to deploy firmware.
+ *
+ * @param {FirmwareDeployProps} props - Component properties
+ * @return {JSX.Element} Rendered firmware deployment component
+ */
 export const FirmwareDeploy = ({
   firmware,
   onClose,
@@ -52,19 +72,22 @@ export const FirmwareDeploy = ({
         // TODO: Maybe we can use useMemo here to avoid re-fetching data?
         switch (deployCategory) {
           case "region":
-            if (regions.length !== 0) return; // If regions are already loaded, skip fetching
-            const fetchedRegions = await fetchRegions();
-            setRegions(fetchedRegions);
+            if (regions.length === 0) {
+              const fetchedRegions = await fetchRegions();
+              setRegions(fetchedRegions);
+            }
             break;
           case "device":
-            if (devices.length !== 0) return; // If devices are already loaded, skip fetching
-            const fetchedDevices = await fetchDevices();
-            setDevices(fetchedDevices);
+            if (devices.length === 0) {
+              const fetchedDevices = await fetchDevices();
+              setDevices(fetchedDevices);
+            }
             break;
           case "group":
-            if (groups.length !== 0) return; // If groups are already loaded, skip fetching
-            const fetchedGroups = await fetchGroups();
-            setGroups(fetchedGroups);
+            if (groups.length === 0) {
+              const fetchedGroups = await fetchGroups();
+              setGroups(fetchedGroups);
+            }
             break;
           default:
             throw new Error("Invalid deploy category");

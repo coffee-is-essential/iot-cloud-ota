@@ -13,7 +13,7 @@ export const GroupApiService = {
    * @throws Will throw an error if the API call fails.
    */
   getAll: async (): Promise<Group[]> => {
-    const response = await apiClient.get("/api/group");
+    const response = await apiClient.get("/api/groups");
 
     if (response.status !== 200) {
       throw new Error(`Failed to fetch groups: ${response.status}`);

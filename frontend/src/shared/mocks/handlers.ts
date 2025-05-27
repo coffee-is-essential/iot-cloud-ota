@@ -287,19 +287,19 @@ export const handlers = [
     });
   }),
 
-  http.get("/api/region", () => {
+  http.get("/api/regions", () => {
     return HttpResponse.json({
       data: regions,
     });
   }),
 
-  http.get("/api/group", () => {
+  http.get("/api/groups", () => {
     return HttpResponse.json({
       data: groups,
     });
   }),
 
-  http.get("/api/device", () => {
+  http.get("/api/devices", () => {
     return HttpResponse.json({
       data: devices,
     });
