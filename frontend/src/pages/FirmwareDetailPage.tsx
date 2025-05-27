@@ -21,7 +21,7 @@ export const FirmwareDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const parseId = id ? parseInt(id) : null;
 
-  if (!parseId) {
+  if (parseId === null || isNaN(parseId)) {
     return <div>Firmware ID is not provided.</div>;
   }
 
