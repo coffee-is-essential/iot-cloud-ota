@@ -4,6 +4,9 @@ import { TitleTile } from "../widgets/layout/ui/TitleTile";
 import { MainTile } from "../widgets/layout/ui/MainTile";
 import { FirmwareDetail } from "../entities/firmware/ui/FirmwareDetail";
 import { Button } from "../shared/ui/Button";
+import ReactModal from "react-modal";
+import { useState } from "react";
+import { FirmwareDeploy } from "../features/firmware_deploy/ui/FirmwareDeploy";
 
 /**
  * FirmwareDetailPage component
@@ -18,7 +21,26 @@ export const FirmwareDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const parseId = id ? parseInt(id) : null;
 
+  if (!parseId) {
+    return <div>Firmware ID is not provided.</div>;
+  }
+
+  const [fwDeployModalOpen, setFwDeployModalOpen] = useState(false);
   const { firmware, isLoading, error } = useFirmwareDetail(parseId);
+
+  if (isLoading) {
+    return <div className="flex justify-center py-8">로딩 중...</div>;
+  }
+
+  if (error) {
+    return <div className="flex justify-center py-8">{error}</div>;
+  }
+
+  if (!firmware) {
+    return (
+      <div className="flex justify-center py-8">펌웨어를 찾을 수 없습니다.</div>
+    );
+  }
 
   return (
     <div className="flex flex-col">
@@ -35,7 +57,7 @@ export const FirmwareDetailPage = () => {
             <Button
               title="배포하기"
               onClick={() => {
-                console.log("배포하기 클릭");
+                setFwDeployModalOpen(true);
               }}
             />
           }
@@ -46,6 +68,21 @@ export const FirmwareDetailPage = () => {
             error={error}
           />
         </MainTile>
+
+        <ReactModal
+          isOpen={fwDeployModalOpen}
+          onRequestClose={() => setFwDeployModalOpen(false)}
+          overlayClassName={"bg-black bg-opacity-50 fixed inset-0"}
+          appElement={document.getElementById("root") || undefined}
+          className={
+            "bg-white w-1/2 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-lg p-6"
+          }
+        >
+          <FirmwareDeploy
+            firmware={firmware}
+            onClose={() => setFwDeployModalOpen(false)}
+          />
+        </ReactModal>
       </div>
     </div>
   );

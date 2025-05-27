@@ -107,6 +107,117 @@ const firmwares = [
   },
 ];
 
+const regions = [
+  {
+    id: "us-west-1",
+    name: "미국 북부 캘리포니아",
+    device_count: 392,
+    created_at: "2025-03-01T10:00:00",
+  },
+  {
+    id: "us-east-1",
+    name: "미국 북부 버지니아",
+    device_count: 243,
+    created_at: "2025-03-02T11:00:00",
+  },
+  {
+    id: "ap-south-1",
+    name: "인도 뭄바이",
+    device_count: 102,
+    created_at: "2025-03-03T12:00:00",
+  },
+  {
+    id: "ap-northeast-2",
+    name: "서울",
+    device_count: 523,
+    created_at: "2025-03-04T13:00:00",
+  },
+  {
+    id: "ap-northeast-3",
+    name: "오사카",
+    device_count: 291,
+    created_at: "2025-03-05T14:00:00",
+  },
+  {
+    id: "ap-west-1",
+    name: "인도",
+    device_count: 230,
+    created_at: "2025-03-06T15:00:00",
+  },
+  {
+    id: "ap-southeast-3",
+    name: "자카르타",
+    device_count: 193,
+    created_at: "2025-03-07T16:00:00",
+  },
+];
+
+const groups = [
+  {
+    id: "dmeowk-203",
+    name: "서울 모수",
+    device_count: 4,
+    created_at: "2025-03-01T10:00:00",
+  },
+  {
+    id: "wmeotc-391",
+    name: "부산 스타벅스 광안리점",
+    device_count: 2,
+    created_at: "2025-03-02T11:00:00",
+  },
+  {
+    id: "wjrpvo-100",
+    name: "오꾸닭 신림점",
+    device_count: 1,
+    created_at: "2025-03-03T12:00:00",
+  },
+  {
+    id: "woeprz-009",
+    name: "네이버 판교 본사",
+    device_count: 8,
+    created_at: "2025-03-04T13:00:00",
+  },
+];
+
+const devices = [
+  {
+    id: "bartooler-001",
+    region_id: "ap-northeast-2",
+    region_name: "서울",
+    group_id: "dmeowk-203",
+    group: "서울 모수",
+    is_active: true,
+    created_at: "2025-03-01T10:00:00",
+  },
+  {
+    id: "bartooler-002",
+    region_id: "ap-northeast-2",
+    region_name: "서울",
+    group_id: "wmeotc-391",
+    group: "부산 스타벅스 광안리점",
+    is_active: true,
+    created_at: "2025-03-02T11:00:00",
+  },
+  {
+    id: "bartooler-003",
+    region_id: "ap-northeast-2",
+    region_name: "서울",
+    group_id: "dmeowk-203",
+    group: "서울 모수",
+    is_active: false,
+    created_at: "2025-03-03T12:00:00",
+  },
+  {
+    id: "bartooler-004",
+    region_id: "ap-northeast-2",
+    region_name: "서울",
+    group_id: "woeprz-009",
+    group: "네이버 판교 본사",
+    is_active: true,
+    created_at: "2025-03-04T13:00:00",
+  },
+];
+
 export const handlers = [
   http.get("/api/firmware", ({ request }) => {
     const url = new URL(request.url);
@@ -141,7 +252,7 @@ export const handlers = [
     const endIdx = page * limit;
 
     const filteredFirmwares = firmwares.filter((firmware) =>
-      firmware.version.includes(query)
+      firmware.version.includes(query),
     );
 
     const paginatedData = filteredFirmwares.slice(startIdx, endIdx);
@@ -173,6 +284,24 @@ export const handlers = [
 
     return HttpResponse.json({
       data: firmware,
+    });
+  }),
+
+  http.get("/api/region", () => {
+    return HttpResponse.json({
+      data: regions,
+    });
+  }),
+
+  http.get("/api/group", () => {
+    return HttpResponse.json({
+      data: groups,
+    });
+  }),
+
+  http.get("/api/device", () => {
+    return HttpResponse.json({
+      data: devices,
     });
   }),
 ];
