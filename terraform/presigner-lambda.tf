@@ -6,7 +6,7 @@ module "lambda_presigner" {
   runtime           = "python3.10"
   timeout           = 30
   memory_size       = 128
-  source_path       = "./src/presignedURL"
+  source_path       = "./src/presigned_url"
   policy_statements = [
     {
         effect    = "Allow"

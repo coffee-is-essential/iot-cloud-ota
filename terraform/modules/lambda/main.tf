@@ -12,7 +12,7 @@ resource "aws_lambda_function" "lambda" {
   timeout       = var.timeout
   memory_size   = var.memory_size
   role          = aws_iam_role.lambda_role.arn
-
+  layers        = var.layers
   filename         = data.archive_file.source_zip.output_path
   source_code_hash = data.archive_file.source_zip.output_base64sha256
 
