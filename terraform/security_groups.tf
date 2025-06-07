@@ -11,6 +11,25 @@ resource "aws_security_group" "mysql_sg" {
     description     = "MySQL access from public subnets"
   }
 
+  ingress {
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [aws_security_group.bastion_sg.id]
+    description     = "MySQL access from Bastion host"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name        = "iot-cloud-ota-mysql-sg"
+    Description = "Security group for MySQL RDS instance in iot-cloud-ota"
+  }
 }
 
 resource "aws_security_group" "lambda_sg" {
@@ -29,5 +48,32 @@ resource "aws_security_group" "lambda_sg" {
   tags = {
     Name        = "iot-cloud-ota-lambda-sg"
     Description = "Security group for Lambda functions in iot-cloud-ota"
+  }
+}
+
+resource "aws_security_group" "bastion_sg" {
+  name        = "iot-cloud-ota-bastion-sg"
+  description = "Security group for Bastion host"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "SSH access from anywhere"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
+  }
+
+  tags = {
+    Name        = "iot-cloud-ota-bastion-sg"
+    Description = "Security group for Bastion host in iot-cloud-ota"
   }
 }
