@@ -52,12 +52,12 @@ class FirmwareMetadata:
     Attributes:
         version (str): 펌웨어 버전.
         release_note (str): 릴리즈 노트.
-        file_url (str): 펌웨어 파일의 URL 또는 키.
+        file_key (str): 펌웨어 파일의 URL 또는 키.
     """
 
     version: str
     release_note: str
-    file_url: str
+    file_key: str
 
     @classmethod
     def from_dict(cls, data: dict[str, str]) -> 'FirmwareMetadata':
@@ -72,7 +72,7 @@ class FirmwareMetadata:
         return cls(
             version=data['version'],
             release_note=data['release_note'],
-            file_url=data['file_key'],
+            file_key=data['file_key'],
         )
 
 
@@ -152,7 +152,7 @@ class DatabaseClient:
                     cursor.execute(query, (
                         firmware_metadata.version,
                         firmware_metadata.release_note,
-                        firmware_metadata.file_url,
+                        firmware_metadata.file_key,
                     ))
                 connection.commit()
         except Exception as e:
