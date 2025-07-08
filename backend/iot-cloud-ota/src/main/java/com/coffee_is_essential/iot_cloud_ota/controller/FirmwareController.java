@@ -62,4 +62,17 @@ public class FirmwareController {
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
+    /**
+     * 지정한 ID에 해당하는 펌웨어 메타데이터를 조회합니다.
+     *
+     * @param id 조회할 펌웨어 메타데이터의 고유 ID
+     * @return 조회된 펌웨어 메타데이터 정보가 포함된 응답 DTO
+     */
+    @GetMapping("/metadata/{id}")
+    public ResponseEntity<FirmwareMetadataResponseDto> findById(@PathVariable Long id) {
+        FirmwareMetadataResponseDto responseDto = firmwareMetadataService.findById(id);
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 }

@@ -48,7 +48,6 @@ public class FirmwareMetadataService {
      * @param limit 페이지당 항목 수
      * @return 조회된 펌웨어 메타데이터 목록과 페이지 메타데이터가 포함된 DTO
      */
-    @Transactional
     public FirmwareMetadataWithPageResponseDto findAllWithPagination(int page, int limit) {
         if (page < 0 || limit < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "올바르지 않은 요청입니다.");
@@ -70,5 +69,17 @@ public class FirmwareMetadataService {
         );
 
         return new FirmwareMetadataWithPageResponseDto(content, paginationMetadataDto);
+    }
+
+    /**
+     * 주어진 ID에 해당하는 펌웨어 메타데이터를 조회하여 응답 DTO로 변환합니다.
+     *
+     * @param id 조회할 펌웨어 메타데이터의 고유 ID
+     * @return 조회된 펌웨어 메타데이터의 응답 DTO
+     */
+    public FirmwareMetadataResponseDto findById(Long id) {
+        FirmwareMetadata findFirmwareMetadata = firmwareMetadataJpaRepository.findByIdOrElseThrow(id);
+
+        return FirmwareMetadataResponseDto.from(findFirmwareMetadata);
     }
 }
