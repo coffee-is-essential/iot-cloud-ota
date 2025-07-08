@@ -46,12 +46,20 @@ public class FirmwareController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
+    /**
+     * 펌웨어 메타데이터 목록을 페이지네이션하여 조회합니다.
+     *
+     * @param page  조회할 페이지 번호 (기본값: 1)
+     * @param limit 페이지당 항목 수 (기본값: 10)
+     * @return 페이징된 펌웨어 메타데이터 목록과 페이지 정보가 포함된 응답 DTO
+     */
     @GetMapping("/metadata")
-    public ResponseEntity<PaginatedFirmwareMetadataResponseDto> findAll(
+    public ResponseEntity<FirmwareMetadataWithPageResponseDto> findAllWithPagination(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit
     ) {
+        FirmwareMetadataWithPageResponseDto responseDto = firmwareMetadataService.findAllWithPagination(page, limit);
 
-        return null;
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 }
