@@ -1,9 +1,6 @@
 package com.coffee_is_essential.iot_cloud_ota.controller;
 
-import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareMetadataRequestDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareMetadataResponseDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.PresignedUrlRequestDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.PresignedUrlResponseDto;
+import com.coffee_is_essential.iot_cloud_ota.dto.*;
 import com.coffee_is_essential.iot_cloud_ota.service.FirmwareMetadataService;
 import com.coffee_is_essential.iot_cloud_ota.service.S3Service;
 import jakarta.validation.Valid;
@@ -47,5 +44,14 @@ public class FirmwareController {
         FirmwareMetadataResponseDto responseDto = firmwareMetadataService.saveFirmwareMetadata(requestDto);
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/metadata")
+    public ResponseEntity<PaginatedFirmwareMetadataResponseDto> findAll(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit
+    ) {
+
+        return null;
     }
 }
