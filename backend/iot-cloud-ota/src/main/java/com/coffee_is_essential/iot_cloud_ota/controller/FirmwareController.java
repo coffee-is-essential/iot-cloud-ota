@@ -26,8 +26,8 @@ public class FirmwareController {
      * @return 업로드 가능한 S3 Presigne URL 및 실제 저장 경로가 포함된 응답 DTO
      */
     @GetMapping("/presigned_upload")
-    public ResponseEntity<UploadPresignedUrlResponseDto> issuePresignedUrl(@Valid @RequestBody PresignedUrlRequestDto requestDto) {
-        UploadPresignedUrlResponseDto responseDto = s3Service.getPresignedUrl(requestDto.version(), requestDto.fileName());
+    public ResponseEntity<UploadPresignedUrlResponseDto> getPresignedUploadUrl(@Valid @RequestBody PresignedUrlRequestDto requestDto) {
+        UploadPresignedUrlResponseDto responseDto = s3Service.getPresignedUploadUrl(requestDto.version(), requestDto.fileName());
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
@@ -63,7 +63,7 @@ public class FirmwareController {
     }
 
     /**
-     * 지정한 ID에 해당하는 펌웨어 메타데이터를 조회합니다.
+     * 지정한 펌웨어 ID에 해당하는 펌웨어 메타데이터를 조회합니다.
      *
      * @param id 조회할 펌웨어 메타데이터의 고유 ID
      * @return 조회된 펌웨어 메타데이터 정보가 포함된 응답 DTO
@@ -75,9 +75,16 @@ public class FirmwareController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-//    @GetMapping("/presigned_download")
-//    public ResponseEntity<PresignedUrlResponseDto> getPresignedDownloadUrl() {
-//
-//        return null;
-//    }
+    /**
+     * 지정한 펌웨어 ID에 해당하는 펌웨어의 S3 Presigned 다운로드 URL을 발급합니다.
+     *
+     * @param id 다운로드할 펌웨어 메타데이터의 고유 ID
+     * @return 다운로드 가능한 Presigned URL을 담은 응답 DTO
+     */
+    @GetMapping("/{id}/presigned_download")
+    public ResponseEntity<DownloadPresignedUrlResponseDto> getPresignedDownloadUrl(@PathVariable Long id) {
+        DownloadPresignedUrlResponseDto responseDto = s3Service.getPresignedDownloadUrl(id);
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 }

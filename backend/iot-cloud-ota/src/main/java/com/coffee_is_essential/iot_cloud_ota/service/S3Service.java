@@ -3,12 +3,14 @@ package com.coffee_is_essential.iot_cloud_ota.service;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.coffee_is_essential.iot_cloud_ota.dto.DownloadPresignedUrlResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.UploadPresignedUrlResponseDto;
+import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareMetadata;
+import com.coffee_is_essential.iot_cloud_ota.repository.FirmwareMetadataJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.net.URL;
 import java.util.Date;
 import java.util.UUID;
 
@@ -23,6 +25,7 @@ public class S3Service {
     private String bucketName;
 
     private final AmazonS3 amazonS3;
+    private final FirmwareMetadataJpaRepository firmwareMetadataJpaRepository;
 
     /**
      * 지정한 버전과 파일 이름을 기반으로 S3에 업로드할 수 있는 Presigned URL을 생성합니다.
@@ -31,29 +34,58 @@ public class S3Service {
      * @param fileName 저장할 파일 이름 (예: "firmware.zip")
      * @return 업로드용 Presigned URL 및 S3 저장 경로가 포함된 DTO
      */
-    public UploadPresignedUrlResponseDto getPresignedUrl(String version, String fileName) {
+    public UploadPresignedUrlResponseDto getPresignedUploadUrl(String version, String fileName) {
         String path = createPath(version, fileName);
-
-        GeneratePresignedUrlRequest generatePresignedUrlRequest = generatePresignedUrlRequest(bucketName, path);
-        String url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest).toString();
+        GeneratePresignedUrlRequest generatedPresignedUrlRequest = generatePresignedUploadUrl(bucketName, path);
+        String url = amazonS3.generatePresignedUrl(generatedPresignedUrlRequest).toString();
 
         return new UploadPresignedUrlResponseDto(url, path);
     }
 
     /**
-     * Presigned URL 생성을 위한 요청 객체를 구성합니다.
+     * 지정된 S3 경로를 기반으로 업로드용 Presigned URL 요청 객체를 생성합니다.
      *
      * @param bucket 대상 S3 버킷 이름
      * @param path   S3 내 저장될 경로
-     * @return Presigned URL 생성 요청 객체
+     * @return 업로드용 Presigned URL 요청 객체
      */
-    private GeneratePresignedUrlRequest generatePresignedUrlRequest(String bucket, String path) {
-        GeneratePresignedUrlRequest generatePresignedUrlRequest =
+    private GeneratePresignedUrlRequest generatePresignedUploadUrl(String bucket, String path) {
+        GeneratePresignedUrlRequest request =
                 new GeneratePresignedUrlRequest(bucket, path)
                         .withMethod(HttpMethod.PUT)
                         .withExpiration(getPresignedUrlExpiration());
 
-        return generatePresignedUrlRequest;
+        return request;
+    }
+
+    /**
+     * 지정된 펌웨어 ID에 해당하는 S3 객체에 대한 Presigned 다운로드 URL을 생성합니다.
+     *
+     * @param id 펌웨어 메터데이터의 고유 ID
+     * @return 다운로드용 Presigned URL을 포함한 DTO
+     */
+    public DownloadPresignedUrlResponseDto getPresignedDownloadUrl(Long id) {
+        FirmwareMetadata metadata = firmwareMetadataJpaRepository.findByIdOrElseThrow(id);
+        GeneratePresignedUrlRequest generatedPresignedUrlRequest = generatePresignedDownloadUrl(bucketName, metadata.getS3Path());
+        String url = amazonS3.generatePresignedUrl(generatedPresignedUrlRequest).toString();
+
+        return new DownloadPresignedUrlResponseDto(url);
+    }
+
+    /**
+     * 지정된 S3 경로를 기반으로 다운로드용 Presigned URL 요청 객체를 생성합니다.
+     *
+     * @param bucket 대상 S3 버킷 이름
+     * @param path   다운로드할 S3 객체의 경로
+     * @return 다운로드용 Presigned URL 요청 객체
+     */
+    private GeneratePresignedUrlRequest generatePresignedDownloadUrl(String bucket, String path) {
+        GeneratePresignedUrlRequest request =
+                new GeneratePresignedUrlRequest(bucket, path)
+                        .withMethod(HttpMethod.GET)
+                        .withExpiration(getPresignedUrlExpiration());
+
+        return request;
     }
 
     /**
