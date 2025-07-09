@@ -26,9 +26,13 @@ public class FirmwareMetadata extends BaseEntity {
     @Column(nullable = false)
     private String releaseNote;
 
-    public FirmwareMetadata(String version, String fileName, String releaseNote) {
+    @Column(nullable = false)
+    private String s3Path;
+    
+    public FirmwareMetadata(String version, String fileName, String releaseNote, String s3Path) {
         this.version = version;
         this.fileName = fileName;
         this.releaseNote = releaseNote;
+        this.s3Path = s3Path;
     }
 }

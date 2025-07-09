@@ -33,7 +33,8 @@ public class FirmwareMetadataService {
         FirmwareMetadata firmwareMetadata = new FirmwareMetadata(
                 requestDto.version(),
                 requestDto.fileName(),
-                requestDto.releaseNote()
+                requestDto.releaseNote(),
+                requestDto.s3Path()
         );
 
         FirmwareMetadata savedFirmwareMetadata = firmwareMetadataJpaRepository.save(firmwareMetadata);

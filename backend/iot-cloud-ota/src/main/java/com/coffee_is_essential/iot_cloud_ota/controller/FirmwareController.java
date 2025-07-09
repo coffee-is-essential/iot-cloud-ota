@@ -27,7 +27,7 @@ public class FirmwareController {
      */
     @GetMapping("/presigned_upload")
     public ResponseEntity<UploadPresignedUrlResponseDto> issuePresignedUrl(@Valid @RequestBody PresignedUrlRequestDto requestDto) {
-        UploadPresignedUrlResponseDto responseDto = s3Service.getPresignedUrl(requestDto.version(), requestDto.filename());
+        UploadPresignedUrlResponseDto responseDto = s3Service.getPresignedUrl(requestDto.version(), requestDto.fileName());
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
