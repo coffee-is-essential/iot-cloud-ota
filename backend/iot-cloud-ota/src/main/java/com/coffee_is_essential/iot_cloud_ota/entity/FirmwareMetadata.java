@@ -28,7 +28,7 @@ public class FirmwareMetadata extends BaseEntity {
 
     @Column(nullable = false)
     private String s3Path;
-    
+
     public FirmwareMetadata(String version, String fileName, String releaseNote, String s3Path) {
         this.version = version;
         this.fileName = fileName;
