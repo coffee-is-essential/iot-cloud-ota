@@ -60,8 +60,9 @@ async def issue_cert(request: Request):
 
     with open(config.CA_CERT_FILE, "rb") as f:
         ca_cert_bytes = f.read()
-        ca_cert = x509.load_pem_x509_certificate(f.read())
+        ca_cert = x509.load_pem_x509_certificate(ca_cert_bytes)
         ca_cert_pem = ca_cert_bytes.decode()
+
     builder = x509.CertificateBuilder().subject_name(csr.subject)\
         .issuer_name(ca_cert.subject)\
         .public_key(csr.public_key())\
