@@ -13,14 +13,14 @@ public class Division {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "division_id", nullable = false, unique = true)
-    private String divisionId;
+    @Column(name = "division_code", nullable = false, unique = true)
+    private String divisionCode;
 
     @Column(name = "division_name", nullable = false)
     private String divisionName;
 
-    public Division(String divisionId, String divisionName) {
-        this.divisionId = divisionId;
+    public Division(String divisionCode, String divisionName) {
+        this.divisionCode = divisionCode;
         this.divisionName = divisionName;
     }
 }

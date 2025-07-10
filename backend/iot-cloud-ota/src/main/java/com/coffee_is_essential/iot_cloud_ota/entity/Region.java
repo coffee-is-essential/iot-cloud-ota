@@ -16,14 +16,14 @@ public class Region {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "region_id", nullable = false, unique = true)
-    private String regionId;
+    @Column(name = "region_code", nullable = false, unique = true)
+    private String regionCode;
 
     @Column(name = "region_name", nullable = false)
     private String regionName;
 
-    public Region(String regionId, String regionName) {
-        this.regionId = regionId;
+    public Region(String regionCode, String regionName) {
+        this.regionCode = regionCode;
         this.regionName = regionName;
     }
 }

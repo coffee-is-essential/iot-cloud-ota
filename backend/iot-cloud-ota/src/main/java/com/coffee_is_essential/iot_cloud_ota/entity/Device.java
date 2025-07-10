@@ -14,7 +14,17 @@ public class Device extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    public Device(String name) {
+    @ManyToOne
+    @JoinColumn(name = "division_id")
+    private Division division;
+
+    @ManyToOne
+    @JoinColumn(name = "region_id")
+    private Region region;
+
+    public Device(String name, Division division, Region region) {
         this.name = name;
+        this.division = division;
+        this.region = region;
     }
 }

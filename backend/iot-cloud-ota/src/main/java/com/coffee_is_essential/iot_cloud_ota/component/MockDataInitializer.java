@@ -66,13 +66,12 @@ public class MockDataInitializer implements CommandLineRunner {
     }
 
     private void saveDevice() {
-        deviceJpaRepository.save(new Device("bartooler-001"));
-        deviceJpaRepository.save(new Device("bartooler-002"));
-        deviceJpaRepository.save(new Device("bartooler-003"));
-        deviceJpaRepository.save(new Device("bartooler-004"));
-        deviceJpaRepository.save(new Device("bartooler-005"));
-        deviceJpaRepository.save(new Device("bartooler-006"));
-        deviceJpaRepository.save(new Device("bartooler-007"));
-
+        deviceJpaRepository.save(new Device("bartooler-001", null, null));
+        deviceJpaRepository.save(new Device("bartooler-002", null, null));
+        deviceJpaRepository.save(new Device("bartooler-003", null, null));
+        deviceJpaRepository.save(new Device("bartooler-004", null, null));
+        deviceJpaRepository.save(new Device("bartooler-005", null, null));
+        deviceJpaRepository.save(new Device("bartooler-006", null, null));
+        deviceJpaRepository.save(new Device("bartooler-007", null, null));
     }
 }
