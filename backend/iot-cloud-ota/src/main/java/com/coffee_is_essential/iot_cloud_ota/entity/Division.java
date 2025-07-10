@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
+/**
+ * Divison 엔티티는 디바이스의 그룹을 나타냅니다.
+ */
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
