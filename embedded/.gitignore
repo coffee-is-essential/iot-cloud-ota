@@ -1,0 +1,12 @@
+# Visual Studio Code setting files
+.vscode/
+
+# ESP-IDF build files
+build/
+
+# Dependency libraries
+# Please refer to README to check the dependency libraries
+components/
+
+# Private data and personal text files
+private/
