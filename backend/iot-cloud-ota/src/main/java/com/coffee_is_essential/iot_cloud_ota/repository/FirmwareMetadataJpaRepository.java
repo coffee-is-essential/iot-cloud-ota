@@ -19,7 +19,7 @@ public interface FirmwareMetadataJpaRepository extends JpaRepository<FirmwareMet
      *
      * @param limit  조회할 항목 수
      * @param offset 조회 시작 위치
-     * @return 정렬된 {@link FirmwareMetadata} 리스트
+     * @return 검색된 {@link FirmwareMetadata} 리스트
      */
     @Query(value = """
             SELECT *
@@ -51,4 +51,39 @@ public interface FirmwareMetadataJpaRepository extends JpaRepository<FirmwareMet
     default FirmwareMetadata findByIdOrElseThrow(Long id) {
         return findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "[ID: " + id + "] 펌웨어를 찾을 수 없습니다."));
     }
+
+    /**
+     * 검색어에 해당하는 펌웨어 메타데이터를 페이징하여 조회합니다.
+     * version 또는 release_note 컬럼에 검색어가 포함된 경우를 조회합니다.
+     *
+     * @param limit  조회할 항목 수
+     * @param offset 조회 시작 위치
+     * @param search 검색어
+     * @return 검색된 {@link FirmwareMetadata} 리스트
+     */
+    @Query(value = """
+            SELECT *
+            FROM firmware_metadata
+            WHERE version LIKE :search
+            OR release_note LIKE :search
+            ORDER BY created_at DESC
+            LIMIT :limit
+            OFFSET :offset       
+            """, nativeQuery = true
+    )
+    List<FirmwareMetadata> searchFirmwareMetadataByVersionOrReleaseNote(@Param("limit") int limit, @Param("offset") int offset, @Param("search") String search);
+
+    /**
+     * 검색어에 해당하는 펌웨어 메타데이터 총 개수를 반환합니다.
+     *
+     * @param search 검색어 (version 또는 release_note에 포함될 문자열)
+     * @return 검색 결과에 해당하는 총 레코드 수
+     */
+    @Query(value = """
+            SELECT COUNT(*)
+            FROM firmware_metadata
+            WHERE version LIKE :search
+            OR release_note LIKE :search
+            """, nativeQuery = true)
+    long countFirmwareMetadataByVersionOrReleaseNote(@Param("search") String search);
 }
