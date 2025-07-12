@@ -29,8 +29,8 @@ public interface DivisionJpaRepository extends JpaRepository<Division, Long> {
     @Query(value = """
             SELECT di.id AS divisionId , division_code AS divisionCode, division_name as divisionName, COUNT(*) AS count
             FROM division di
-            JOIN device de ON di.id = de.division_id
-            GROUP BY di.id
+                     JOIN device de ON di.id = de.division_id
+            GROUP BY di.id, division_code, division_name
             """, nativeQuery = true)
     List<DivisionSummary> findDivisionSummary();
 }

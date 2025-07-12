@@ -29,8 +29,8 @@ public interface RegionJpaRepository extends JpaRepository<Region, Long> {
     @Query(value = """
             SELECT r.id AS regionId , region_code AS regionCode, region_name as regionName, COUNT(*) AS count
             FROM region r
-            JOIN device d ON r.id = d.region_id
-            GROUP BY r.id
+                     JOIN device d ON r.id = d.region_id
+            GROUP BY r.id, region_code, region_name
             """, nativeQuery = true)
     List<RegionSummary> findRegionSummary();
 }
