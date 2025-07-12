@@ -61,18 +61,20 @@ export const RegionTable = ({
           </thead>
           <tbody className="divide-y divide-gray-200">
             {regions.map((region) => (
-              <tr key={region.id} className="hover:bg-gray-50">
+              <tr key={region.regionId} className="hover:bg-gray-50">
                 <td className="px-4 py-2 text-center">
                   <input
                     type="checkbox"
-                    checked={selectedRegions.some((r) => r.id === region.id)}
+                    checked={selectedRegions.some(
+                      (r) => r.regionId === region.regionId,
+                    )}
                     onChange={() => onSelectRegion(region)}
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                 </td>
-                <td className="px-4 py-2 text-sm">{region.id}</td>
-                <td className="px-4 py-2 text-sm">{region.name}</td>
-                <td className="px-4 py-2 text-sm">{region.deviceCount}</td>
+                <td className="px-4 py-2 text-sm">{region.regionId}</td>
+                <td className="px-4 py-2 text-sm">{region.regionName}</td>
+                <td className="px-4 py-2 text-sm">{region.count}</td>
               </tr>
             ))}
           </tbody>

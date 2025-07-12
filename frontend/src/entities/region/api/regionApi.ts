@@ -1,26 +1,20 @@
 import { apiClient } from "../../../shared/api/client";
-import { mapRegionDto } from "../model/mappers";
-import { Region, RegionDto } from "../model/types";
+import { Region } from "../model/types";
 
 /**
- * Service for fetching region data from the API.
+ * API로부터 지역(Region) 데이터를 가져오는 서비스입니다.
  * @namespace RegionApiService
  */
 export const RegionApiService = {
   /**
-   * Retrieves all regions from the API.
-   * @returns {Promise<Region[]>} A promise that resolves to an array of Region objects.
-   * @throws Will throw an error if the API call fails.
+   * 모든 지역(Region) 목록을 조회합니다.
+   * @async
+   * @returns {Promise<Region[]>} 지역 정보 객체의 배열을 반환합니다.
+   * @example
+   * const regions = await RegionApiService.getRegions();
    */
-  getAll: async (): Promise<Region[]> => {
-    const response = await apiClient.get("/api/regions");
-
-    if (response.status !== 200) {
-      throw new Error(`Failed to fetch regions: ${response.status}`);
-    }
-
-    const data = response.data.data as RegionDto[];
-
-    return data.map((region) => mapRegionDto(region));
+  getRegions: async (): Promise<Region[]> => {
+    const { data } = await apiClient.get<Region[]>(`/api/regions`);
+    return data;
   },
 };

@@ -1,4 +1,4 @@
-import { FormEvent, JSX, useEffect, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 import { DeployCategory } from "../model/types";
 import { Region } from "../../../entities/region/model/types";
 import { Device } from "../../../entities/device/model/types";
@@ -106,8 +106,8 @@ export const FirmwareDeploy = ({
 
   const handleRegionSelection = (region: Region) => {
     setSelectedRegions((prev) => {
-      if (prev.some((r) => r.id === region.id)) {
-        return prev.filter((r) => r.id !== region.id);
+      if (prev.some((r) => r.regionId === region.regionId)) {
+        return prev.filter((r) => r.regionId !== region.regionId);
       }
       return [...prev, region];
     });
@@ -161,7 +161,7 @@ export const FirmwareDeploy = ({
         return {
           message: "선택된 리전",
           count: selectedRegions.length,
-          items: selectedRegions.map((r) => r.name).join(", "),
+          items: selectedRegions.map((r) => r.regionName).join(", "),
         };
       case "device":
         return {

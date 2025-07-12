@@ -1,19 +1,9 @@
 /**
- * Data transfer object for region from API
- */
-export interface RegionDto {
-  id: string;
-  name: string;
-  device_count: number;
-  created_at: string;
-}
-
-/**
- * Domain model for Region
+ * 지역(Region) 정보를 나타내는 인터페이스입니다.
  */
 export interface Region {
-  id: string;
-  name: string;
-  deviceCount: number;
-  createdAt: Date;
+  regionId: string;
+  regionCode: string;
+  regionName: string;
+  count: number;
 }

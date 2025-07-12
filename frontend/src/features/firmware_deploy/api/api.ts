@@ -10,7 +10,7 @@ import { deviceApiService } from "../../../entities/device/api/api";
  * @returns {Promise<Region[]>} Promise that resolves to an array of Region objects
  */
 export const fetchRegions = async (): Promise<Region[]> => {
-  return await RegionApiService.getAll();
+  return await RegionApiService.getRegions();
 };
 
 /**
