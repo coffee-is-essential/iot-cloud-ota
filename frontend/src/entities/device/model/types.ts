@@ -1,25 +1,10 @@
 /**
- * Data transfer object for device from API
- */
-export interface DeviceDto {
-  id: string;
-  region_id: string;
-  region_name: string;
-  group_id: string;
-  group_name: string;
-  is_active: boolean;
-  created_at: string;
-}
-
-/**
- * Domain model for device
+ * 기기(Device) 정보를 나타내는 인터페이스입니다.
  */
 export interface Device {
-  id: string;
-  regionId: string;
+  deviceId: string;
+  deviceName: string;
   regionName: string;
-  groupId: string;
   groupName: string;
   isActive: boolean;
-  createdAt: Date;
 }

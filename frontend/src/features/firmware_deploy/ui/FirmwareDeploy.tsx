@@ -124,8 +124,8 @@ export const FirmwareDeploy = ({
 
   const handleDeviceSelection = (device: Device) => {
     setSelectedDevices((prev) => {
-      if (prev.some((d) => d.id === device.id)) {
-        return prev.filter((d) => d.id !== device.id);
+      if (prev.some((d) => d.deviceId === device.deviceId)) {
+        return prev.filter((d) => d.deviceId !== device.deviceId);
       }
       return [...prev, device];
     });
@@ -167,7 +167,7 @@ export const FirmwareDeploy = ({
         return {
           message: "선택된 기기",
           count: selectedDevices.length,
-          items: selectedDevices.map((d) => d.id).join(", "),
+          items: selectedDevices.map((d) => d.deviceName).join(", "),
         };
       case "group":
         return {

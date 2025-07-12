@@ -49,7 +49,7 @@ export const DeviceTable = ({
                 />
               </th>
               <th className="px-4 py-2 text-left text-sm text-gray-500 font-medium">
-                기기 ID
+                기기 이름
               </th>
               <th className="px-4 py-2 text-left text-sm text-gray-500 font-medium">
                 리전
@@ -61,16 +61,18 @@ export const DeviceTable = ({
           </thead>
           <tbody className="divide-y divide-gray-200">
             {devices.map((device) => (
-              <tr key={device.id} className="hover:bg-gray-50">
+              <tr key={device.deviceId} className="hover:bg-gray-50">
                 <td className="px-4 py-2 text-center">
                   <input
                     type="checkbox"
-                    checked={selectedDevices.some((d) => d.id === device.id)}
+                    checked={selectedDevices.some(
+                      (d) => d.deviceId === device.deviceId,
+                    )}
                     onChange={() => onSelectDevice(device)}
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                 </td>
-                <td className="px-4 py-2 text-sm">{device.id}</td>
+                <td className="px-4 py-2 text-sm">{device.deviceName}</td>
                 <td className="px-4 py-2 text-sm">{device.regionName}</td>
                 <td className="px-4 py-2 text-sm">
                   {device.isActive ? "활성" : "비활성"}

@@ -1,25 +1,20 @@
 import { apiClient } from "../../../shared/api/client";
-import { mapDeviceDto } from "../model/mappers";
-import { Device, DeviceDto } from "../model/types";
+import { Device } from "../model/types";
 
 /**
- * Service for fetching device data from the API.
+ * API로부터 디바이스(Device) 데이터를 가져오는 서비스입니다.
  * @namespace deviceApiService
  */
 export const deviceApiService = {
   /**
-   * Retrieves all devices from the API.
-   * @returns {Promise<Device[]>} A promise that resolves to an array of Device objects.
-   * @throws Will throw an error if the API call fails.
+   * 모든 디바이스(Device) 목록을 조회합니다.
+   * @async
+   * @returns {Promise<Device[]>} 디바이스 정보 객체의 배열을 반환합니다.
+   * @example
+   * const devices = await deviceApiService.getDevices();
    */
-  getAll: async (): Promise<Device[]> => {
-    const response = await apiClient.get("/api/devices");
-    if (response.status !== 200) {
-      throw new Error(`Failed to fetch devices: ${response.status}`);
-    }
-
-    const data = response.data.data as DeviceDto[];
-
-    return data.map((dto) => mapDeviceDto(dto));
+  getDevices: async (): Promise<Device[]> => {
+    const { data } = await apiClient.get<Device[]>(`/api/devices`);
+    return data;
   },
 };

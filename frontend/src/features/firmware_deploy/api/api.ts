@@ -26,5 +26,5 @@ export const fetchGroups = async (): Promise<Group[]> => {
  * @returns {Promise<Device[]>} Promise that resolves to an array of Device objects
  */
 export const fetchDevices = async (): Promise<Device[]> => {
-  return await deviceApiService.getAll();
+  return await deviceApiService.getDevices();
 };
