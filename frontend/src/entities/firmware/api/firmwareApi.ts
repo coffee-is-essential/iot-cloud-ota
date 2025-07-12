@@ -1,143 +1,82 @@
-import { Firmware, FirmwareDto, PaginatedFirmware } from "../model/types";
-import { mapFirmwareDto } from "../model/mappers";
+import { Firmware, PaginatedFirmware } from "../model/types";
 import { apiClient } from "../../../shared/api/client";
-import { ApiResponse, PaginatedApiResponse } from "../../../shared/api/types";
-import { mapPaginationMeta } from "../../../shared/api/mappers";
+import { PaginatedApiResponse } from "../../../shared/api/types";
 
 /**
- * Service responsible for handling firmware-related API requests
+ * 펌웨어 관련 API 요청을 처리하는 서비스
  * @namespace firmwareApiService
  */
 export const firmwareApiService = {
   /**
-   * Retrieves a paginated list of all firmware
+   * 펌웨어 목록을 조회합니다.
    * @async
-   * @param {number} [page=1] - The page number to retrieve
-   * @param {number} [limit=10] - The number of items per page
-   * @returns {Promise<PaginatedFirmware>} - A promise that resolves to an array of Firmware objects
-   * @throws Will log error and return empty array if API call fails
+   * @param {number} [page=1] - 조회할 페이지 번호 (기본값: 1)
+   * @param {number} [limit=10] - 페이지 당 항목 수 (기본값: 10)
+   * @param {string} [query] - 검색어 (선택)
+   * @returns {Promise<PaginatedFirmware>} - 페이징된 펌웨어 목록을 반환합니다.
    * @example
-   * // Get first page with default limit
-   * const firmwares = await firmwareApiService.getAll();
-   *
-   * // Get third page with 20 items per page
-   * const firmwaresPage3 = await firmwareApiService.getAll(3, 20);
+   * const data = await firmwareApiService.getFirmwares(1, 10, '검색어');
    */
-  getAll: async (
+  getFirmwares: async (
     page: number = 1,
-    limit: number = 10
+    limit: number = 10,
+    query?: string,
   ): Promise<PaginatedFirmware> => {
-    try {
-      const { data } = await apiClient.get<PaginatedApiResponse<FirmwareDto>>(
-        `/api/firmware`,
-        { params: { page: page, limit: limit } }
-      );
-
-      return {
-        items: data.data.map(mapFirmwareDto),
-        paginationMeta: mapPaginationMeta(data.pagination),
-      };
-    } catch (error) {
-      console.error("Failed to fetch firmware list:", error);
-      return {
-        items: [],
-        paginationMeta: {
+    const { data } = await apiClient.get<PaginatedApiResponse<Firmware>>(
+      `/api/firmwares/metadata`,
+      {
+        params: {
           page: page,
-          totalCount: 0,
           limit: limit,
-          totalPage: 1,
+          query: query,
         },
-      };
-    }
+      },
+    );
+    return {
+      items: data.items.map((item) => ({
+        ...item,
+        createdAt: new Date(item.createdAt),
+        modifiedAt: new Date(item.modifiedAt),
+      })),
+      paginationMeta: data.paginationMeta,
+    };
   },
 
   /**
-   * Retrieves a specific firmware by its ID
+   * 특정 ID의 펌웨어 정보를 조회합니다.
    * @async
-   * @param {number} id - The unique identifier of the firmware to retrieve
-   * @returns {Promise<Firmware | null>} - A promise that resolves to a Firmware object or null if not found
-   * @throws Will log error and return null if API call fails
+   * @param {number} id - 조회할 펌웨어의 고유 ID
+   * @returns {Promise<Firmware>} - 해당 펌웨어 정보를 반환합니다.
    * @example
-   * // Get firmware with ID 1
-   * const firmware = await firmwareApiService.getOneById(1);
-   *
-   * // Check if firmware exists before using it
-   * if (firmware) {
-   *   console.log(`Firmware version: ${firmware.version}`);
-   * } else {
-   *   console.log('Firmware not found');
-   * }
+   * const firmware = await firmwareApiService.getFirmware(1);
    */
-  getOneById: async (id: number): Promise<Firmware | null> => {
-    try {
-      const { data } = await apiClient.get<ApiResponse<FirmwareDto>>(
-        `api/firmware/${id}`
-      );
-
-      return mapFirmwareDto(data.data);
-    } catch (error) {
-      console.error(`Failed to fetch firmware with id ${id}:`, error);
-      return null;
-    }
+  getFirmware: async (id: number): Promise<Firmware> => {
+    const { data } = await apiClient.get<Firmware>(
+      `/api/firmwares/metadata/${id}`,
+    );
+    return {
+      ...data,
+      createdAt: new Date(data.createdAt),
+      modifiedAt: new Date(data.modifiedAt),
+    };
   },
 
   /**
-   * Searches for firmware based on a query string
+   * 새로운 펌웨어를 등록합니다.
    * @async
-   * @param {string} query - The search query to filter firmware
-   * @param {number} [page=1] - The page number to retrieve
-   * @param {number} [limit=10] - The number of items per page
-   * @returns {Promise<PaginatedFirmware>} - A promise that resolves to an array of Firmware objects matching the query
-   * @throws Will log error and return empty array if API call fails
+   * @param {string} version - 등록할 펌웨어 버전
+   * @param {string} releaseNote - 펌웨어 릴리즈 노트
+   * @param {File} file - 업로드할 펌웨어 파일
+   * @returns {Promise<boolean>} - 등록 성공 시 true, 실패 시 false를 반환합니다.
+   * @throws API 호출 실패 시 에러를 콘솔에 출력합니다.
    * @example
-   * // Search for firmware with version "1.0"
-   * const searchResults = await firmwareApiService.search("1.0");
-   */
-  search: async (
-    query: string,
-    page: number = 1,
-    limit: number = 10
-  ): Promise<PaginatedFirmware> => {
-    try {
-      const { data } = await apiClient.get<PaginatedApiResponse<FirmwareDto>>(
-        `/api/firmware/search`,
-        { params: { query: query, page: page, limit: limit } }
-      );
-
-      return {
-        items: data.data.map(mapFirmwareDto),
-        paginationMeta: mapPaginationMeta(data.pagination),
-      };
-    } catch (error) {
-      console.error("Failed to search firmware:", error);
-      return {
-        items: [],
-        paginationMeta: {
-          page: page,
-          totalCount: 0,
-          limit: limit,
-          totalPage: 1,
-        },
-      };
-    }
-  },
-
-  /**
-   * Registers a new firmware with the given version, release note, and file
-   * @async
-   * @param {string} version - The version of the firmware
-   * @param {string} releaseNote - The release note for the firmware
-   * @param {File} file - The firmware file to be uploaded
-   * @returns {Promise<boolean>} - A promise that resolves to true if registration is successful, false otherwise
-   * @throws Will log error if API call fails
-   * @example
-   * // Register a new firmware
-   * await firmwareApiService.register('1.0', 'Initial release', myFirmwareFile);
+   * // 펌웨어 등록 예시
+   * await firmwareApiService.register('1.0', '최초 릴리즈', myFirmwareFile);
    */
   register: async (
     version: string,
     releaseNote: string,
-    file: File
+    file: File,
   ): Promise<boolean> => {
     try {
       const formData = new FormData();
@@ -152,12 +91,12 @@ export const firmwareApiService = {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       return response.status === 200;
     } catch (error) {
-      console.error("Failed to register firmware:", error);
+      console.error("펌웨어 등록에 실패했습니다:", error);
       return false;
     }
   },

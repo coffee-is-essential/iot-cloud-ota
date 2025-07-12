@@ -56,7 +56,7 @@ export const FirmwareDetail = ({
         />
         <LabeledValue
           label="수정 일자"
-          value={firmware?.updatedAt.toLocaleString() ?? null}
+          value={firmware?.modifiedAt.toLocaleString() ?? null}
           size="sm"
         />
         <div className="self-start">

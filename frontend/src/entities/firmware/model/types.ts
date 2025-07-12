@@ -18,10 +18,10 @@ export interface FirmwareDto {
 export interface Firmware {
   id: number;
   version: string;
+  fileName: string;
   releaseNote: string;
   createdAt: Date;
-  updatedAt: Date;
-  deviceCount: number;
+  modifiedAt: Date;
 }
 
 export interface PaginatedFirmware {

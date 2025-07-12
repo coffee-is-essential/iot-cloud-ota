@@ -38,20 +38,21 @@ export const useFirmwareSearch = () => {
 
         // Get all firmwares if search query is empty
         if (!searchQuery.trim()) {
-          const response = await firmwareApiService.getAll(
+          const response = await firmwareApiService.getFirmwares(
             page,
-            pagination.limit
+            pagination.limit,
           );
+          console.log("firmwareApiService.getAll", response);
           setFirmwares(response.items);
           setPagination(response.paginationMeta);
           return;
         }
 
         // Search for firmwares based on the query
-        const response = await firmwareApiService.search(
-          searchQuery,
+        const response = await firmwareApiService.getFirmwares(
           page,
-          pagination.limit
+          pagination.limit,
+          searchQuery,
         );
 
         setFirmwares(response.items);
@@ -63,7 +64,7 @@ export const useFirmwareSearch = () => {
         setIsLoading(false);
       }
     },
-    [pagination.limit]
+    [pagination.limit],
   );
 
   /**

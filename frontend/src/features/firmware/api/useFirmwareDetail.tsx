@@ -21,7 +21,7 @@ export interface FirmwareDetailHookResult {
  * @returns {FirmwareDetailHookResult} An object containing the firmware data, loading state, and any error messages
  */
 export const useFirmwareDetail = (
-  id: number | null
+  id: number | null,
 ): FirmwareDetailHookResult => {
   const [firmware, setFirmware] = useState<Firmware | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -36,13 +36,14 @@ export const useFirmwareDetail = (
       }
 
       try {
-        const result = await firmwareApiService.getOneById(id);
+        const result = await firmwareApiService.getFirmware(id);
         if (!result) {
           setError("펌웨어를 찾을 수 없습니다.");
           setIsLoading(false);
           return;
         }
         setFirmware(result);
+        console.log("펌웨어 상세 정보:", result);
       } catch (error) {
         setError("펌웨어를 가져오는 중 오류가 발생했습니다.");
         console.error(error);
