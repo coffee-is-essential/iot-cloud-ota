@@ -18,7 +18,7 @@ export const fetchRegions = async (): Promise<Region[]> => {
  * @returns {Promise<Group[]>} Promise that resolves to an array of Group objects
  */
 export const fetchGroups = async (): Promise<Group[]> => {
-  return await GroupApiService.getAll();
+  return await GroupApiService.getGroups();
 };
 
 /**

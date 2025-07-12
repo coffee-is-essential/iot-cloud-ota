@@ -115,8 +115,8 @@ export const FirmwareDeploy = ({
 
   const handleGroupSelection = (group: Group) => {
     setSelectedGroups((prev) => {
-      if (prev.some((g) => g.id === group.id)) {
-        return prev.filter((g) => g.id !== group.id);
+      if (prev.some((g) => g.groupId === group.groupId)) {
+        return prev.filter((g) => g.groupId !== group.groupId);
       }
       return [...prev, group];
     });
@@ -173,7 +173,7 @@ export const FirmwareDeploy = ({
         return {
           message: "선택된 그룹",
           count: selectedGroups.length,
-          items: selectedGroups.map((g) => g.name).join(", "),
+          items: selectedGroups.map((g) => g.groupName).join(", "),
         };
       default:
         return {

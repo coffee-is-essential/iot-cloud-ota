@@ -1,19 +1,9 @@
 /**
- * Data transfer object for group from API
- */
-export interface GroupDto {
-  id: string;
-  name: string;
-  device_count: number;
-  created_at: string;
-}
-
-/**
- * Domain model for group
+ * 그룹(Group) 타입을 정의하는 인터페이스입니다.
  */
 export interface Group {
-  id: string;
-  name: string;
-  deviceCount: number;
-  createdAt: Date;
+  groupId: string;
+  groupCode: string;
+  groupName: number;
+  count: number;
 }

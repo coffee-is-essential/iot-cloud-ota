@@ -60,18 +60,20 @@ export const GroupTable = ({
           </thead>
           <tbody className="divide-y divide-gray-200">
             {groups.map((group) => (
-              <tr key={group.id} className="hover:bg-gray-50">
+              <tr key={group.groupId} className="hover:bg-gray-50">
                 <td className="px-4 py-2 text-center">
                   <input
                     type="checkbox"
-                    checked={selectedGroups.some((r) => r.id === group.id)}
+                    checked={selectedGroups.some(
+                      (g) => g.groupId === group.groupId,
+                    )}
                     onChange={() => onSelectGroup(group)}
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                 </td>
-                <td className="px-4 py-2 text-sm">{group.id}</td>
-                <td className="px-4 py-2 text-sm">{group.name}</td>
-                <td className="px-4 py-2 text-sm">{group.deviceCount}</td>
+                <td className="px-4 py-2 text-sm">{group.groupId}</td>
+                <td className="px-4 py-2 text-sm">{group.groupName}</td>
+                <td className="px-4 py-2 text-sm">{group.count}</td>
               </tr>
             ))}
           </tbody>
