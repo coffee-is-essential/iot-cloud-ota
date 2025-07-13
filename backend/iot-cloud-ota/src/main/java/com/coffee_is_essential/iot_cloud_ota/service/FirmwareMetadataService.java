@@ -24,6 +24,7 @@ public class FirmwareMetadataService {
 
     /**
      * 펌웨어 메타데이터를 저장하고, 저장된 결과를 응답 DTO로 반환합니다.
+     * 동일한 버전과 파일 이름의 펌웨어가 이미 존재할 경우 예외를 발생시킵니다.
      *
      * @param requestDto 저장할 펌웨어 메타데이터 요청 DTO
      * @return 저장된 펌웨어 정보를 담은 응답 DTO
@@ -36,6 +37,10 @@ public class FirmwareMetadataService {
                 requestDto.releaseNote(),
                 requestDto.s3Path()
         );
+
+        if (firmwareMetadataJpaRepository.existsByVersionAndFileName(requestDto.version(), requestDto.fileName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 버전과 파일 이름의 펌웨어가 이미 존재합니다.");
+        }
 
         FirmwareMetadata savedFirmwareMetadata = firmwareMetadataJpaRepository.save(firmwareMetadata);
 
@@ -95,4 +100,8 @@ public class FirmwareMetadataService {
 
         return FirmwareMetadataResponseDto.from(findFirmwareMetadata);
     }
+
+//    public FirmwareMetadataResponseDto findBy
+
+
 }

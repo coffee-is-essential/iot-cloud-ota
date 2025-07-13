@@ -86,4 +86,13 @@ public interface FirmwareMetadataJpaRepository extends JpaRepository<FirmwareMet
             OR release_note LIKE :search
             """, nativeQuery = true)
     long countFirmwareMetadataByVersionOrReleaseNote(@Param("search") String search);
+
+    /**
+     * 지정한 버전과 파일 이름을 가진 펌웨어 메타데이터가 존재하는지 확인합니다.
+     *
+     * @param version  확인할 펌웨어의 버전 (예: "v1.0.0")
+     * @param fileName 확인할 펌웨어의 파일 이름 (예: "firmware.bin")
+     * @return 해당 버전과 파일 이름을 가진 펌웨어 메타데이터가 존재하면 true, 그렇지 않으면 false
+     */
+    boolean existsByVersionAndFileName(String version, String fileName);
 }

@@ -58,19 +58,14 @@ public class S3Service {
         return request;
     }
 
-    /**
-     * 지정된 펌웨어 ID에 해당하는 S3 객체에 대한 Presigned 다운로드 URL을 생성합니다.
-     *
-     * @param id 펌웨어 메터데이터의 고유 ID
-     * @return 다운로드용 Presigned URL을 포함한 DTO
-     */
-    public DownloadPresignedUrlResponseDto getPresignedDownloadUrl(Long id) {
-        FirmwareMetadata metadata = firmwareMetadataJpaRepository.findByIdOrElseThrow(id);
-        GeneratePresignedUrlRequest generatedPresignedUrlRequest = generatePresignedDownloadUrl(bucketName, metadata.getS3Path());
-        String url = amazonS3.generatePresignedUrl(generatedPresignedUrlRequest).toString();
 
-        return new DownloadPresignedUrlResponseDto(url);
-    }
+//    public DownloadPresignedUrlResponseDto getPresignedDownloadUrl(String version, String fileName) {
+//        FirmwareMetadata metadata = firmwareMetadataJpaRepository.findByVersionAndFileNameOrElseThrow();
+//        GeneratePresignedUrlRequest generatedPresignedUrlRequest = generatePresignedDownloadUrl(bucketName, metadata.getS3Path());
+//        String url = amazonS3.generatePresignedUrl(generatedPresignedUrlRequest).toString();
+//
+//        return new DownloadPresignedUrlResponseDto(url);
+//    }
 
     /**
      * 지정된 S3 경로를 기반으로 다운로드용 Presigned URL 요청 객체를 생성합니다.

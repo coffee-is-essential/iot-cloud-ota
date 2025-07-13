@@ -10,7 +10,12 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @Entity
-@Table(name = "firmware_metadata")
+@Table(
+        name = "firmware_metadata",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uq_filename_version", columnNames = {"fileName", "version"})
+        }
+)
 @NoArgsConstructor
 public class FirmwareMetadata extends BaseEntity {
     @Id
