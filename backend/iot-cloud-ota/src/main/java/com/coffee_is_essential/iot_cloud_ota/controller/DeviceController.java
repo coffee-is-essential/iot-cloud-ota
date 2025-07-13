@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * Device 관련 요청을 처리하는 REST 컨트롤러 입니다.
+ */
 @RestController
 @RequestMapping("/api/devices")
 @RequiredArgsConstructor

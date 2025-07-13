@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * AWS S3 관련 요청을 처리하는 REST 컨트롤러 입니다.
+ */
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/s3")
@@ -29,14 +32,20 @@ public class S3Controller {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
+    /**
+     * 주어진 버전과 파일 이름에 해당하는 펌웨어 파일의 S3 Presigned 다운로드 URL을 반환합니다.
+     *
+     * @param version  다운로드할 펌웨어의 버전 (예: "v1.0.0")
+     * @param fileName 다운로드할 펌웨어의 파일 이름 (예: "firmware.bin")
+     * @return 다운로드 가능한 S3 Presigned URL을 담은 응답 DTO
+     */
+    @GetMapping("/presigned_download")
+    public ResponseEntity<DownloadPresignedUrlResponseDto> getPresignedDownloadUrl(
+            @RequestParam(required = true) String version,
+            @RequestParam(required = true) String fileName
+    ) {
+        DownloadPresignedUrlResponseDto responseDto = s3Service.getPresignedDownloadUrl(version, fileName);
 
-//    @GetMapping("/presigned_download")
-//    public ResponseEntity<DownloadPresignedUrlResponseDto> getPresignedDownloadUrl(
-//            @RequestParam(required = true) String version,
-//            @RequestParam(required = true) String fileName
-//    ) {
-//        DownloadPresignedUrlResponseDto responseDto = s3Service.getPresignedDownloadUrl(id);
-//
-//        return new ResponseEntity<>(responseDto, HttpStatus.OK);
-//    }
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 }
