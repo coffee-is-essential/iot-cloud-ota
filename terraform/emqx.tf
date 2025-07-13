@@ -1,23 +1,67 @@
-# NOTE: EMQX는 ELB를 사용하여 클러스터를 구성하고 부하 분산을 하는 것이 좋습니다.
-# 하지만 현재 개발 환경에서는 비용적인 한계로 단일 인스턴스로 EMQX를 배포합니다.
-# 이후 프로덕션 환경에서는 ELB를 사용하여 EMQX 클러스터를 구성하는 것을 고려합니다.
+resource "aws_cloudwatch_log_group" "emqx" {
+  name              = "/ecs/emqx"
+  retention_in_days = 14
 
-resource "aws_instance" "emqx" {
-  ami                    = "ami-0c9c942bd7bf113a2" # Ubuntu 22.04 LTS
-  instance_type          = "t3.micro"
-  vpc_security_group_ids = [aws_security_group.emqx_sg.id]
-  subnet_id              = aws_subnet.public_a.id
+  tags = {
+    Name        = "iot-cloud-ota-emqx-log-group"
+    Description = "CloudWatch log group for EMQX in iot-cloud-ota"
+  }
+}
 
-  user_data = <<-EOF
-    #!/bin/bash
-    sudo apt-get update && \
-    curl -s https://assets.emqx.com/scripts/install-emqx-deb.sh | sudo bash && \
-    sudo apt-get install -y emqx && \
-    sudo systemctl start emqx
-  EOF
+resource "aws_ecs_task_definition" "emqx" {
+  family                   = "emqx"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = aws_iam_role.ecs_task_execution.arn
+  task_role_arn            = aws_iam_role.ecs_task_execution.arn
+
+  container_definitions = jsonencode([
+    {
+      name      = "emqx"
+      image     = "emqx/emqx:latest"
+      essential = true
+
+      portMappings = [
+        { containerPort = 1883, protocol = "tcp" },
+        { containerPort = 8883, protocol = "tcp" },
+        { containerPort = 18083, protocol = "tcp" }
+      ]
+
+      environment = [
+        { name = "EMQX_NAME", value = "emqx" },
+        { name = "EMQX_HOST", value = "127.0.0.1" }
+      ]
+
+      logConfiguration = {
+        logDriver = "awslogs",
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.emqx.name,
+          "awslogs-region"        = "ap-northeast-2"
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
+    }
+  ])
+}
+
+resource "aws_ecs_service" "emqx" {
+  name                   = "emqx"
+  cluster                = aws_ecs_cluster.main.id
+  task_definition        = aws_ecs_task_definition.emqx.arn
+  desired_count          = 1
+  launch_type            = "FARGATE"
+  enable_execute_command = true
+
+  network_configuration {
+    subnets          = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+    security_groups  = [aws_security_group.emqx_sg.id]
+    assign_public_ip = true
+  }
 
   tags = {
     Name        = "iot-cloud-ota-emqx"
-    Description = "EMQX broker for iot-cloud-ota"
+    Description = "EMQX broker service for iot-cloud-ota"
   }
 }
