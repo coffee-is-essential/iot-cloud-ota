@@ -38,7 +38,7 @@ public class FirmwareMetadataService {
                 requestDto.s3Path()
         );
 
-        if (firmwareMetadataJpaRepository.existsByVersionAndFileName(requestDto.version(), requestDto.fileName())) {
+        if (firmwareMetadataJpaRepository.findByVersionAndFileName(requestDto.version(), requestDto.fileName()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 버전과 파일 이름의 펌웨어가 이미 존재합니다.");
         }
 
@@ -100,8 +100,4 @@ public class FirmwareMetadataService {
 
         return FirmwareMetadataResponseDto.from(findFirmwareMetadata);
     }
-
-//    public FirmwareMetadataResponseDto findBy
-
-
 }

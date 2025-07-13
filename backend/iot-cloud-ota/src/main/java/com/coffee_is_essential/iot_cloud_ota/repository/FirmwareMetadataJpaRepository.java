@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 펌웨어 메타데이터를 관리하는 JPA 리포지토리 인터페이스입니다.
@@ -88,11 +89,11 @@ public interface FirmwareMetadataJpaRepository extends JpaRepository<FirmwareMet
     long countFirmwareMetadataByVersionOrReleaseNote(@Param("search") String search);
 
     /**
-     * 지정한 버전과 파일 이름을 가진 펌웨어 메타데이터가 존재하는지 확인합니다.
+     * 주어진 버전과 파일 이름에 해당하는 펌웨어 메타데이터를 반환합니다.
      *
-     * @param version  확인할 펌웨어의 버전 (예: "v1.0.0")
-     * @param fileName 확인할 펌웨어의 파일 이름 (예: "firmware.bin")
-     * @return 해당 버전과 파일 이름을 가진 펌웨어 메타데이터가 존재하면 true, 그렇지 않으면 false
+     * @param version  펌에어 버전
+     * @param fileName 펌웨어 파일 이름
+     * @return 존재하면 Optional로 감싼 결과, 존재하지 않으면 Optional.empty()
      */
-    boolean existsByVersionAndFileName(String version, String fileName);
+    Optional<FirmwareMetadata> findByVersionAndFileName(String version, String fileName);
 }

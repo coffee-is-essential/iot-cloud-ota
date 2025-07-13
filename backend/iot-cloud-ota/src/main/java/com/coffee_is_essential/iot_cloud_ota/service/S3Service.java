@@ -10,6 +10,7 @@ import com.coffee_is_essential.iot_cloud_ota.repository.FirmwareMetadataJpaRepos
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.UUID;
@@ -34,6 +35,7 @@ public class S3Service {
      * @param fileName 저장할 파일 이름 (예: "firmware.zip")
      * @return 업로드용 Presigned URL 및 S3 저장 경로가 포함된 DTO
      */
+    @Transactional
     public UploadPresignedUrlResponseDto getPresignedUploadUrl(String version, String fileName) {
         String path = createPath(version, fileName);
         GeneratePresignedUrlRequest generatedPresignedUrlRequest = generatePresignedUploadUrl(bucketName, path);
@@ -58,7 +60,7 @@ public class S3Service {
         return request;
     }
 
-
+//    @Transactional
 //    public DownloadPresignedUrlResponseDto getPresignedDownloadUrl(String version, String fileName) {
 //        FirmwareMetadata metadata = firmwareMetadataJpaRepository.findByVersionAndFileNameOrElseThrow();
 //        GeneratePresignedUrlRequest generatedPresignedUrlRequest = generatePresignedDownloadUrl(bucketName, metadata.getS3Path());
