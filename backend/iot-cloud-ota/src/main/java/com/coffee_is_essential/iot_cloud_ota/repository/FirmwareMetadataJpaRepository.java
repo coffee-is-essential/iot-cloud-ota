@@ -96,4 +96,12 @@ public interface FirmwareMetadataJpaRepository extends JpaRepository<FirmwareMet
      * @return 존재하면 Optional로 감싼 결과, 존재하지 않으면 Optional.empty()
      */
     Optional<FirmwareMetadata> findByVersionAndFileName(String version, String fileName);
+
+    /**
+     * 지정된 S3 경로에 해당하는 펌웨어 메타데이터가 이미 존재하는지 확인합니다.
+     *
+     * @param s3Path 확인할 S3 경로
+     * @return 해당 경로에 펌웨어가 존재하면 true, 없으면 false
+     */
+    boolean existsByS3Path(String s3Path);
 }

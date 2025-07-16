@@ -151,6 +151,10 @@ public class S3Service {
         try (S3Object s3Object = amazonS3.getObject(bucketName, path);
              InputStream inputStream = s3Object.getObjectContent()) {
 
+            // 파일 크기 읽기
+            long fileSize = s3Object.getObjectMetadata().getContentLength();
+            System.out.println("파일 크기: " + fileSize + " bytes");
+
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] buffer = new byte[8192];
             int bytesRead;

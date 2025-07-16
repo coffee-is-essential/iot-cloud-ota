@@ -31,7 +31,7 @@ public class FirmwareMetadata extends BaseEntity {
     @Column(nullable = false)
     private String releaseNote;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String s3Path;
 
     private String checksum;

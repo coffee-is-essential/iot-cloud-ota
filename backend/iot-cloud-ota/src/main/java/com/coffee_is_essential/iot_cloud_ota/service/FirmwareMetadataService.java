@@ -26,6 +26,7 @@ public class FirmwareMetadataService {
     /**
      * 펌웨어 메타데이터를 저장하고, 저장된 결과를 응답 DTO로 반환합니다.
      * 동일한 버전과 파일 이름의 펌웨어가 이미 존재할 경우 예외를 발생시킵니다.
+     * 중복된 S3 경로 등록 시 예외를 발생시킵니다.
      *
      * @param requestDto 저장할 펌웨어 메타데이터 요청 DTO
      * @return 저장된 펌웨어 정보를 담은 응답 DTO
@@ -34,7 +35,11 @@ public class FirmwareMetadataService {
     public FirmwareMetadataResponseDto saveFirmwareMetadata(FirmwareMetadataRequestDto requestDto) {
 
         if (firmwareMetadataJpaRepository.findByVersionAndFileName(requestDto.version(), requestDto.fileName()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 버전과 파일 이름의 펌웨어가 이미 존재합니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "버전 '" + requestDto.version() + "' 및 파일명 '" + requestDto.fileName() + "'의 펌웨어가 이미 존재합니다.");
+        }
+
+        if (firmwareMetadataJpaRepository.existsByS3Path(requestDto.s3Path())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "S3 경로 '" + requestDto.s3Path() + "'에 이미 펌웨어가 존재합니다.");
         }
 
         FirmwareMetadata firmwareMetadata = new FirmwareMetadata(
