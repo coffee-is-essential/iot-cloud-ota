@@ -1,10 +1,8 @@
 //package com.coffee_is_essential.iot_cloud_ota.component;
 //
-//import com.coffee_is_essential.iot_cloud_ota.entity.Device;
 //import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareMetadata;
 //import com.coffee_is_essential.iot_cloud_ota.entity.Division;
 //import com.coffee_is_essential.iot_cloud_ota.entity.Region;
-//import com.coffee_is_essential.iot_cloud_ota.repository.DeviceJpaRepository;
 //import com.coffee_is_essential.iot_cloud_ota.repository.FirmwareMetadataJpaRepository;
 //import com.coffee_is_essential.iot_cloud_ota.repository.DivisionJpaRepository;
 //import com.coffee_is_essential.iot_cloud_ota.repository.RegionJpaRepository;

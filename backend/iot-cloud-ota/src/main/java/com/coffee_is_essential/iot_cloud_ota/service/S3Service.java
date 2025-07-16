@@ -2,7 +2,9 @@ package com.coffee_is_essential.iot_cloud_ota.service;
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.amazonaws.services.s3.model.S3Object;
 import com.coffee_is_essential.iot_cloud_ota.dto.DownloadPresignedUrlResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.UploadPresignedUrlResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareMetadata;
@@ -14,6 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,6 +46,10 @@ public class S3Service {
      */
     @Transactional
     public UploadPresignedUrlResponseDto getPresignedUploadUrl(String version, String fileName) {
+        if (firmwareMetadataJpaRepository.findByVersionAndFileName(version, fileName).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 버전과 파일 이름의 펌웨어가 이미 존재합니다.");
+        }
+
         String path = createPath(version, fileName);
         GeneratePresignedUrlRequest generatedPresignedUrlRequest = generatePresignedUploadUrl(bucketName, path);
         String url = amazonS3.generatePresignedUrl(generatedPresignedUrlRequest).toString();
@@ -126,5 +136,52 @@ public class S3Service {
         String uuid = UUID.randomUUID().toString();
 
         return String.format("%s/%s/%s", version, uuid, fileName);
+    }
+
+    /**
+     * 지정된 S3 경로에 있는 파일의 SHA-256 해시 값을 계산하여 16진수 문자열로 반환합니다.
+     * 해당 메서드는 S3에서 파일을 스트리밍 방식으로 읽어 들인 후, 전체 파일을 SHA-256 알고리즘을 사용해 해싱하고,
+     * 그 결과를 64자리의 16진수 문자열로 반환합니다.
+     *
+     * @param path S3 버킷 내의 파일 경로
+     * @return SHA-256 해시 값의 16진수 문자열 표현
+     */
+    public String calculateS3FileHash(String path) {
+
+        try (S3Object s3Object = amazonS3.getObject(bucketName, path);
+             InputStream inputStream = s3Object.getObjectContent()) {
+
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                digest.update(buffer, 0, bytesRead);
+            }
+
+            byte[] hashBytes = digest.digest();
+
+            return bytesToHex(hashBytes);
+        } catch (AmazonS3Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "S3 접근 오류: " + e.getMessage());
+        } catch (IOException | NoSuchAlgorithmException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "해시 계산 실패");
+        }
+    }
+
+    /**
+     * 바이트 배열을 16진수 문자열로 변환합니다.
+     * 각 바이트를 2자리 16진수로 포맷하여 문자열로 이어붙인 결과를 반환합니다.
+     *
+     * @param bytes 변환할 바이트 배열
+     * @return 16진수 문자열
+     */
+    private String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+
+        return sb.toString();
     }
 }

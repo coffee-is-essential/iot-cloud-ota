@@ -21,6 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FirmwareMetadataService {
     private final FirmwareMetadataJpaRepository firmwareMetadataJpaRepository;
+    private final S3Service s3Service;
 
     /**
      * 펌웨어 메타데이터를 저장하고, 저장된 결과를 응답 DTO로 반환합니다.
@@ -31,16 +32,18 @@ public class FirmwareMetadataService {
      */
     @Transactional
     public FirmwareMetadataResponseDto saveFirmwareMetadata(FirmwareMetadataRequestDto requestDto) {
-        FirmwareMetadata firmwareMetadata = new FirmwareMetadata(
-                requestDto.version(),
-                requestDto.fileName(),
-                requestDto.releaseNote(),
-                requestDto.s3Path()
-        );
 
         if (firmwareMetadataJpaRepository.findByVersionAndFileName(requestDto.version(), requestDto.fileName()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 버전과 파일 이름의 펌웨어가 이미 존재합니다.");
         }
+
+        FirmwareMetadata firmwareMetadata = new FirmwareMetadata(
+                requestDto.version(),
+                requestDto.fileName(),
+                requestDto.releaseNote(),
+                requestDto.s3Path(),
+                s3Service.calculateS3FileHash(requestDto.s3Path())
+        );
 
         FirmwareMetadata savedFirmwareMetadata = firmwareMetadataJpaRepository.save(firmwareMetadata);
 
