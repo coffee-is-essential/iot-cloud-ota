@@ -2,6 +2,7 @@ package com.coffee_is_essential.iot_cloud_ota.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 @org.hibernate.annotations.Immutable
 @Table(name = "region")
 public class Region {

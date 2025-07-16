@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface DeviceJpaRepository extends JpaRepository<Device, Long> {
+public interface DeviceJpaRepository extends JpaRepository<Device, Long>, DeviceJpaRepositoryCustom {
 
     /**
      * 디바이스의 요약 정보를 조회합니다.
@@ -26,4 +26,5 @@ public interface DeviceJpaRepository extends JpaRepository<Device, Long> {
             JOIN division di ON de.division_id = di.id
             """, nativeQuery = true)
     List<DeviceSummary> findDeviceSummary();
+
 }

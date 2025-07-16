@@ -1,6 +1,7 @@
 package com.coffee_is_essential.iot_cloud_ota.controller;
 
 import com.coffee_is_essential.iot_cloud_ota.dto.*;
+import com.coffee_is_essential.iot_cloud_ota.service.FirmwareDeploymentService;
 import com.coffee_is_essential.iot_cloud_ota.service.FirmwareMetadataService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/firmwares")
 public class FirmwareController {
     private final FirmwareMetadataService firmwareMetadataService;
+    private final FirmwareDeploymentService firmwareDeploymentService;
 
     /**
      * 펌웨어 메타데이터를 저장합니다.
@@ -60,5 +62,12 @@ public class FirmwareController {
         FirmwareMetadataResponseDto responseDto = firmwareMetadataService.findById(id);
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    @PostMapping("/metadata/{id}/deployment")
+    public ResponseEntity<?> deploy(@PathVariable Long id, @RequestBody FirmwareDeploymentRequestDto requestDto) {
+        firmwareDeploymentService.deployFirmware(id, requestDto);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
