@@ -2,21 +2,8 @@ import { useRef, useState } from "react";
 import { Button } from "../../../shared/ui/Button";
 import { FileText, Upload } from "lucide-react";
 import { JSX } from "@emotion/react/jsx-runtime";
-import { firmwareApiService } from "../../../entities/firmware/api/firmwareApi";
-import { zipFile } from "../../../shared/api/zip";
-
-/**
- * Interface for FirmwareRegisterForm component props
- * @interface
- * @property {string} version - The firmware version
- * @property {string} releaseNote - The release note for the firmware
- * @property {File | null} file - The firmware file to be uploaded
- */
-export interface FirmwareRegisterFormData {
-  version: string;
-  releaseNote: string;
-  file: File | null;
-}
+import { FirmwareRegisterData } from "../model/types";
+import { firmwareRegisterApiService } from "../api/api";
 
 /**
  * Interface for FirmwareRegisterForm component props
@@ -44,7 +31,8 @@ const FileUploadPlaceHolder = ({
     <Upload size={24} className="mb-2 text-blue-900" />
     <p className="text-sm text-blue-900">펌웨어 파일을 선택하세요.</p>
     <p className="text-xs text-neutral-500">
-      <span className="font-semibold">*.tft</span> 파일 (최대 50MB)
+      {/* TODO: 펌웨어 확장자가 결정되면 아래의 확장자를 업데이트 해야 합니다. */}
+      <span className="font-semibold">*.bin</span> 파일 (최대 100MB)
     </p>
   </div>
 );
@@ -80,7 +68,7 @@ const FilePreview = ({
 export const FirmwareRegisterForm = ({
   onClose,
 }: FirmwareRegisterFormProps): JSX.Element => {
-  const [formData, setFormData] = useState<FirmwareRegisterFormData>({
+  const [formData, setFormData] = useState<FirmwareRegisterData>({
     version: "",
     releaseNote: "",
     file: null,
@@ -98,13 +86,10 @@ export const FirmwareRegisterForm = ({
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
 
-      if (!file.name.endsWith(".tft")) {
-        alert("*.tft 형식의 파일만 업로드 가능합니다.");
-        return;
-      }
+      // TODO: 펌웨어 파일 형식이 정해지고 나면 확장자 체크 추가
 
-      if (file.size > 50 * 1024 * 1024) {
-        alert("파일 크기는 50MB를 초과할 수 없습니다.");
+      if (file.size > 100 * 1024 * 1024) {
+        alert("파일 크기는 100MB를 초과할 수 없습니다.");
         return;
       }
 
@@ -165,24 +150,34 @@ export const FirmwareRegisterForm = ({
       return;
     }
 
-    console.log("펌웨어 등록 요청");
-    console.log("버전:", formData.version);
-    console.log("릴리즈 노트:", formData.releaseNote);
-    console.log("파일:", formData.file);
+    // TODO: 아래의 API 호출을 비동기로 처리하고, 토스트 메시지로 성공/실패 알림을 구현하면 UX가 개선될 것입니다.
+    try {
+      // Step 1: 파일 업로드를 위해 Presigned URL을 가져옵니다.
+      const presignedUrl = await firmwareRegisterApiService.getPresignedUrl(
+        formData.version,
+        formData.file.name,
+      );
 
-    const compressedFile = await zipFile(formData.file);
+      // Step 2: Presigned URL을 사용하여 파일을 S3에 업로드합니다.
+      await firmwareRegisterApiService.uploadFirmwareViaPresignedUrl(
+        presignedUrl.url,
+        formData.file,
+      );
 
-    const success = await firmwareApiService.register(
-      formData.version,
-      formData.releaseNote,
-      compressedFile
-    );
-
-    if (success) {
-      alert("펌웨어 등록이 완료되었습니다.");
+      // Step 3: 펌웨어 메타데이터를 등록합니다.
+      await firmwareRegisterApiService.uploadFirmwareMetadata({
+        version: formData.version,
+        releaseNote: formData.releaseNote,
+        fileName: formData.file.name,
+        s3Path: presignedUrl.s3Path,
+      });
+    } catch (error) {
+      console.error("펌웨어 등록 중 오류 발생:", error);
+      alert("펌웨어 등록에 실패했습니다. 다시 시도해주세요.");
+      return;
+    } finally {
+      // Reset the form after successful submission
       handleReset();
-    } else {
-      alert("펌웨어 등록에 실패했습니다.");
     }
   };
 
@@ -235,7 +230,6 @@ export const FirmwareRegisterForm = ({
             type="file"
             id="firmwareFile"
             className="hidden"
-            accept=".tft"
             onChange={handleFileChange}
           />
 

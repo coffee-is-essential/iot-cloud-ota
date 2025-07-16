@@ -11,6 +11,19 @@ resource "aws_s3_bucket" "firmware_bucket" {
   }
 }
 
+# NOTE: 개발 환경에서의 임시 CORS 설정입니다.
+resource "aws_s3_bucket_cors_configuration" "public_access" {
+  bucket = aws_s3_bucket.firmware_bucket.id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "PUT", "POST", "HEAD"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+}
+
 resource "aws_cloudfront_origin_access_control" "firmware_oac" {
   name                              = "firmware-oac"
   description                       = "Origin Access Control for CloudFront to access S3 bucket"

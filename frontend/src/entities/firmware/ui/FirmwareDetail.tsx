@@ -46,7 +46,7 @@ export const FirmwareDetail = ({
         />
         <LabeledValue
           label="파일명"
-          value={`${firmware?.version}.ino`}
+          value={firmware?.fileName ?? "없음"}
           size="sm"
         />
         <LabeledValue

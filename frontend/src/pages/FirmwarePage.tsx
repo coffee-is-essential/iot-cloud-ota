@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../shared/ui/Button";
 import { useState } from "react";
 import ReactModal from "react-modal";
-import { FirmwareRegisterForm } from "../features/firmware/ui/FirmwareRegister";
+import { FirmwareRegisterForm } from "../features/firmware_register/ui/FirmwareRegister";
 
 export const FirmwarePage = () => {
   const {
