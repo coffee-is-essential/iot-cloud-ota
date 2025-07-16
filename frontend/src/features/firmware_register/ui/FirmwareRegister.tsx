@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Button } from "../../../shared/ui/Button";
 import { FileText, Upload } from "lucide-react";
 import { JSX } from "@emotion/react/jsx-runtime";
-import { FirmwareRegisterFormData } from "../model/types";
+import { FirmwareRegisterFormData } from "../../../entities/firmware/model/types";
 import { firmwareRegisterApiService } from "../api/api";
 
 /**

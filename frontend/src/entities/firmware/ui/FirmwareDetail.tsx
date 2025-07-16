@@ -3,6 +3,7 @@ import { Button } from "../../../shared/ui/Button";
 import { Firmware } from "../model/types";
 import { JSX } from "react";
 import { LabeledValue } from "../../../shared/ui/LabeledValue";
+import { firmwareApiService } from "../api/api";
 
 /**
  * Props interface for the FirmwareDetail component
@@ -12,7 +13,7 @@ import { LabeledValue } from "../../../shared/ui/LabeledValue";
  * @property {string | null} error - Error message if loading firmware failed
  */
 export interface FirmwareDetailProps {
-  firmware: Firmware | null;
+  firmware: Firmware;
   isLoading: boolean;
   error: string | null;
 }
@@ -35,6 +36,38 @@ export const FirmwareDetail = ({
   if (error) {
     return <div className="flex justify-center py-8">{error}</div>;
   }
+
+  /**
+   * 펌웨어 파일 다운로드를 처리하는 함수입니다.
+   * @async
+   * @return {Promise<void>} - 다운로드 완료 후 아무 값도 반환하지 않습니다.
+   */
+  const handleDownload = async (): Promise<void> => {
+    try {
+      // 1. 펌웨어의 Presigned URL을 가져옵니다.
+      const presignedUrl =
+        await firmwareApiService.getFirmwarePresignedDownloadUrl(
+          firmware.version,
+          firmware.fileName,
+        );
+
+      // 2. Presigned URL을 사용하여 펌웨어 파일을 다운로드합니다.
+      const blob = await firmwareApiService.downloadFirmwareFile(presignedUrl);
+
+      // 3. Blob 객체를 사용하여 파일을 다운로드합니다.
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = firmware.fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      alert("펌웨어 다운로드에 실패했습니다. 나중에 다시 시도해주세요.");
+      console.error("펌웨어 다운로드 실패:", error);
+    }
+  };
 
   return (
     <div className="flex justify-between">
@@ -64,7 +97,7 @@ export const FirmwareDetail = ({
             icon={<Download className="w-4" />}
             title="펌웨어 다운로드"
             // TODO: Implement download functionality
-            onClick={() => {}}
+            onClick={handleDownload}
             disabled={false}
           />
         </div>

@@ -1,19 +1,7 @@
 import { PaginationMeta } from "../../../shared/api/types";
 
 /**
- * Data transfer object for firmware from API
- */
-export interface FirmwareDto {
-  id: number;
-  version: string;
-  release_note: string;
-  created_at: string;
-  updated_at: string;
-  device_count: number;
-}
-
-/**
- * Domain model for firmware
+ * 펌웨어 정보를 나타내는 인터페이스입니다.
  */
 export interface Firmware {
   id: number;
@@ -24,7 +12,44 @@ export interface Firmware {
   modifiedAt: Date;
 }
 
+/**
+ * 페이징된 펌웨어 목록 응답 인터페이스입니다.
+ */
 export interface PaginatedFirmware {
   items: Firmware[];
   paginationMeta: PaginationMeta;
+}
+
+/**
+ * 펌웨어 업로드를 위한 S3 사전 서명 URL 응답 인터페이스입니다.
+ */
+export interface PresignedUploadUrlResponse {
+  url: string;
+  s3Path: string;
+}
+
+/**
+ * 펌웨어 다운로드를 위한 사전 서명된 URL 응답 인터페이스입니다.
+ */
+export interface PresignedDownloadUrlResponse {
+  url: string;
+}
+
+/**
+ * 펌웨어 메타데이터 업로드 요청 인터페이스입니다.
+ */
+export interface FirmwareMetadataUploadRequest {
+  version: string;
+  releaseNote: string;
+  fileName: string;
+  s3Path: string;
+}
+
+/**
+ * 펌웨어 등록 폼 데이터 인터페이스입니다.
+ */
+export interface FirmwareRegisterFormData {
+  version: string;
+  releaseNote: string;
+  file: File | null;
 }
