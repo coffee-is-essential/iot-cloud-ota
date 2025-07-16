@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Button } from "../../../shared/ui/Button";
 import { FileText, Upload } from "lucide-react";
 import { JSX } from "@emotion/react/jsx-runtime";
-import { FirmwareRegisterData } from "../model/types";
+import { FirmwareRegisterFormData } from "../model/types";
 import { firmwareRegisterApiService } from "../api/api";
 
 /**
@@ -68,7 +68,7 @@ const FilePreview = ({
 export const FirmwareRegisterForm = ({
   onClose,
 }: FirmwareRegisterFormProps): JSX.Element => {
-  const [formData, setFormData] = useState<FirmwareRegisterData>({
+  const [formData, setFormData] = useState<FirmwareRegisterFormData>({
     version: "",
     releaseNote: "",
     file: null,

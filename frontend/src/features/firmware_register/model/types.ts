@@ -19,7 +19,7 @@ export interface FirmwareMetadataUploadRequest {
 /**
  * 펌웨어 등록 폼 데이터 인터페이스입니다.
  */
-export interface FirmwareRegisterData {
+export interface FirmwareRegisterFormData {
   version: string;
   releaseNote: string;
   file: File | null;
