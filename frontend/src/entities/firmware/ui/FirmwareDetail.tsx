@@ -96,7 +96,6 @@ export const FirmwareDetail = ({
           <Button
             icon={<Download className="w-4" />}
             title="펌웨어 다운로드"
-            // TODO: Implement download functionality
             onClick={handleDownload}
             disabled={false}
           />
