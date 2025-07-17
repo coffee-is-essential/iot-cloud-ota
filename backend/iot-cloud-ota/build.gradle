@@ -28,13 +28,13 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'io.awspring.cloud:spring-cloud-aws-starter-secrets-manager:3.0.2'
 	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.0.2'
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+	runtimeOnly 'com.mysql:mysql-connector-j'
 	implementation 'com.amazonaws:aws-java-sdk-cloudfront:1.12.6'
 }
 
