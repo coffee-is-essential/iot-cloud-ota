@@ -1,6 +1,8 @@
 package com.coffee_is_essential.iot_cloud_ota.service;
 
 import com.coffee_is_essential.iot_cloud_ota.domain.DeployTargetDeviceInfo;
+import com.coffee_is_essential.iot_cloud_ota.domain.FirmwareDeployInfo;
+import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareDeploymentDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareDeploymentRequestDto;
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareMetadata;
 import com.coffee_is_essential.iot_cloud_ota.repository.DeviceJpaRepository;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 
@@ -21,10 +25,10 @@ public class FirmwareDeploymentService {
     private final FirmwareMetadataJpaRepository firmwareMetadataJpaRepository;
     private final DeviceJpaRepository deviceJpaRepository;
     private final CloudFrontSignedUrlService cloudFrontSignedUrlService;
+    private static final int TIMEOUT = 10;
 
     @Transactional
-    public void deployFirmware(Long firmwareId, FirmwareDeploymentRequestDto requestDto) {
-
+    public FirmwareDeploymentDto deployFirmware(Long firmwareId, FirmwareDeploymentRequestDto requestDto) {
         FirmwareMetadata findFirmware = firmwareMetadataJpaRepository.findByIdOrElseThrow(firmwareId);
 
         if (requestDto.deviceIds().isEmpty() && requestDto.groupIds().isEmpty() && requestDto.regionIds().isEmpty()) {
@@ -37,11 +41,14 @@ public class FirmwareDeploymentService {
                 requestDto.regionIds()
         );
 
+        Date expiresAt = Date.from(Instant.now().plus(Duration.ofMinutes(TIMEOUT)));
+        String signedUrl;
         try {
-            String signdUrl = cloudFrontSignedUrlService.generateSignedUrl(findFirmware.getS3Path(), Duration.ofMinutes(10));
+            signedUrl = cloudFrontSignedUrlService.generateSignedUrl(findFirmware.getS3Path(), expiresAt);
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CloudFront 서명 URL 생성 실패", e);
         }
 
+        return new FirmwareDeploymentDto(signedUrl, FirmwareDeployInfo.from(findFirmware, expiresAt), devices);
     }
 }

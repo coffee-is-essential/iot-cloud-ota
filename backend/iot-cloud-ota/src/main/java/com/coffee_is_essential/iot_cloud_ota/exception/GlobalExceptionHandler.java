@@ -1,6 +1,5 @@
 package com.coffee_is_essential.iot_cloud_ota.exception;
 
-import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.coffee_is_essential.iot_cloud_ota.dto.ErrorResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

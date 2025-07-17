@@ -31,20 +31,20 @@
 //    }
 //
 //    private void saveFirmwareMetadata() {
-//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.01", "24.04.01.ino", "광고가 표시되지 않는 버그를 수정했습니다.", "24.04.01/uuid1/24.04.01.ino"));
-//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.02", "24.04.02.ino", "원두 선택 버튼이 클릭되지 않는 버그를 수정했습니다", "24.04.02/uuid2/24.04.02.ino"));
-//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.03", "24.04.03.ino", "연두해요 연두 광고를 업로드하였습니다.", "24.04.03/uuid3/24.04.03.ino"));
-//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.04", "24.04.04.ino", "동원참치 캔 광고가 표시되지 않는 버그를 수정하였습니다.", "24.04.04/uuid4/24.04.04.ino"));
+//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.01", "24.04.01.ino", "광고가 표시되지 않는 버그를 수정했습니다.", "24.04.01/uuid1/24.04.01.ino", "hash123124", 123L));
+//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.02", "24.04.02.ino", "원두 선택 버튼이 클릭되지 않는 버그를 수정했습니다", "24.04.02/uuid2/24.04.02.ino", "hash123124", 123L));
+//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.03", "24.04.03.ino", "연두해요 연두 광고를 업로드하였습니다.", "24.04.03/uuid3/24.04.03.ino", "hash123124", 123L));
+//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.04", "24.04.04.ino", "동원참치 캔 광고가 표시되지 않는 버그를 수정하였습니다.", "24.04.04/uuid4/24.04.04.ino", "hash123124", 123L));
 //
-//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.05", "24.04.05.ino", "광고가 표시되지 않는 버그를 수정했습니다.", "24.04.05/uuid5/24.04.05.ino"));
-//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.06", "24.04.06.ino", "원두 선택 버튼이 클릭되지 않는 버그를 수정했습니다", "24.04.06/uuid6/24.04.06.ino"));
-//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.07", "24.04.07.ino", "연두해요 연두 광고를 업로드하였습니다.", "24.04.07/uuid7/24.04.07.ino"));
-//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.08", "24.04.08.ino", "동원참치 캔 광고가 표시되지 않는 버그를 수정하였습니다.", "24.04.08/uuid8/24.04.08.ino"));
+//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.05", "24.04.05.ino", "광고가 표시되지 않는 버그를 수정했습니다.", "24.04.05/uuid5/24.04.05.ino", "hash123124", 123L));
+//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.06", "24.04.06.ino", "원두 선택 버튼이 클릭되지 않는 버그를 수정했습니다", "24.04.06/uuid6/24.04.06.ino", "hash123124", 123L));
+//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.07", "24.04.07.ino", "연두해요 연두 광고를 업로드하였습니다.", "24.04.07/uuid7/24.04.07.ino", "hash123124", 123L));
+//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.08", "24.04.08.ino", "동원참치 캔 광고가 표시되지 않는 버그를 수정하였습니다.", "24.04.08/uuid8/24.04.08.ino", "hash123124", 123L));
 //
-//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.09", "24.04.09.ino", "광고가 표시되지 않는 버그를 수정했습니다.", "24.04.09/uuid9/24.04.09.ino"));
-//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.10", "24.04.10.ino", "원두 선택 버튼이 클릭되지 않는 버그를 수정했습니다", "24.04.10/uuid10/24.04.10.ino"));
-//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.11", "24.04.11.ino", "연두해요 연두 광고를 업로드하였습니다.", "24.04.11/uuid11/24.04.11.ino"));
-//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.12", "24.04.12.ino", "동원참치 캔 광고가 표시되지 않는 버그를 수정하였습니다.", "24.04.12/uuid12/24.04.12.ino"));
+//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.09", "24.04.09.ino", "광고가 표시되지 않는 버그를 수정했습니다.", "24.04.09/uuid9/24.04.09.ino", "hash123124", 123L));
+//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.10", "24.04.10.ino", "원두 선택 버튼이 클릭되지 않는 버그를 수정했습니다", "24.04.10/uuid10/24.04.10.ino", "hash123124", 123L));
+//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.11", "24.04.11.ino", "연두해요 연두 광고를 업로드하였습니다.", "24.04.11/uuid11/24.04.11.ino", "hash123124", 123L));
+//        firmwareMetadataJpaRepository.save(new FirmwareMetadata("24.04.12", "24.04.12.ino", "동원참치 캔 광고가 표시되지 않는 버그를 수정하였습니다.", "24.04.12/uuid12/24.04.12.ino", "hash123124", 123L));
 //    }
 //
 //    private void saveRegion() {

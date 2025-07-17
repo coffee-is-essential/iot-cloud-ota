@@ -1,5 +1,6 @@
 package com.coffee_is_essential.iot_cloud_ota.service;
 
+import com.coffee_is_essential.iot_cloud_ota.domain.S3FileHashResult;
 import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareMetadataRequestDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareMetadataResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareMetadataWithPageResponseDto;
@@ -42,12 +43,14 @@ public class FirmwareMetadataService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "S3 경로 '" + requestDto.s3Path() + "'에 이미 펌웨어가 존재합니다.");
         }
 
+        S3FileHashResult result = s3Service.calculateS3FileHash(requestDto.s3Path());
         FirmwareMetadata firmwareMetadata = new FirmwareMetadata(
                 requestDto.version(),
                 requestDto.fileName(),
                 requestDto.releaseNote(),
                 requestDto.s3Path(),
-                s3Service.calculateS3FileHash(requestDto.s3Path())
+                result.fileHash(),
+                result.fileSize()
         );
 
         FirmwareMetadata savedFirmwareMetadata = firmwareMetadataJpaRepository.save(firmwareMetadata);

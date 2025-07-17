@@ -65,9 +65,9 @@ public class FirmwareController {
     }
 
     @PostMapping("/metadata/{id}/deployment")
-    public ResponseEntity<?> deploy(@PathVariable Long id, @RequestBody FirmwareDeploymentRequestDto requestDto) {
-        firmwareDeploymentService.deployFirmware(id, requestDto);
+    public ResponseEntity<FirmwareDeploymentDto> deploy(@PathVariable Long id, @RequestBody FirmwareDeploymentRequestDto requestDto) {
+        FirmwareDeploymentDto dto = firmwareDeploymentService.deployFirmware(id, requestDto);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 }

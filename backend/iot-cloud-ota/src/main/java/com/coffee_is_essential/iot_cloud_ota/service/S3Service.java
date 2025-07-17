@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import com.coffee_is_essential.iot_cloud_ota.domain.S3FileHashResult;
 import com.coffee_is_essential.iot_cloud_ota.dto.DownloadPresignedUrlResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.UploadPresignedUrlResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareMetadata;
@@ -139,21 +140,18 @@ public class S3Service {
     }
 
     /**
-     * 지정된 S3 경로에 있는 파일의 SHA-256 해시 값을 계산하여 16진수 문자열로 반환합니다.
-     * 해당 메서드는 S3에서 파일을 스트리밍 방식으로 읽어 들인 후, 전체 파일을 SHA-256 알고리즘을 사용해 해싱하고,
-     * 그 결과를 64자리의 16진수 문자열로 반환합니다.
+     * 지정된 S3 객체의 SHA-256 해시값과 파일 크기를 계산합니다.
      *
-     * @param path S3 버킷 내의 파일 경로
-     * @return SHA-256 해시 값의 16진수 문자열 표현
+     * @param path S3 버킷 내 객체의 경로 (예: "folder/file.txt")
+     * @return {@link S3FileHashResult} 객체 (파일 크기와 SHA-256 해시값 포함)
+     * @throws ResponseStatusException S3 접근 실패 또는 해시 계산 실패 시 발생
      */
-    public String calculateS3FileHash(String path) {
+    public S3FileHashResult calculateS3FileHash(String path) {
 
         try (S3Object s3Object = amazonS3.getObject(bucketName, path);
              InputStream inputStream = s3Object.getObjectContent()) {
 
-            // 파일 크기 읽기
             long fileSize = s3Object.getObjectMetadata().getContentLength();
-            System.out.println("파일 크기: " + fileSize + " bytes");
 
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] buffer = new byte[8192];
@@ -165,7 +163,7 @@ public class S3Service {
 
             byte[] hashBytes = digest.digest();
 
-            return bytesToHex(hashBytes);
+            return new S3FileHashResult(fileSize, bytesToHex(hashBytes));
         } catch (AmazonS3Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "S3 접근 오류: " + e.getMessage());
         } catch (IOException | NoSuchAlgorithmException e) {

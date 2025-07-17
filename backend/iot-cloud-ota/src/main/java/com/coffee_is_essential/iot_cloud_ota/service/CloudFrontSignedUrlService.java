@@ -11,8 +11,6 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRespon
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 
@@ -40,16 +38,15 @@ public class CloudFrontSignedUrlService {
      * 주어진 리소스 경로에 대해 지정된 유효 시간 동안 사용할 . 있는 CloudFront Signed URL을 생성합니다.
      *
      * @param resourcePath CloudFront에서 접근할 리소스의 경로
-     * @param duration     URL이 유효한 시간 (예: Duration.ofMinutes(5))
+     * @param expiresAt     URL이 유효한 시간
      * @return 서명된 CloudFront URL 문자열
      * @throws Exception 개인키 로딩 실패 등 오류 발생 시
      */
-    public String generateSignedUrl(String resourcePath, Duration duration) throws Exception {
+    public String generateSignedUrl(String resourcePath, Date expiresAt) throws Exception {
         String privateKeyPem = getPrivateKeyPem(secretId);
         PrivateKey privateKey = loadPrivateKeyFromPem(privateKeyPem);
 
         String urlString = "https://" + cloudFrontDomain + "/" + resourcePath;
-        Date expiresAt = Date.from(Instant.now().plus(duration));
 
         return CloudFrontUrlSigner.getSignedURLWithCannedPolicy(
                 urlString,
