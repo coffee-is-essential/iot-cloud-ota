@@ -157,3 +157,42 @@ resource "aws_vpc_endpoint" "s3" {
     Name = "iot-cloud-ota-s3-endpoint"
   }
 }
+
+resource "aws_vpc_endpoint" "ssm" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.ap-northeast-2.ssm"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [aws_subnet.private_a.id, aws_subnet.private_b.id]
+  security_group_ids  = [aws_security_group.ssm_endpoint_sg.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name = "iot-cloud-ota-ssm-endpoint"
+  }
+}
+
+resource "aws_vpc_endpoint" "ssmmessages" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.ap-northeast-2.ssmmessages"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [aws_subnet.private_a.id, aws_subnet.private_b.id]
+  security_group_ids  = [aws_security_group.ssm_endpoint_sg.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name = "iot-cloud-ota-ssmmessages-endpoint"
+  }
+}
+
+resource "aws_vpc_endpoint" "ec2messages" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.ap-northeast-2.ec2messages"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [aws_subnet.private_a.id, aws_subnet.private_b.id]
+  security_group_ids  = [aws_security_group.ssm_endpoint_sg.id]
+  private_dns_enabled = true
+
+  tags = {
+    Name = "iot-cloud-ota-ec2messages-endpoint"
+  }
+}
