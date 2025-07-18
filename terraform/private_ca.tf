@@ -39,6 +39,21 @@ resource "aws_ecs_task_definition" "private_ca" {
   ])
 }
 
+resource "aws_service_discovery_service" "private_ca" {
+  name = "private-ca"
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.main.id
+    dns_records {
+      type = "A"
+      ttl  = 10
+    }
+    routing_policy = "MULTIVALUE"
+  }
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
 resource "aws_ecs_service" "private_ca" {
   name                   = "private-ca"
   cluster                = aws_ecs_cluster.main.id
@@ -51,6 +66,10 @@ resource "aws_ecs_service" "private_ca" {
     subnets          = [aws_subnet.private_a.id, aws_subnet.private_b.id]
     security_groups  = [aws_security_group.private_ca_sg.id]
     assign_public_ip = false
+  }
+
+  service_registries {
+    registry_arn = aws_service_discovery_service.private_ca.arn
   }
 
   tags = {

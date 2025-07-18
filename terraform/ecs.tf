@@ -52,3 +52,9 @@ resource "aws_iam_role_policy_attachment" "ecs_exec_ssm" {
   role       = aws_iam_role.ecs_task_execution.name
   policy_arn = aws_iam_policy.ecs_exec_ssm.arn
 }
+
+resource "aws_service_discovery_private_dns_namespace" "main" {
+  name        = "internal"
+  vpc         = aws_vpc.main.id
+  description = "Private DNS namespace for iot-cloud-ota"
+}

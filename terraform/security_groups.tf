@@ -138,11 +138,14 @@ resource "aws_security_group" "cloudwatch_logs_sg" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [aws_security_group.private_ca_sg.id]
-    description     = "HTTPS access for CloudWatch Logs"
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    security_groups = [
+      aws_security_group.private_ca_sg.id,
+      aws_security_group.emqx_sg.id,
+    ]
+    description = "HTTPS access for CloudWatch Logs"
   }
 
   egress {
@@ -159,11 +162,14 @@ resource "aws_security_group" "ecr_endpoint_sg" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [aws_security_group.private_ca_sg.id]
-    description     = "HTTPS access from Private CA service"
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    security_groups = [
+      aws_security_group.private_ca_sg.id,
+      aws_security_group.emqx_sg.id,
+    ]
+    description = "HTTPS access from Private CA service"
   }
 
   egress {
@@ -175,5 +181,28 @@ resource "aws_security_group" "ecr_endpoint_sg" {
 
   tags = {
     Name = "iot-cloud-ota-ecr-endpoint-sg"
+  }
+}
+
+resource "aws_security_group" "ssm_endpoint_sg" {
+  name        = "iot-cloud-ota-ssm-endpoint-sg"
+  description = "Security group for SSM VPC endpoints"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    security_groups = [
+      aws_security_group.private_ca_sg.id,
+      aws_security_group.emqx_sg.id,
+    ]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }

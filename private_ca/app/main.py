@@ -32,7 +32,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-@app.post("/issue_cert")
+@app.post("/api/issue_cert")
 async def issue_cert(request: Request):
     """클라이언트로부터 CSR을 받아 CA 키로 서명된 인증서와 루트 CA 인증서를 발급합니다.
 
