@@ -4,19 +4,15 @@ resource "aws_security_group" "mysql_sg" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    from_port       = 3306
-    to_port         = 3306
-    protocol        = "tcp"
-    security_groups = [aws_security_group.lambda_sg.id]
-    description     = "MySQL access from public subnets"
-  }
-
-  ingress {
-    from_port       = 3306
-    to_port         = 3306
-    protocol        = "tcp"
-    security_groups = [aws_security_group.bastion_sg.id]
-    description     = "MySQL access from Bastion host"
+    from_port = 3306
+    to_port   = 3306
+    protocol  = "tcp"
+    security_groups = [
+      aws_security_group.lambda_sg.id,
+      aws_security_group.bastion_sg.id,
+      aws_security_group.backend.id,
+    ]
+    description = "MySQL access from public subnets"
   }
 
   egress {
@@ -144,6 +140,7 @@ resource "aws_security_group" "cloudwatch_logs_sg" {
     security_groups = [
       aws_security_group.private_ca_sg.id,
       aws_security_group.emqx_sg.id,
+      aws_security_group.backend.id,
     ]
     description = "HTTPS access for CloudWatch Logs"
   }
@@ -168,6 +165,7 @@ resource "aws_security_group" "ecr_endpoint_sg" {
     security_groups = [
       aws_security_group.private_ca_sg.id,
       aws_security_group.emqx_sg.id,
+      aws_security_group.backend.id,
     ]
     description = "HTTPS access from Private CA service"
   }
@@ -196,7 +194,55 @@ resource "aws_security_group" "ssm_endpoint_sg" {
     security_groups = [
       aws_security_group.private_ca_sg.id,
       aws_security_group.emqx_sg.id,
+      aws_security_group.backend.id,
     ]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "backend_alb" {
+  name        = "iot-cloud-ota-backend-alb-sg"
+  description = "Security group for Backend ALB"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "backend" {
+  name        = "iot-cloud-ota-backend-sg"
+  description = "Security group for Backend service"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [aws_security_group.backend_alb.id]
   }
 
   egress {

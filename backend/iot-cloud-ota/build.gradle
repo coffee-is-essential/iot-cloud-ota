@@ -36,6 +36,7 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	implementation 'com.amazonaws:aws-java-sdk-cloudfront:1.12.6'
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
 
 tasks.named('test') {
