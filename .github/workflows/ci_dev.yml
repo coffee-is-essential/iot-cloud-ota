@@ -56,7 +56,9 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_BACKEND_REPOSITORY:$IMAGE_TAG -f backend/iot-cloud-ota/Dockerfile backend/iot-cloud-ota
+          docker build -t $ECR_REGISTRY/$ECR_BACKEND_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_BACKEND_REPOSITORY:latest \
+            -f backend/iot-cloud-ota/Dockerfile backend/iot-cloud-ota
           docker push $ECR_REGISTRY/$ECR_BACKEND_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_BACKEND_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
@@ -85,7 +87,9 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_EMQX_REPOSITORY:$IMAGE_TAG -f emqx/Dockerfile emqx
+          docker build -t $ECR_REGISTRY/$ECR_EMQX_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_EMQX_REPOSITORY:latest \
+            -f emqx/Dockerfile emqx
           docker push $ECR_REGISTRY/$ECR_EMQX_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_EMQX_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
@@ -114,6 +118,8 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_PRIVATE_CA_REPOSITORY:$IMAGE_TAG -f private_ca/Dockerfile private_ca
+          docker build -t $ECR_REGISTRY/$ECR_PRIVATE_CA_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_PRIVATE_CA_REPOSITORY:latest \
+            -f private_ca/Dockerfile private_ca
           docker push $ECR_REGISTRY/$ECR_EMQX_PRIVATE_CA_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_EMQX_PRIVATE_CA_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
