@@ -157,15 +157,16 @@ jobs:
           EMQX_IMAGE: ${{ needs.ci-emqx-dev.outputs.tag }}
           PRIVATE_CA_IMAGE: ${{ needs.ci-private-ca-dev.outputs.tag }}
         run: |
-          image_vars=""
+          image_tags=""
           if [ -n "$BACKEND_IMAGE" ]; then
-            image_vars="$image_vars -backend_image $BACKEND_IMAGE"
+            image_tags="$image_tags -backend_image_tag $BACKEND_IMAGE"
           fi
           if [ -n "$EMQX_IMAGE" ]; then
-            image_vars="$image_vars -emqx_image $EMQX_IMAGE"
+            image_tags="$image_tags -emqx_image_tag $EMQX_IMAGE"
           fi
           if [ -n "$PRIVATE_CA_IMAGE" ]; then
-            image_vars="$image_vars -private_ca_image $PRIVATE_CA_IMAGE"
+            image_tags="$image_tags -private_ca_image_tag $PRIVATE_CA_IMAGE"
           fi
 
-          terraform apply -auto-approve $image_vars
+          echo "Applying Terraform with images: $image_tags"
+          terraform apply -auto-approve $image_tags
