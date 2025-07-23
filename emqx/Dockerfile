@@ -13,3 +13,4 @@ RUN mkdir -p /opt/emqx/etc/certs && chown -R emqx:emqx /opt/emqx/etc/certs
 USER emqx
 
 ENTRYPOINT ["/entrypoint.sh"]
+
