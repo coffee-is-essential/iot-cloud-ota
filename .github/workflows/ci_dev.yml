@@ -129,6 +129,7 @@ jobs:
 
   terraform-apply:
     needs: [ci-backend-dev, ci-emqx-dev, ci-private-ca-dev]
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     runs-on: ubuntu-latest
     defaults:
       run:
