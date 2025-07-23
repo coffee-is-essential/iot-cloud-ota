@@ -165,13 +165,13 @@ jobs:
         run: |
           image_tags=""
           if [ -n "$BACKEND_IMAGE" ]; then
-            image_tags="$image_tags -backend_image_tag $BACKEND_IMAGE"
+            image_tags="$image_tags -var backend_image_tag=$BACKEND_IMAGE"
           fi
           if [ -n "$EMQX_IMAGE" ]; then
-            image_tags="$image_tags -emqx_image_tag $EMQX_IMAGE"
+            image_tags="$image_tags -var emqx_image_tag=$EMQX_IMAGE"
           fi
           if [ -n "$PRIVATE_CA_IMAGE" ]; then
-            image_tags="$image_tags -private_ca_image_tag $PRIVATE_CA_IMAGE"
+            image_tags="$image_tags -var private_ca_image_tag=$PRIVATE_CA_IMAGE"
           fi
 
           echo "Applying Terraform with images: $image_tags"
