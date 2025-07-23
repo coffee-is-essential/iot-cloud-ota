@@ -152,4 +152,20 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        env:
+          BACKEND_IMAGE: ${{ needs.ci-backend-dev.outputs.image }}
+          EMQX_IMAGE: ${{ needs.ci-emqx-dev.outputs.image }}
+          PRIVATE_CA_IMAGE: ${{ needs.ci-private-ca-dev.outputs.image }}
+        run: |
+          image_vars =""
+          if [ -n "$BACKEND_IMAGE" ]; then
+            image_vars="$image_vars -backend_image $BACKEND_IMAGE"
+          fi
+          if [ -n "$EMQX_IMAGE" ]; then
+            image_vars="$image_vars -emqx_image $EMQX_IMAGE"
+          fi
+          if [ -n "$PRIVATE_CA_IMAGE" ]; then
+            image_vars="$image_vars -private_ca_image $PRIVATE_CA_IMAGE"
+          fi
+
+          terraform apply -auto-approve $image_vars
