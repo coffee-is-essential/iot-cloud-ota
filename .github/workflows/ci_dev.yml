@@ -60,6 +60,7 @@ jobs:
             -t $ECR_REGISTRY/$ECR_BACKEND_REPOSITORY:latest \
             -f backend/iot-cloud-ota/Dockerfile backend/iot-cloud-ota
           docker push $ECR_REGISTRY/$ECR_BACKEND_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_BACKEND_REPOSITORY:latest
           echo "image=$ECR_REGISTRY/$ECR_BACKEND_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
   ci-emqx-dev:
@@ -91,6 +92,7 @@ jobs:
             -t $ECR_REGISTRY/$ECR_EMQX_REPOSITORY:latest \
             -f emqx/Dockerfile emqx
           docker push $ECR_REGISTRY/$ECR_EMQX_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_EMQX_REPOSITORY:latest
           echo "image=$ECR_REGISTRY/$ECR_EMQX_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
   ci-private-ca-dev:
@@ -122,4 +124,5 @@ jobs:
             -t $ECR_REGISTRY/$ECR_PRIVATE_CA_REPOSITORY:latest \
             -f private_ca/Dockerfile private_ca
           docker push $ECR_REGISTRY/$ECR_EMQX_PRIVATE_CA_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_EMQX_PRIVATE_CA_REPOSITORY:latest
           echo "image=$ECR_REGISTRY/$ECR_EMQX_PRIVATE_CA_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
