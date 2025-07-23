@@ -61,7 +61,7 @@ jobs:
             -f backend/iot-cloud-ota/Dockerfile backend/iot-cloud-ota
           docker push $ECR_REGISTRY/$ECR_BACKEND_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_BACKEND_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$ECR_BACKEND_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
   ci-emqx-dev:
     needs: [detect-changes-by-component]
@@ -93,7 +93,7 @@ jobs:
             -f emqx/Dockerfile emqx
           docker push $ECR_REGISTRY/$ECR_EMQX_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_EMQX_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$ECR_EMQX_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
   ci-private-ca-dev:
     needs: [detect-changes-by-component]
@@ -125,7 +125,7 @@ jobs:
             -f private_ca/Dockerfile private_ca
           docker push $ECR_REGISTRY/$ECR_EMQX_PRIVATE_CA_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_EMQX_PRIVATE_CA_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$ECR_EMQX_PRIVATE_CA_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
   terraform-apply:
     needs: [ci-backend-dev, ci-emqx-dev, ci-private-ca-dev]
@@ -153,11 +153,11 @@ jobs:
 
       - name: Terraform Apply
         env:
-          BACKEND_IMAGE: ${{ needs.ci-backend-dev.outputs.image }}
-          EMQX_IMAGE: ${{ needs.ci-emqx-dev.outputs.image }}
-          PRIVATE_CA_IMAGE: ${{ needs.ci-private-ca-dev.outputs.image }}
+          BACKEND_IMAGE: ${{ needs.ci-backend-dev.outputs.tag }}
+          EMQX_IMAGE: ${{ needs.ci-emqx-dev.outputs.tag }}
+          PRIVATE_CA_IMAGE: ${{ needs.ci-private-ca-dev.outputs.tag }}
         run: |
-          image_vars =""
+          image_vars=""
           if [ -n "$BACKEND_IMAGE" ]; then
             image_vars="$image_vars -backend_image $BACKEND_IMAGE"
           fi
