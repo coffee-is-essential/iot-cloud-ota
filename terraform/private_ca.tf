@@ -20,7 +20,7 @@ resource "aws_ecs_task_definition" "private_ca" {
   container_definitions = jsonencode([
     {
       name      = "private-ca"
-      image     = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-2.amazonaws.com/private-ca:latest"
+      image     = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-2.amazonaws.com/private-ca:${var.private_ca_image_tag}"
       essential = true
 
       portMappings = [

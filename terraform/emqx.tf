@@ -75,7 +75,7 @@ resource "aws_ecs_task_definition" "emqx" {
   container_definitions = jsonencode([
     {
       name      = "emqx"
-      image     = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-2.amazonaws.com/emqx:latest"
+      image     = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-2.amazonaws.com/emqx:${var.emqx_image_tag}"
       essential = true
 
       portMappings = [
