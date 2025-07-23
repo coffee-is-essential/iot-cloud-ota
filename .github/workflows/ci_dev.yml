@@ -35,6 +35,8 @@ jobs:
     needs: [detect-changes-by-component]
     if: ${{ needs.detect-changes-by-component.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.build-image.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -67,6 +69,8 @@ jobs:
     needs: [detect-changes-by-component]
     if: ${{ needs.detect-changes-by-component.outputs.emqx == 'true' }}
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.build-image.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -99,6 +103,8 @@ jobs:
     needs: [detect-changes-by-component]
     if: ${{ needs.detect-changes-by-component.outputs.private_ca == 'true' }}
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.build-image.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
