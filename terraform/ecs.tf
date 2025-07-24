@@ -74,7 +74,7 @@ resource "aws_iam_role" "backend" {
   })
 }
 
-resource "aws_iam_policy" "backend" {
+resource "aws_iam_policy" "s3" {
   name = "backend-app-policy"
 
   policy = jsonencode({
@@ -96,12 +96,61 @@ resource "aws_iam_policy" "backend" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "backend" {
+resource "aws_iam_policy" "cloudfront_signing" {
+  name = "cloudfront-signing-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "cloudfront:GetPublicKey",
+          "cloudfront:ListPublicKeys",
+          "cloudfront:GetDistribution",
+          "cloudfront:ListDistributions",
+          "cloudfront:CreateInvalidation",
+        ],
+        Resource = "*"
+      },
+    ]
+  })
+}
+
+resource "aws_iam_policy" "secrets_manager_read" {
+  name = "secrets-manager-read-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "backend_s3" {
   role       = aws_iam_role.backend.name
-  policy_arn = aws_iam_policy.backend.arn
+  policy_arn = aws_iam_policy.s3.arn
 }
 
 resource "aws_iam_role_policy_attachment" "backend_ssm" {
   role       = aws_iam_role.backend.name
   policy_arn = aws_iam_policy.ecs_exec_ssm.arn
+}
+
+resource "aws_iam_role_policy_attachment" "backend_cloudfront_signing" {
+  role       = aws_iam_role.backend.name
+  policy_arn = aws_iam_policy.cloudfront_signing.arn
+}
+
+resource "aws_iam_role_policy_attachment" "backend_secrets_manager_read" {
+  role       = aws_iam_role.backend.name
+  policy_arn = aws_iam_policy.secrets_manager_read.arn
 }

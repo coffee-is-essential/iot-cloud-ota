@@ -12,7 +12,7 @@ resource "aws_security_group" "mysql_sg" {
       aws_security_group.bastion_sg.id,
       aws_security_group.backend.id,
     ]
-    description = "MySQL access from public subnets"
+    description = "MySQL access from trusted security groups"
   }
 
   egress {
@@ -118,84 +118,6 @@ resource "aws_security_group" "private_ca_sg" {
     to_port         = 80
     protocol        = "tcp"
     security_groups = [aws_security_group.emqx_sg.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-resource "aws_security_group" "cloudwatch_logs_sg" {
-  name        = "iot-cloud-ota-cloudwatch-logs-sg"
-  description = "Security group for CloudWatch Logs VPC endpoint"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    security_groups = [
-      aws_security_group.private_ca_sg.id,
-      aws_security_group.emqx_sg.id,
-      aws_security_group.backend.id,
-    ]
-    description = "HTTPS access for CloudWatch Logs"
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-resource "aws_security_group" "ecr_endpoint_sg" {
-  name        = "iot-cloud-ota-ecr-endpoint-sg"
-  description = "Security group for ECR VPC endpoints"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    security_groups = [
-      aws_security_group.private_ca_sg.id,
-      aws_security_group.emqx_sg.id,
-      aws_security_group.backend.id,
-    ]
-    description = "HTTPS access from Private CA service"
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "iot-cloud-ota-ecr-endpoint-sg"
-  }
-}
-
-resource "aws_security_group" "ssm_endpoint_sg" {
-  name        = "iot-cloud-ota-ssm-endpoint-sg"
-  description = "Security group for SSM VPC endpoints"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    security_groups = [
-      aws_security_group.private_ca_sg.id,
-      aws_security_group.emqx_sg.id,
-      aws_security_group.backend.id,
-    ]
   }
 
   egress {
