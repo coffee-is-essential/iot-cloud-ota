@@ -74,7 +74,7 @@ resource "aws_lb_listener" "nlb_listener_dashboard" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.nlb_tg_mqtt_tls_dashboard.arn
+    target_group_arn = aws_lb_target_group.nlb_tg_dashboard.arn
   }
 }
 
@@ -169,7 +169,7 @@ resource "aws_ecs_service" "emqx" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.nlb_tg_mqtt_tls_dashboard.arn
+    target_group_arn = aws_lb_target_group.nlb_tg_dashboard.arn
     container_name   = "emqx"
     container_port   = 18083
   }
