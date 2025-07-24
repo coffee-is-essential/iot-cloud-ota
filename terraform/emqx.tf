@@ -5,7 +5,21 @@ resource "aws_lb" "emqx_nlb" {
   subnets            = [aws_subnet.public_a.id, aws_subnet.public_b.id]
 }
 
-resource "aws_lb_target_group" "nlb_tg" {
+// NOTE: 개발 편의를 위해 1883 포트를 임시로 열고, 배포 전 닫습니다.
+resource "aws_lb_target_group" "nlb_tg_mqtt" {
+  name        = "emqx-mqtt-tg"
+  port        = 1883
+  protocol    = "TCP"
+  vpc_id      = aws_vpc.main.id
+  target_type = "ip"
+
+  health_check {
+    protocol = "TCP"
+    port     = "1883"
+  }
+}
+
+resource "aws_lb_target_group" "nlb_tg_mqtt_tls" {
   name        = "emqx-tg"
   port        = 8883
   protocol    = "TCP"
@@ -31,14 +45,25 @@ resource "aws_lb_target_group" "nlb_tg_dashboard" {
   }
 }
 
-resource "aws_lb_listener" "nlb_listener" {
+resource "aws_lb_listener" "nlb_listener_mqtt" {
+  load_balancer_arn = aws_lb.emqx_nlb.arn
+  port              = 1883
+  protocol          = "TCP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.nlb_tg_mqtt.arn
+  }
+}
+
+resource "aws_lb_listener" "nlb_listener_mqtt_tls" {
   load_balancer_arn = aws_lb.emqx_nlb.arn
   port              = 8883
   protocol          = "TCP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.nlb_tg.arn
+    target_group_arn = aws_lb_target_group.nlb_tg_mqtt_tls.arn
   }
 }
 
@@ -49,7 +74,7 @@ resource "aws_lb_listener" "nlb_listener_dashboard" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.nlb_tg_dashboard.arn
+    target_group_arn = aws_lb_target_group.nlb_tg_mqtt_tls_dashboard.arn
   }
 }
 
@@ -132,13 +157,19 @@ resource "aws_ecs_service" "emqx" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.nlb_tg.arn
+    target_group_arn = aws_lb_target_group.nlb_tg_mqtt.arn
+    container_name   = "emqx"
+    container_port   = 1883
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.nlb_tg_mqtt_tls.arn
     container_name   = "emqx"
     container_port   = 8883
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.nlb_tg_dashboard.arn
+    target_group_arn = aws_lb_target_group.nlb_tg_mqtt_tls_dashboard.arn
     container_name   = "emqx"
     container_port   = 18083
   }
