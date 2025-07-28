@@ -5,6 +5,7 @@ import { FirmwarePage } from "../pages/FirmwarePage";
 import { AdsPage } from "../pages/AdsPage";
 import { MonitoringPage } from "../pages/MonitoringPage";
 import { FirmwareDetailPage } from "../pages/FirmwareDetailPage";
+import { DevicePage } from "../pages/DevicePage";
 
 export const Router = createBrowserRouter([
   {
@@ -16,6 +17,7 @@ export const Router = createBrowserRouter([
       { path: "dashboard", element: <DashboardPage /> },
       { path: "firmware", element: <FirmwarePage /> },
       { path: "firmware/:id", element: <FirmwareDetailPage /> },
+      { path: "device", element: <DevicePage /> },
       { path: "ads", element: <AdsPage /> },
       { path: "monitoring", element: <MonitoringPage /> },
     ],

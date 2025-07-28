@@ -1,5 +1,6 @@
 import { ReactNode, useMemo } from "react";
 import {
+  Bot,
   ChartColumn,
   LayoutDashboard,
   Megaphone,
@@ -29,6 +30,12 @@ export const useNavigation = () => {
         path: "/firmware",
       },
       {
+        id: "device",
+        icon: <Bot />,
+        name: "기기 관리",
+        path: "/device",
+      },
+      {
         id: "ads",
         icon: <Megaphone />,
         name: "광고 관리",
@@ -41,7 +48,7 @@ export const useNavigation = () => {
         path: "/monitoring",
       },
     ],
-    []
+    [],
   );
 
   return {
