@@ -34,7 +34,7 @@ export const firmwareApiService = {
         params: {
           page: page,
           limit: limit,
-          query: query,
+          search: query,
         },
       },
     );
