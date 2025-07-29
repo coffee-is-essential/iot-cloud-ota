@@ -49,6 +49,8 @@ public class FirmwareDeploymentService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CloudFront 서명 URL 생성 실패", e);
         }
 
+        // TODO RESTClient를 이용해서 MQTT 핸들러로 HTTP 전송
+
         return new FirmwareDeploymentDto(signedUrl, FirmwareDeployInfo.from(findFirmware, expiresAt), devices);
     }
 }

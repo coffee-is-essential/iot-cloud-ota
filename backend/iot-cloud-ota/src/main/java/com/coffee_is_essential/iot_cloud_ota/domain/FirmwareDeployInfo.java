@@ -2,7 +2,8 @@ package com.coffee_is_essential.iot_cloud_ota.domain;
 
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareMetadata;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.UUID;
 
@@ -21,17 +22,21 @@ public record FirmwareDeployInfo(
         String version,
         String fileHash,
         long fileSize,
-        Date expiresAt,
-        LocalDateTime deployedAt
+        OffsetDateTime expiresAt,
+        OffsetDateTime deployedAt
 ) {
     public static FirmwareDeployInfo from(FirmwareMetadata firmwareMetadata, Date expiresAt) {
+        OffsetDateTime expiresAtKST = expiresAt.toInstant()
+                .atZone(ZoneId.of("Asia/Seoul"))
+                .toOffsetDateTime();
+
         return new FirmwareDeployInfo(
                 UUID.randomUUID().toString(),
                 firmwareMetadata.getVersion(),
                 firmwareMetadata.getFileHash(),
                 firmwareMetadata.getFileSize(),
-                expiresAt,
-                LocalDateTime.now()
+                expiresAtKST,
+                OffsetDateTime.now()
         );
     }
 }

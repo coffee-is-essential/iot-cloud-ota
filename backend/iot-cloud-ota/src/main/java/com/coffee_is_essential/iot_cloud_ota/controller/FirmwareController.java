@@ -1,5 +1,6 @@
 package com.coffee_is_essential.iot_cloud_ota.controller;
 
+import com.coffee_is_essential.iot_cloud_ota.domain.PaginationInfo;
 import com.coffee_is_essential.iot_cloud_ota.dto.*;
 import com.coffee_is_essential.iot_cloud_ota.service.FirmwareDeploymentService;
 import com.coffee_is_essential.iot_cloud_ota.service.FirmwareMetadataService;
@@ -46,7 +47,8 @@ public class FirmwareController {
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(required = false) String search
     ) {
-        FirmwareMetadataWithPageResponseDto responseDto = firmwareMetadataService.findAllWithPagination(page, limit, search);
+        PaginationInfo paginationInfo = new PaginationInfo(page, limit, search);
+        FirmwareMetadataWithPageResponseDto responseDto = firmwareMetadataService.findAllWithPagination(paginationInfo);
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
@@ -64,6 +66,7 @@ public class FirmwareController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
+    // TODO RESTClient를 통한 API 호출
     @PostMapping("/metadata/{id}/deployment")
     public ResponseEntity<FirmwareDeploymentDto> deploy(@PathVariable Long id, @RequestBody FirmwareDeploymentRequestDto requestDto) {
         FirmwareDeploymentDto dto = firmwareDeploymentService.deployFirmware(id, requestDto);

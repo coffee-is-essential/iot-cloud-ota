@@ -1,5 +1,8 @@
 package com.coffee_is_essential.iot_cloud_ota.dto;
 
+import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareMetadata;
+import org.springframework.data.domain.Page;
+
 import java.util.List;
 
 /**
@@ -12,4 +15,20 @@ public record FirmwareMetadataWithPageResponseDto(
         List<FirmwareMetadataResponseDto> items,
         PaginationMetadataDto paginationMeta
 ) {
+    public static FirmwareMetadataWithPageResponseDto from(Page<FirmwareMetadata> firmwareMetadataPage) {
+        PaginationMetadataDto metadataDto = new PaginationMetadataDto(
+                firmwareMetadataPage.getPageable().getPageNumber() + 1,
+                firmwareMetadataPage.getPageable().getPageSize(),
+                firmwareMetadataPage.getTotalPages(),
+                firmwareMetadataPage.getTotalElements()
+        );
+
+        return new FirmwareMetadataWithPageResponseDto(
+                firmwareMetadataPage.getContent()
+                        .stream()
+                        .map(FirmwareMetadataResponseDto::from)
+                        .toList(),
+                metadataDto
+        );
+    }
 }
