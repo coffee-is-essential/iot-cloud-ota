@@ -12,14 +12,14 @@ export const MonitoringPage = () => {
           <div className="flex flex-col space-y-4">
             <div className="w-full h-[30em]">
               <iframe
-                src="http://grafana-alb-1148491999.ap-northeast-2.elb.amazonaws.com/d-solo/b52031e9-7fab-4ef1-9895-47790008aa28/iot-cloud-ota?orgId=1&from=1753776680748&to=1753780280748&timezone=browser&theme=light&panelId=1&__feature.dashboardSceneSolo=true"
+                src="http://grafana-alb-1148491999.ap-northeast-2.elb.amazonaws.com/d-solo/b52031e9-7fab-4ef1-9895-47790008aa28/iot-cloud-ota?orgId=1&timezone=browser&theme=light&panelId=1&__feature.dashboardSceneSolo=true"
                 width="100%"
                 height="100%"
               ></iframe>
             </div>
             <div className="w-full h-[30em]">
               <iframe
-                src="http://grafana-alb-1148491999.ap-northeast-2.elb.amazonaws.com/d-solo/b52031e9-7fab-4ef1-9895-47790008aa28/iot-cloud-ota?orgId=1&from=1753776680748&to=1753780280748&timezone=browser&theme=light&panelId=2&__feature.dashboardSceneSolo=true"
+                src="http://grafana-alb-1148491999.ap-northeast-2.elb.amazonaws.com/d-solo/b52031e9-7fab-4ef1-9895-47790008aa28/iot-cloud-ota?orgId=1&timezone=browser&theme=light&panelId=2&__feature.dashboardSceneSolo=true"
                 width="100%"
                 height="100%"
               ></iframe>
