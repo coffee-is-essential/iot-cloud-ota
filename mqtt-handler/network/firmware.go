@@ -37,11 +37,16 @@ func newFirmwareRouter(router *Network) *firmwareRouter {
 // firmwareDeploy는 펌웨어 배포 요청을 처리하는 핸들러입니다.
 func (f *firmwareRouter) firmwareDeploy(w http.ResponseWriter, r *http.Request) {
 	var req types.FirmwareDeployRequest
-
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&req); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		f.router.failedResponse(w, types.FirmwareDeployResponse{
-			ApiResponse: types.NewApiResponse("펌웨어 배포 요청 오류"),
+			ApiResponse: types.NewApiResponse("파싱 오류"),
+		})
+		return
+	}
+
+	if req.SignedUrl == "" || req.FileInfo.Version == "" || len(req.Devices) == 0 {
+		f.router.failedResponse(w, types.FirmwareDeployResponse{
+			ApiResponse: types.NewApiResponse("필수 필드 누락"),
 		})
 		return
 	}
@@ -66,7 +71,7 @@ func (n *Network) firmwareDeployPOST(path string, handler http.HandlerFunc) {
 	postOnlyHandler := func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			n.failedResponse(w, types.FirmwareDeployResponse{
-				ApiResponse: types.NewApiResponse("Method Not Allowed"),
+				ApiResponse: types.NewApiResponse("잘못된 접근입니다."),
 			})
 			return
 		}
