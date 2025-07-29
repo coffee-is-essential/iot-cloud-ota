@@ -1,7 +1,14 @@
+### GoLand IDEA ###
+.idea
+
 ### VS Code ###
 .vscode/
 
 ### Mac OS ###
 .DS_Store
 
+### config ###
+config.toml
+
+### 잠만요 ㄹㅇ ###
 .mqtt
