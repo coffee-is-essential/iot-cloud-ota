@@ -3,6 +3,12 @@ provider "aws" {
 }
 
 terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.6.0"
+    }
+  }
   backend "s3" {
     bucket       = "iot-cloud-ota-tf-state-bucket"
     key          = "terraform/state"
