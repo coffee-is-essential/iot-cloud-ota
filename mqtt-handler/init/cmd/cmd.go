@@ -3,6 +3,7 @@ package cmd
 
 import (
 	"mqtt-handler/config"
+	"mqtt-handler/mqttclient"
 	"mqtt-handler/network"
 )
 
@@ -10,17 +11,20 @@ import (
 // config: TOML 설정 파일로부터 로드된 설정 정보를 보관
 // network: HTTP 서버와 관련된 기능들을 관리
 type Cmd struct {
-	config  *config.Config
-	network *network.Network
+	config     *config.Config
+	network    *network.Network
+	mqttClient *mqttclient.MQTTClient
 }
 
 // Cmd 구조체를 초기화하고, HTTP 서버를 시작합니다.
 func NewCmd(filePath string) *Cmd {
 	c := &Cmd{
-		config:  config.NewConfig(filePath),
-		network: network.NewNetwork(),
+		config:     config.NewConfig(filePath),
+		network:    network.NewNetwork(),
+		mqttClient: mqttclient.NewMqtt(),
 	}
 
+	c.mqttClient.Connect(c.config.MqttBroker.Url, c.config.MqttBroker.ClientId)
 	c.network.ServerStart(c.config.Server.Port)
 
 	return c

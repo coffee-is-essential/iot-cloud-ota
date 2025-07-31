@@ -1,4 +1,4 @@
-package mqtt
+package mqttclient
 
 import (
 	"encoding/json"
