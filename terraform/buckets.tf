@@ -93,6 +93,60 @@ resource "aws_s3_bucket_policy" "allow_cloudfront_access" {
   })
 }
 
+resource "aws_s3_bucket" "frontend_bucket" {
+  bucket = "iot-cloud-ota-frontend-bucket"
+
+  tags = {
+    "Name"        = "iot-cloud-ota-frontend-bucket"
+    "Description" = "S3 bucket for hosting the frontend application"
+  }
+}
+
+resource "aws_s3_bucket_website_configuration" "frontend_bucket" {
+  bucket = aws_s3_bucket.frontend_bucket.id
+
+  index_document {
+    suffix = "index.html"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "frontend_bucket" {
+  bucket = aws_s3_bucket.frontend_bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_policy" "frontend_public_policy" {
+  bucket = aws_s3_bucket.frontend_bucket.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = ["s3:GetObject"]
+        Resource  = "${aws_s3_bucket.frontend_bucket.arn}/*"
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket_cors_configuration" "frontend_bucket_cors" {
+  bucket = aws_s3_bucket.frontend_bucket.id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "PUT", "POST", "HEAD"]
+    allowed_origins = ["http://iot-cloud-ota-frontend-bucket.s3-website.ap-northeast-2.amazonaws.com"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+}
+
 data "aws_secretsmanager_secret" "public_signing_key" {
   name = "cloudfront/signed_url/public_key"
 }
