@@ -72,6 +72,7 @@ resource "aws_ecs_task_definition" "backend" {
         { name = "CLOUDFRONT_KEY_ID", value = aws_cloudfront_public_key.signing_key.id },
         { name = "CLOUDFRONT_DOMAIN", value = aws_cloudfront_distribution.firmware_distribution.domain_name },
         { name = "CLOUDFRONT_SECRET", value = data.aws_secretsmanager_secret.private_signing_key.name },
+        { name = "CORS_ALLOWED_ORIGINS", value = "http://${aws_s3_bucket_website_configuration.frontend_bucket.website_endpoint}" },
       ]
 
       logConfiguration = {
@@ -110,7 +111,7 @@ resource "aws_ecs_service" "backend" {
   desired_count                     = 1
   launch_type                       = "FARGATE"
   enable_execute_command            = true
-  health_check_grace_period_seconds = 200 // NOTE: Spring Boot가 실행되기까지 오래 걸려서 기다리지 않으면 health check에 실패합니다
+  health_check_grace_period_seconds = 300 // NOTE: Spring Boot가 실행되기까지 오래 걸려서 기다리지 않으면 health check에 실패합니다
 
   network_configuration {
     subnets          = [aws_subnet.private_a.id, aws_subnet.private_b.id]
