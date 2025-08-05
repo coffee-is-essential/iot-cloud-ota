@@ -140,8 +140,8 @@ resource "aws_s3_bucket_cors_configuration" "frontend_bucket_cors" {
 
   cors_rule {
     allowed_headers = ["*"]
-    allowed_methods = ["GET", "PUT", "POST", "HEAD"]
-    allowed_origins = ["http://iot-cloud-ota-frontend-bucket.s3-website.ap-northeast-2.amazonaws.com"]
+    allowed_methods = ["GET", "HEAD"]
+    allowed_origins = [aws_s3_bucket_website_configuration.frontend_bucket.website_endpoint]
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
   }
