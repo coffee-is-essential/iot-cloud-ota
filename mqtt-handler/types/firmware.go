@@ -39,3 +39,13 @@ type FirmwareAck struct {
 	Message   string `json:"message"`
 	Timestamp string `json:"timestamp"`
 }
+
+type FirmwareProgress struct {
+	CommandID       string `json:"command_id"`
+	Progress        int64  `json:"progress"`
+	DownloadedBytes int64  `json:"downloaded_bytes"`
+	TotalBytes      int64  `json:"total_bytes"`
+	SpeedKbps       int64  `json:"speed_kbps"`
+	EtaSeconds      int64  `json:"eta_seconds,omitempty"`
+	Timestamp       string `json:"timestamp"`
+}

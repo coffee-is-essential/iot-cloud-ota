@@ -26,6 +26,7 @@ func NewCmd(filePath string) *Cmd {
 
 	c.mqttClient.Connect(c.config.MqttBroker.Url, c.config.MqttBroker.ClientId)
 	c.mqttClient.SubscribeDownloadRequestAck()
+	c.mqttClient.SubscribeDownloadProgress()
 	c.network.ServerStart(c.config.Server.Port)
 	return c
 }
