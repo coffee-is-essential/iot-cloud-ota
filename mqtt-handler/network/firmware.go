@@ -76,8 +76,13 @@ func (n *Network) firmwareDeployPOST(path string, handler http.HandlerFunc) {
 }
 
 func PrintLog(req *types.FirmwareDeployRequest) {
-	fmt.Println(req.SignedUrl)
-	fmt.Println(req.FileInfo.Version)
+	fmt.Println("signed URL: ", req.SignedUrl)
+	fmt.Println("Deployment ID: ", req.FileInfo.DeploymentId)
+	fmt.Println("Version: ", req.FileInfo.Version)
+	fmt.Println("hash: ", req.FileInfo.FileHash)
+	fmt.Println("FileSize", req.FileInfo.FileSize)
+	fmt.Println("Expired At", req.FileInfo.ExpiresAt)
+	fmt.Println("deployed At", req.FileInfo.DeployedAt)
 	for _, topic := range req.TopicList {
 		fmt.Println("Publish to topic:", topic.Topic)
 	}

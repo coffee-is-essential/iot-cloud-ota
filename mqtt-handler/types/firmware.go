@@ -22,3 +22,13 @@ type TopicItem struct {
 type FirmwareDeployResponse struct {
 	*ApiResponse
 }
+
+type FirmwareDownloadCommand struct {
+	CommandID string `json:"command_id"`
+	SignedURL string `json:"signed_url"`
+	Version   string `json:"version"`
+	Checksum  string `json:"checksum"`
+	Size      int64  `json:"size"`
+	Timeout   string `json:"timeout"`
+	Timestamp string `json:"timestamp"`
+}
