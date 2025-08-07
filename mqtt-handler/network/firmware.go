@@ -3,6 +3,7 @@ package network
 import (
 	"encoding/json"
 	"fmt"
+	"mqtt-handler/mqttclient"
 	"mqtt-handler/types"
 	"net/http"
 	"sync"
@@ -16,8 +17,8 @@ var (
 
 // firmwareRouter는 펌웨어 관련 라우팅 기능을 담당합니다.
 type firmwareRouter struct {
-	router *Network
-	// TODO MQTT Service 추가
+	router     *Network
+	mqttClient *mqttclient.MQTTClient
 }
 
 // newFirmwareRouter는 firmwareRouter를 한 번만 초기화하고,
@@ -25,7 +26,8 @@ type firmwareRouter struct {
 func newFirmwareRouter(router *Network) *firmwareRouter {
 	firmwareRouterInit.Do(func() {
 		firmwareRouterInstance = &firmwareRouter{
-			router: router,
+			router:     router,
+			mqttClient: mqttclient.NewMqttClient(),
 		}
 		router.firmwareDeployPOST("/api/firmwares/deployment", firmwareRouterInstance.firmwareDeploy)
 
@@ -44,24 +46,16 @@ func (f *firmwareRouter) firmwareDeploy(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if req.SignedUrl == "" || req.FileInfo.Version == "" || len(req.Devices) == 0 {
+	if req.SignedUrl == "" || req.FileInfo.Version == "" || len(req.TopicList) == 0 {
 		f.router.failedResponse(w, types.FirmwareDeployResponse{
 			ApiResponse: types.NewApiResponse("필수 필드 누락"),
 		})
 		return
 	}
 
-	fmt.Println("=== Firmware Request Received ===")
-	fmt.Println("Signed URL:", req.SignedUrl)
-	fmt.Println("Version:", req.FileInfo.Version)
-	fmt.Println("Deployment ID:", req.FileInfo.DeploymentId)
-	fmt.Println("Expires At:", req.FileInfo.ExpiresAt)
-	fmt.Println("Devices:")
-	for _, d := range req.Devices {
-		fmt.Printf(" - DeviceID: %d, GroupID: %d, RegionID: %d\n", d.DeviceId, d.GroupId, d.RegionId)
-	}
-	fmt.Println("=================================")
+	PrintLog(&req)
 
+	f.mqttClient.PublishDownloadRequest(&req)
 	f.router.okResponse(w, types.FirmwareDeployResponse{
 		ApiResponse: types.NewApiResponse("배포 요청 성공"),
 	})
@@ -79,4 +73,12 @@ func (n *Network) firmwareDeployPOST(path string, handler http.HandlerFunc) {
 	}
 
 	n.mux.HandleFunc(path, postOnlyHandler)
+}
+
+func PrintLog(req *types.FirmwareDeployRequest) {
+	fmt.Println(req.SignedUrl)
+	fmt.Println(req.FileInfo.Version)
+	for _, topic := range req.TopicList {
+		fmt.Println("Publish to topic:", topic.Topic)
+	}
 }

@@ -21,7 +21,7 @@ func NewCmd(filePath string) *Cmd {
 	c := &Cmd{
 		config:     config.NewConfig(filePath),
 		network:    network.NewNetwork(),
-		mqttClient: mqttclient.NewMqtt(),
+		mqttClient: mqttclient.NewMqttClient(),
 	}
 
 	c.mqttClient.Connect(c.config.MqttBroker.Url, c.config.MqttBroker.ClientId)
