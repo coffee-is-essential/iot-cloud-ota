@@ -36,6 +36,7 @@ func (m *MQTTClient) PublishDownloadRequest(req *types.FirmwareDeployRequest) {
 		wg.Add(1)
 		go func(t string) {
 			defer wg.Done()
+			// TODO: 토픽 변경
 			token := m.mqttClient.Publish("test/topic", 2, false, payload)
 			token.Wait()
 			if token.Error() != nil {

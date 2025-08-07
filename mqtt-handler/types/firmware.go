@@ -32,3 +32,10 @@ type FirmwareDownloadCommand struct {
 	Timeout   string `json:"timeout"`
 	Timestamp string `json:"timestamp"`
 }
+
+type FirmwareAck struct {
+	CommandID string `json:"command_id"`
+	Status    string `json:"status"`
+	Message   string `json:"message"`
+	Timestamp string `json:"timestamp"`
+}
