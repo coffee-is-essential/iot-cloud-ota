@@ -16,9 +16,9 @@ type FileInfo struct {
 }
 
 type DeviceIds struct {
-	DeviceId int `json:"deviceId"`
-	GroupId  int `json:"groupId"`
-	RegionId int `json:"regionId"`
+	DeviceId int64 `json:"deviceId"`
+	GroupId  int64 `json:"groupId"`
+	RegionId int64 `json:"regionId"`
 }
 
 type FirmwareDeployResponse struct {
@@ -66,4 +66,19 @@ type FirmwareDownloadCancelAck struct {
 	Status    string `json:"status"`
 	Message   string `json:"message"`
 	Timestamp string `json:"timestamp"`
+}
+
+type FirmwareDownloadEvent struct {
+	CommandID        string
+	GroupID          int64
+	RegionID         int64
+	DeviceID         int64
+	Message          string
+	Status           string
+	Progress         int64
+	TotalBytes       int64
+	DownloadBytes    int64
+	SpeedKbps        int64
+	ChecksumVerified bool
+	DownloadTime     int64
 }

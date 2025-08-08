@@ -4,6 +4,7 @@ import (
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"log"
+	"mqtt-handler/repository"
 	"sync"
 )
 
@@ -14,6 +15,7 @@ var (
 
 type MQTTClient struct {
 	mqttClient mqtt.Client
+	dbClient   *repository.DBClient
 }
 
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, message mqtt.Message) {
@@ -26,7 +28,9 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 
 func NewMqttClient() *MQTTClient {
 	mqttClientInit.Do(func() {
-		mqttClientInstance = &MQTTClient{}
+		mqttClientInstance = &MQTTClient{
+			dbClient: repository.NewDBClient(),
+		}
 	})
 
 	return mqttClientInstance

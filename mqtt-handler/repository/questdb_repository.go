@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"log"
+	"mqtt-handler/types"
 	"sync"
 
 	"github.com/questdb/go-questdb-client/v3"
@@ -12,6 +13,8 @@ var (
 	questDBClientInit     sync.Once
 	questDBClientInstance *DBClient
 )
+
+var InsertChan = make(chan types.FirmwareDownloadEvent, 1000)
 
 type DBClient struct {
 	sender questdb.LineSender

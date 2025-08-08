@@ -28,12 +28,23 @@ func NewCmd(filePath string) *Cmd {
 		questDBClient: repository.NewDBClient(),
 	}
 	ctx := context.TODO()
+
+	// Quest DB 연결
 	c.questDBClient.Connect(ctx, c.config.QuestDB.Conf)
+
+	// event consumer 고루틴 실행
+	go c.questDBClient.StartEventConsumer()
+
+	// MQTT 연결
 	c.mqttClient.Connect(c.config.MqttBroker.Url, c.config.MqttBroker.ClientId)
+
+	// MQTT Subscribe
 	c.mqttClient.SubscribeDownloadRequestAck()
 	c.mqttClient.SubscribeDownloadProgress()
 	c.mqttClient.SubscribeDownloadResult()
 	c.mqttClient.SubscribeDownloadCancelAck()
+
+	// HTTP 서버 시작
 	c.network.ServerStart(c.config.Server.Port)
 	return c
 }

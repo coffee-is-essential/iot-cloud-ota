@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"mqtt-handler/repository"
 	"mqtt-handler/types"
 	"sync"
 )
@@ -38,6 +39,23 @@ func (m *MQTTClient) PublishDownloadRequest(req *types.FirmwareDeployRequest) {
 			defer wg.Done()
 			topic := fmt.Sprintf("v1/%d/%d/%d/firmware/download/request", d.RegionId, d.GroupId, d.DeviceId)
 			token := m.mqttClient.Publish(topic, 2, false, payload)
+
+			event := types.FirmwareDownloadEvent{
+				CommandID:        command.CommandID,
+				GroupID:          d.GroupId,
+				RegionID:         d.RegionId,
+				DeviceID:         d.DeviceId,
+				Message:          "Published to Device",
+				Status:           "WAITING",
+				Progress:         0,
+				TotalBytes:       command.Size,
+				DownloadBytes:    0,
+				SpeedKbps:        0,
+				ChecksumVerified: false,
+				DownloadTime:     0,
+			}
+
+			repository.InsertChan <- event
 			token.Wait()
 			if token.Error() != nil {
 				log.Printf("[MQTT] Publish 실패: %s → %v", topic, token.Error())

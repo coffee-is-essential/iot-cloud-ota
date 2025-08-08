@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"log"
+	"mqtt-handler/repository"
 	"mqtt-handler/types"
+	"strconv"
+	"strings"
 )
 
 func (m *MQTTClient) SubscribeDownloadRequestAck() {
@@ -22,8 +25,27 @@ func (m *MQTTClient) SubscribeDownloadRequestAck() {
 		log.Printf("[ACK] Status: %s", ack.Status)
 		log.Printf("[ACK] Message: %s", ack.Message)
 		log.Printf("[ACK] Timestamp: %s", ack.Timestamp)
+		topicParts := strings.Split(msg.Topic(), "/")
+		topicRegionId, _ := strconv.ParseInt(topicParts[1], 10, 64)
+		topicGroupId, _ := strconv.ParseInt(topicParts[2], 10, 64)
+		topicDeviceId, _ := strconv.ParseInt(topicParts[3], 10, 64)
 
-		// TODO: DB 저장 또는 상태 업데이트 가능
+		event := types.FirmwareDownloadEvent{
+			CommandID:        ack.CommandID,
+			GroupID:          topicGroupId,
+			RegionID:         topicRegionId,
+			DeviceID:         topicDeviceId,
+			Message:          ack.Message,
+			Status:           ack.Status,
+			Progress:         0,
+			TotalBytes:       0,
+			DownloadBytes:    0,
+			SpeedKbps:        0,
+			ChecksumVerified: false,
+			DownloadTime:     0,
+		}
+
+		repository.InsertChan <- event
 	}
 
 	token := m.mqttClient.Subscribe(topic, 1, handler)
