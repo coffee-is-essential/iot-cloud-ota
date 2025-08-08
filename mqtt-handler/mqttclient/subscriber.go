@@ -8,7 +8,7 @@ import (
 )
 
 func (m *MQTTClient) SubscribeDownloadRequestAck() {
-	const topic = "v1/+/+/firmware/download/request/ack"
+	const topic = "v1/+/+/+/firmware/download/request/ack"
 	handler := func(client mqtt.Client, msg mqtt.Message) {
 		log.Printf("[MQTT] ACK 수신 - 토픽: %s", msg.Topic())
 
@@ -36,7 +36,7 @@ func (m *MQTTClient) SubscribeDownloadRequestAck() {
 }
 
 func (m *MQTTClient) SubscribeDownloadProgress() {
-	const topic = "v1/+/+/firmware/download/progress"
+	const topic = "v1/+/+/+/firmware/download/progress"
 	handler := func(client mqtt.Client, msg mqtt.Message) {
 		log.Printf("[MQTT] PROGRESS 수신 - 토픽: %s", msg.Topic())
 
@@ -65,7 +65,7 @@ func (m *MQTTClient) SubscribeDownloadProgress() {
 }
 
 func (m *MQTTClient) SubscribeDownloadResult() {
-	const topic = "v1/+/+/firmware/download/result"
+	const topic = "v1/+/+/+/firmware/download/result"
 	handler := func(client mqtt.Client, msg mqtt.Message) {
 		log.Printf("[MQTT] RESULT 수신 - 토픽: %s", msg.Topic())
 
@@ -95,7 +95,7 @@ func (m *MQTTClient) SubscribeDownloadResult() {
 }
 
 func (m *MQTTClient) SubscribeDownloadCancelAck() {
-	const topic = "v1/+/+/firmware/download/cancel/ack"
+	const topic = "v1/+/+/+/firmware/download/cancel/ack"
 	handler := func(client mqtt.Client, msg mqtt.Message) {
 		log.Printf("[MQTT] CANCEL ACK 수신 - 토픽: %s", msg.Topic())
 

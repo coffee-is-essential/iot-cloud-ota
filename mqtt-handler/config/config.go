@@ -16,6 +16,10 @@ type Config struct {
 		Url      string
 		ClientId string
 	}
+
+	QuestDB struct {
+		Conf string
+	}
 }
 
 // 주어진 filePath의 TOML 설정 파일을 읽어 Config 객체로 파싱합니다.

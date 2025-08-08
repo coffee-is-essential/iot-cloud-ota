@@ -8,6 +8,8 @@ require (
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/naoina/toml v0.1.1 // indirect
+	github.com/questdb/go-questdb-client v1.0.5 // indirect
+	github.com/questdb/go-questdb-client/v3 v3.2.0 // indirect
 	golang.org/x/net v0.42.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect
 )
