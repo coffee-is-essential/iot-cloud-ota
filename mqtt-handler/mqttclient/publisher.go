@@ -2,6 +2,7 @@ package mqttclient
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"mqtt-handler/types"
 	"sync"
@@ -29,19 +30,21 @@ func (m *MQTTClient) PublishDownloadRequest(req *types.FirmwareDeployRequest) {
 		return
 	}
 
-	for _, topic := range req.TopicList {
+	for _, deviceInfo := range req.Devices {
 		wg.Add(1)
-		go func(t string) {
+
+		deviceInfoCopy := deviceInfo
+		go func(d types.DeviceIds) {
 			defer wg.Done()
-			// TODO: 토픽 변경
-			token := m.mqttClient.Publish("test/topic", 2, false, payload)
+			topic := fmt.Sprintf("v1/%d/%d/%d/firmware/download/request", d.RegionId, d.GroupId, d.DeviceId)
+			token := m.mqttClient.Publish(topic, 2, false, payload)
 			token.Wait()
 			if token.Error() != nil {
-				log.Printf("[MQTT] Publish 실패: %s → %v", t, token.Error())
+				log.Printf("[MQTT] Publish 실패: %s → %v", topic, token.Error())
 			} else {
-				log.Printf("[MQTT] Publish 성공: %s", t)
+				log.Printf("[MQTT] Publish 성공: %s", topic)
 			}
-		}(topic.Topic)
+		}(deviceInfoCopy)
 	}
 
 	wg.Wait()

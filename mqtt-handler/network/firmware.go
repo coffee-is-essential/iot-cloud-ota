@@ -46,7 +46,7 @@ func (f *firmwareRouter) firmwareDeploy(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if req.SignedUrl == "" || req.FileInfo.Version == "" || len(req.TopicList) == 0 {
+	if req.SignedUrl == "" || req.FileInfo.Version == "" || len(req.Devices) == 0 {
 		f.router.failedResponse(w, types.FirmwareDeployResponse{
 			ApiResponse: types.NewApiResponse("필수 필드 누락"),
 		})
@@ -83,7 +83,7 @@ func PrintLog(req *types.FirmwareDeployRequest) {
 	fmt.Println("FileSize", req.FileInfo.FileSize)
 	fmt.Println("Expired At", req.FileInfo.ExpiresAt)
 	fmt.Println("deployed At", req.FileInfo.DeployedAt)
-	for _, topic := range req.TopicList {
-		fmt.Println("Publish to topic:", topic.Topic)
+	for _, device := range req.Devices {
+		fmt.Printf("[Device] - Device ID: %d, Group ID: %d, Region Id: %d\n", device.DeviceId, device.GroupId, device.RegionId)
 	}
 }

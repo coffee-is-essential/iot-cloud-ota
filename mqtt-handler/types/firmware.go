@@ -3,7 +3,7 @@ package types
 type FirmwareDeployRequest struct {
 	SignedUrl string      `json:"signedUrl"`
 	FileInfo  FileInfo    `json:"fileInfo"`
-	TopicList []TopicItem `json:"topicList"`
+	Devices   []DeviceIds `json:"devices"`
 }
 
 type FileInfo struct {
@@ -15,8 +15,10 @@ type FileInfo struct {
 	DeployedAt   string `json:"deployedAt"`
 }
 
-type TopicItem struct {
-	Topic string `json:"topic"`
+type DeviceIds struct {
+	DeviceId int `json:"deviceId"`
+	GroupId  int `json:"groupId"`
+	RegionId int `json:"regionId"`
 }
 
 type FirmwareDeployResponse struct {
