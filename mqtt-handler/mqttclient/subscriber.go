@@ -2,178 +2,111 @@ package mqttclient
 
 import (
 	"encoding/json"
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"log"
 	"mqtt-handler/repository"
 	"mqtt-handler/types"
 	"strconv"
 	"strings"
+
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
-func (m *MQTTClient) SubscribeDownloadRequestAck() {
-	const topic = "v1/+/+/+/firmware/download/request/ack"
+// 공통 구독 함수 - 다양한 펌웨어 토픽에 대해 메시지를 처리하는 핸들러를 등록
+func (m *MQTTClient) subscribe(topic string, parseFunc func(mqtt.Message) (*types.FirmwareDownloadEvent, error), label string) {
 	handler := func(client mqtt.Client, msg mqtt.Message) {
-		log.Printf("[MQTT] ACK 수신 - 토픽: %s", msg.Topic())
+		log.Printf("[MQTT] %s 수신 - 토픽: %s", label, msg.Topic())
 
-		var ack types.FirmwareDownloadRequestAck
-		if err := json.Unmarshal(msg.Payload(), &ack); err != nil {
-			log.Printf("[ERROR] ACK 메시지 파싱 실패: %v", err)
+		event, err := parseFunc(msg)
+		if err != nil {
+			log.Printf("[ERROR] %s 메시지 파싱 실패: %v", label, err)
 			return
 		}
 
-		log.Printf("[ACK] Command ID: %s", ack.CommandID)
-		log.Printf("[ACK] Status: %s", ack.Status)
-		log.Printf("[ACK] Message: %s", ack.Message)
-		log.Printf("[ACK] Timestamp: %s", ack.Timestamp)
-		topicParts := strings.Split(msg.Topic(), "/")
-		topicRegionId, _ := strconv.ParseInt(topicParts[1], 10, 64)
-		topicGroupId, _ := strconv.ParseInt(topicParts[2], 10, 64)
-		topicDeviceId, _ := strconv.ParseInt(topicParts[3], 10, 64)
-
-		event := types.FirmwareDownloadEvent{
-			CommandID:        ack.CommandID,
-			GroupID:          topicGroupId,
-			RegionID:         topicRegionId,
-			DeviceID:         topicDeviceId,
-			Message:          ack.Message,
-			Status:           ack.Status,
-			Progress:         0,
-			TotalBytes:       0,
-			DownloadBytes:    0,
-			SpeedKbps:        0,
-			ChecksumVerified: false,
-			DownloadTime:     0,
-		}
-
-		repository.InsertChan <- event
+		repository.InsertChan <- *event
 	}
 
 	token := m.mqttClient.Subscribe(topic, 1, handler)
 	token.Wait()
 	if token.Error() != nil {
-		log.Printf("[ERROR] ACK 구독 실패: %v", token.Error())
+		log.Printf("[ERROR] %s 구독 실패: %v", label, token.Error())
 	} else {
 		log.Printf("[MQTT] 구독 성공: %s", topic)
 	}
 }
 
-func (m *MQTTClient) SubscribeDownloadProgress() {
-	const topic = "v1/+/+/+/firmware/download/progress"
-	handler := func(client mqtt.Client, msg mqtt.Message) {
-		log.Printf("[MQTT] PROGRESS 수신 - 토픽: %s", msg.Topic())
+// 펌웨어 다운로드 요청 수신 확인(ACK) 메시지 처리
+func parseDownloadRequestAck(msg mqtt.Message) (*types.FirmwareDownloadEvent, error) {
+	var ack types.FirmwareDownloadRequestAck
+	if err := json.Unmarshal(msg.Payload(), &ack); err != nil {
 
-		var progress types.FirmwareDownloadProgress
-		if err := json.Unmarshal(msg.Payload(), &progress); err != nil {
-			log.Printf("[ERROR] PROGRESS 메시지 파싱 실패: %v", err)
-			return
-		}
-
-		log.Printf("[PROGRESS] Command ID: %s", progress.CommandID)
-		log.Printf("[PROGRESS] %d%% (%d / %d bytes), %d kbps",
-			progress.Progress, progress.DownloadedBytes, progress.TotalBytes, progress.SpeedKbps)
-		log.Printf("[PROGRESS] ETA: %d초", progress.EtaSeconds)
-		log.Printf("[PROGRESS] Timestamp: %s", progress.Timestamp)
-
-		topicParts := strings.Split(msg.Topic(), "/")
-		topicRegionId, _ := strconv.ParseInt(topicParts[1], 10, 64)
-		topicGroupId, _ := strconv.ParseInt(topicParts[2], 10, 64)
-		topicDeviceId, _ := strconv.ParseInt(topicParts[3], 10, 64)
-
-		event := types.FirmwareDownloadEvent{
-			CommandID:        progress.CommandID,
-			GroupID:          topicGroupId,
-			RegionID:         topicRegionId,
-			DeviceID:         topicDeviceId,
-			Message:          "Download in progress",
-			Status:           "IN PROGRESS",
-			Progress:         progress.Progress,
-			TotalBytes:       progress.TotalBytes,
-			DownloadBytes:    progress.DownloadedBytes,
-			SpeedKbps:        progress.SpeedKbps,
-			ChecksumVerified: false,
-			DownloadTime:     0, // 다운로드 진행 시간도 보내주면 좋을 거 같은데 ~
-		}
-		repository.InsertChan <- event
+		return nil, err
 	}
 
-	token := m.mqttClient.Subscribe(topic, 1, handler)
-	token.Wait()
-	if token.Error() != nil {
-		log.Printf("[ERROR] PROGRESS 구독 실패: %v", token.Error())
-	} else {
-		log.Printf("[MQTT] 구독 성공: %s", topic)
+	return buildDownloadEvent(msg.Topic(), ack.CommandID, ack.Message, ack.Status, 0, 0, 0, 0, false, 0), nil
+}
+
+// 다운로드 진행 중(Progress) 메시지 처리
+func parseDownloadProgress(msg mqtt.Message) (*types.FirmwareDownloadEvent, error) {
+	var progress types.FirmwareDownloadProgress
+	if err := json.Unmarshal(msg.Payload(), &progress); err != nil {
+
+		return nil, err
+	}
+
+	return buildDownloadEvent(msg.Topic(), progress.CommandID, "Download in progress", "IN PROGRESS",
+		progress.Progress, progress.TotalBytes, progress.DownloadedBytes, progress.SpeedKbps, false, 0), nil
+}
+
+// 다운로드 결과(Result) 메시지 처리
+func parseDownloadResult(msg mqtt.Message) (*types.FirmwareDownloadEvent, error) {
+	var result types.FirmwareDownloadResult
+	if err := json.Unmarshal(msg.Payload(), &result); err != nil {
+
+		return nil, err
+	}
+
+	return buildDownloadEvent(msg.Topic(), result.CommandID, result.Message, result.Status,
+		0, 0, 0, 0, result.ChecksumVerified, result.DownloadTime), nil
+}
+
+// 다운로드 취소 응답 메시지 처리
+func parseDownloadCancelAck(msg mqtt.Message) (*types.FirmwareDownloadEvent, error) {
+	var ack types.FirmwareDownloadCancelAck
+	if err := json.Unmarshal(msg.Payload(), &ack); err != nil {
+
+		return nil, err
+	}
+
+	return buildDownloadEvent(msg.Topic(), ack.CommandID, ack.Message, ack.Status, 0, 0, 0, 0, false, 0), nil
+}
+
+// 공통 이벤트 빌더 - 토픽에서 region/group/device ID 추출 + 이벤트 생성
+func buildDownloadEvent(topic, commandID, message, status string, progress int64, totalBytes int64, downloadBytes int64, speedKbps int64, verified bool, downloadTime int64) *types.FirmwareDownloadEvent {
+	topicParts := strings.Split(topic, "/")
+	regionID, _ := strconv.ParseInt(topicParts[1], 10, 64)
+	groupID, _ := strconv.ParseInt(topicParts[2], 10, 64)
+	deviceID, _ := strconv.ParseInt(topicParts[3], 10, 64)
+
+	return &types.FirmwareDownloadEvent{
+		CommandID:        commandID,
+		GroupID:          groupID,
+		RegionID:         regionID,
+		DeviceID:         deviceID,
+		Message:          message,
+		Status:           status,
+		Progress:         progress,
+		TotalBytes:       totalBytes,
+		DownloadBytes:    downloadBytes,
+		SpeedKbps:        speedKbps,
+		ChecksumVerified: verified,
+		DownloadTime:     downloadTime,
 	}
 }
 
-func (m *MQTTClient) SubscribeDownloadResult() {
-	const topic = "v1/+/+/+/firmware/download/result"
-	handler := func(client mqtt.Client, msg mqtt.Message) {
-		log.Printf("[MQTT] RESULT 수신 - 토픽: %s", msg.Topic())
-
-		var result types.FirmwareDownloadResult
-		if err := json.Unmarshal(msg.Payload(), &result); err != nil {
-			log.Printf("[ERROR] RESULT 메시지 파싱 실패: %v", err)
-			return
-		}
-
-		log.Printf("[RESULT] Command ID: %s", result.CommandID)
-		log.Printf("[RESULT] Status: %s", result.Status)
-		log.Printf("[RESULT] Message: %s", result.Message)
-		log.Printf("[RESULT] Checksum Verified: %v", result.ChecksumVerified)
-		log.Printf("[RESULT] Download Time: %ds", result.DownloadTime)
-		log.Printf("[RESULT] Timestamp: %s", result.Timestamp)
-
-		topicParts := strings.Split(msg.Topic(), "/")
-		topicRegionId, _ := strconv.ParseInt(topicParts[1], 10, 64)
-		topicGroupId, _ := strconv.ParseInt(topicParts[2], 10, 64)
-		topicDeviceId, _ := strconv.ParseInt(topicParts[3], 10, 64)
-
-		event := types.FirmwareDownloadEvent{
-			CommandID:        result.CommandID,
-			GroupID:          topicGroupId,
-			RegionID:         topicRegionId,
-			DeviceID:         topicDeviceId,
-			Message:          result.Message,
-			Status:           result.Status,
-			ChecksumVerified: result.ChecksumVerified,
-			DownloadTime:     result.DownloadTime, // 다운로드 진행 시간도 보내주면 좋을 거 같은데 ~
-		}
-		repository.InsertChan <- event
-	}
-
-	token := m.mqttClient.Subscribe(topic, 1, handler)
-	token.Wait()
-	if token.Error() != nil {
-		log.Printf("[ERROR] RESULT 구독 실패: %v", token.Error())
-	} else {
-		log.Printf("[MQTT] 구독 성공: %s", topic)
-	}
-}
-
-func (m *MQTTClient) SubscribeDownloadCancelAck() {
-	const topic = "v1/+/+/+/firmware/download/cancel/ack"
-	handler := func(client mqtt.Client, msg mqtt.Message) {
-		log.Printf("[MQTT] CANCEL ACK 수신 - 토픽: %s", msg.Topic())
-
-		var ack types.FirmwareDownloadCancelAck
-		if err := json.Unmarshal(msg.Payload(), &ack); err != nil {
-			log.Printf("[ERROR] CANCEL ACK 메시지 파싱 실패: %v", err)
-			return
-		}
-
-		log.Printf("[CANCEL ACK] Command ID: %s", ack.CommandID)
-		log.Printf("[CANCEL ACK] Status: %s", ack.Status)
-		log.Printf("[CANCEL ACK] Message: %s", ack.Message)
-		log.Printf("[CANCEL ACK] Timestamp: %s", ack.Timestamp)
-
-		// TODO: DB 저장 또는 상태 업데이트 가능
-	}
-
-	token := m.mqttClient.Subscribe(topic, 1, handler)
-	token.Wait()
-	if token.Error() != nil {
-		log.Printf("[ERROR] CANCEL ACK 구독 실패: %v", token.Error())
-	} else {
-		log.Printf("[MQTT] 구독 성공: %s", topic)
-	}
+// 전체 구독 시작 - 모든 관련 토픽을 한 번에 등록
+func (m *MQTTClient) SubscribeAllTopics() {
+	m.subscribe("v1/+/+/+/firmware/download/request/ack", parseDownloadRequestAck, "[ACK]")
+	m.subscribe("v1/+/+/+/firmware/download/progress", parseDownloadProgress, "[PROGRESS]")
+	m.subscribe("v1/+/+/+/firmware/download/result", parseDownloadResult, "[RESULT]")
+	m.subscribe("v1/+/+/+/firmware/download/cancel/ack", parseDownloadCancelAck, "[CANCEL ACK]")
 }

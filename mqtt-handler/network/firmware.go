@@ -9,20 +9,20 @@ import (
 	"sync"
 )
 
-// firmwareRouter 싱글톤 초기화를 위한 변수들
+// firmwareRouterInit: firmwareRouter 싱글톤 초기화를 위한 sync.Once
+// firmwareRouterInstance: 실제 싱글톤 인스턴스
 var (
 	firmwareRouterInit     sync.Once
 	firmwareRouterInstance *firmwareRouter
 )
 
-// firmwareRouter는 펌웨어 관련 라우팅 기능을 담당합니다.
+// 펌웨어 배포 관련 라우팅 로직을 담당하는 구조체
 type firmwareRouter struct {
 	router     *Network
 	mqttClient *mqttclient.MQTTClient
 }
 
-// newFirmwareRouter는 firmwareRouter를 한 번만 초기화하고,
-// 요청 경로에 대한 핸들러를 등록합니다.
+// firmwareRouter를 한 번만 초기화하고, 요청 경로에 대한 핸들러를 등록합니다.
 func newFirmwareRouter(router *Network) *firmwareRouter {
 	firmwareRouterInit.Do(func() {
 		firmwareRouterInstance = &firmwareRouter{
@@ -36,7 +36,7 @@ func newFirmwareRouter(router *Network) *firmwareRouter {
 	return firmwareRouterInstance
 }
 
-// firmwareDeploy는 펌웨어 배포 요청을 처리하는 핸들러입니다.
+// 클라이언트의 펌웨어 배포 요청을 처리하는 엔드포인트입니다.
 func (f *firmwareRouter) firmwareDeploy(w http.ResponseWriter, r *http.Request) {
 	var req types.FirmwareDeployRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -61,6 +61,7 @@ func (f *firmwareRouter) firmwareDeploy(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
+// POST 요청만 허용하는 핸들러로 path를 등록합니다.
 func (n *Network) firmwareDeployPOST(path string, handler http.HandlerFunc) {
 	postOnlyHandler := func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -75,6 +76,7 @@ func (n *Network) firmwareDeployPOST(path string, handler http.HandlerFunc) {
 	n.mux.HandleFunc(path, postOnlyHandler)
 }
 
+// 디버깅용 요청 로그 출력 함수
 func PrintLog(req *types.FirmwareDeployRequest) {
 	fmt.Println("signed URL: ", req.SignedUrl)
 	fmt.Println("Deployment ID: ", req.FileInfo.DeploymentId)

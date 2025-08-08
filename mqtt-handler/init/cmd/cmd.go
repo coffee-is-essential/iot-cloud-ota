@@ -39,10 +39,7 @@ func NewCmd(filePath string) *Cmd {
 	c.mqttClient.Connect(c.config.MqttBroker.Url, c.config.MqttBroker.ClientId)
 
 	// MQTT Subscribe
-	c.mqttClient.SubscribeDownloadRequestAck()
-	c.mqttClient.SubscribeDownloadProgress()
-	c.mqttClient.SubscribeDownloadResult()
-	c.mqttClient.SubscribeDownloadCancelAck()
+	c.mqttClient.SubscribeAllTopics()
 
 	// HTTP 서버 시작
 	c.network.ServerStart(c.config.Server.Port)

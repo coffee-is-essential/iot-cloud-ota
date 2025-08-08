@@ -5,6 +5,7 @@ import (
 	"log"
 )
 
+// InsertChan 채널로부터 이벤트를 지속적으로 수신하여 QuestDB에 기록하는 백그라운드 consumer 함수입니다.
 func (c *DBClient) StartEventConsumer() {
 	for event := range InsertChan {
 		ctx := context.TODO()
