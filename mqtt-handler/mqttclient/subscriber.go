@@ -8,13 +8,11 @@ import (
 )
 
 func (m *MQTTClient) SubscribeDownloadRequestAck() {
-	// TODO: Topic 변경
-	//const topic = "v1/{그룹 ID}/{기기 ID}/firmware/download/request/ack"
-	const topic = "test/topic"
+	const topic = "v1/+/+/firmware/download/request/ack"
 	handler := func(client mqtt.Client, msg mqtt.Message) {
 		log.Printf("[MQTT] ACK 수신 - 토픽: %s", msg.Topic())
 
-		var ack types.FirmwareAck
+		var ack types.FirmwareDownloadRequestAck
 		if err := json.Unmarshal(msg.Payload(), &ack); err != nil {
 			log.Printf("[ERROR] ACK 메시지 파싱 실패: %v", err)
 			return
@@ -38,15 +36,13 @@ func (m *MQTTClient) SubscribeDownloadRequestAck() {
 }
 
 func (m *MQTTClient) SubscribeDownloadProgress() {
-	// TODO: Topic 변경
-	//const topic = "v1/{그룹 ID}/{기기 ID}/firmware/download/progress"
-	const topic = "test/topic"
+	const topic = "v1/+/+/firmware/download/progress"
 	handler := func(client mqtt.Client, msg mqtt.Message) {
-		log.Printf("[MQTT] ACK 수신 - 토픽: %s", msg.Topic())
+		log.Printf("[MQTT] PROGRESS 수신 - 토픽: %s", msg.Topic())
 
-		var progress types.FirmwareProgress
+		var progress types.FirmwareDownloadProgress
 		if err := json.Unmarshal(msg.Payload(), &progress); err != nil {
-			log.Printf("[ERROR] ACK 메시지 파싱 실패: %v", err)
+			log.Printf("[ERROR] PROGRESS 메시지 파싱 실패: %v", err)
 			return
 		}
 
@@ -62,7 +58,65 @@ func (m *MQTTClient) SubscribeDownloadProgress() {
 	token := m.mqttClient.Subscribe(topic, 1, handler)
 	token.Wait()
 	if token.Error() != nil {
-		log.Printf("[ERROR] ACK 구독 실패: %v", token.Error())
+		log.Printf("[ERROR] PROGRESS 구독 실패: %v", token.Error())
+	} else {
+		log.Printf("[MQTT] 구독 성공: %s", topic)
+	}
+}
+
+func (m *MQTTClient) SubscribeDownloadResult() {
+	const topic = "v1/+/+/firmware/download/result"
+	handler := func(client mqtt.Client, msg mqtt.Message) {
+		log.Printf("[MQTT] RESULT 수신 - 토픽: %s", msg.Topic())
+
+		var result types.FirmwareDownloadResult
+		if err := json.Unmarshal(msg.Payload(), &result); err != nil {
+			log.Printf("[ERROR] RESULT 메시지 파싱 실패: %v", err)
+			return
+		}
+
+		log.Printf("[RESULT] Command ID: %s", result.CommandID)
+		log.Printf("[RESULT] Status: %s", result.Status)
+		log.Printf("[RESULT] Message: %s", result.Message)
+		log.Printf("[RESULT] Checksum Verified: %v", result.ChecksumVerified)
+		log.Printf("[RESULT] Download Time: %ds", result.DownloadTime)
+		log.Printf("[RESULT] Timestamp: %s", result.Timestamp)
+
+		// TODO: DB 저장, 상태 알림, 실패 시 경고 처리 등
+	}
+
+	token := m.mqttClient.Subscribe(topic, 1, handler)
+	token.Wait()
+	if token.Error() != nil {
+		log.Printf("[ERROR] RESULT 구독 실패: %v", token.Error())
+	} else {
+		log.Printf("[MQTT] 구독 성공: %s", topic)
+	}
+}
+
+func (m *MQTTClient) SubscribeDownloadCancelAck() {
+	const topic = "v1/+/+/firmware/download/cancel/ack"
+	handler := func(client mqtt.Client, msg mqtt.Message) {
+		log.Printf("[MQTT] CANCEL ACK 수신 - 토픽: %s", msg.Topic())
+
+		var ack types.FirmwareDownloadCancelAck
+		if err := json.Unmarshal(msg.Payload(), &ack); err != nil {
+			log.Printf("[ERROR] CANCEL ACK 메시지 파싱 실패: %v", err)
+			return
+		}
+
+		log.Printf("[CANCEL ACK] Command ID: %s", ack.CommandID)
+		log.Printf("[CANCEL ACK] Status: %s", ack.Status)
+		log.Printf("[CANCEL ACK] Message: %s", ack.Message)
+		log.Printf("[CANCEL ACK] Timestamp: %s", ack.Timestamp)
+
+		// TODO: DB 저장 또는 상태 업데이트 가능
+	}
+
+	token := m.mqttClient.Subscribe(topic, 1, handler)
+	token.Wait()
+	if token.Error() != nil {
+		log.Printf("[ERROR] CANCEL ACK 구독 실패: %v", token.Error())
 	} else {
 		log.Printf("[MQTT] 구독 성공: %s", topic)
 	}

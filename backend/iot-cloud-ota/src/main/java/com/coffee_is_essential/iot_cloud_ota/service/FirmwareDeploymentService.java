@@ -1,6 +1,6 @@
 package com.coffee_is_essential.iot_cloud_ota.service;
 
-import com.coffee_is_essential.iot_cloud_ota.domain.Topic;
+import com.coffee_is_essential.iot_cloud_ota.domain.DeployTargetDeviceInfo;
 import com.coffee_is_essential.iot_cloud_ota.domain.FirmwareDeployInfo;
 import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareDeploymentDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareDeploymentRequestDto;
@@ -30,13 +30,17 @@ public class FirmwareDeploymentService {
     @Transactional
     public FirmwareDeploymentDto deployFirmware(Long firmwareId, FirmwareDeploymentRequestDto requestDto) {
         FirmwareMetadata findFirmware = firmwareMetadataJpaRepository.findByIdOrElseThrow(firmwareId);
-        // 리전이 있을 경우 v1/5/#/+/firmware/download
 
         if (requestDto.deviceIds().isEmpty() && requestDto.groupIds().isEmpty() && requestDto.regionIds().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
         }
 
-        List<Topic> deviceTopics = Topic.transformToDeploymentTopics(requestDto.regionIds(), requestDto.groupIds(), requestDto.deviceIds());
+        List<DeployTargetDeviceInfo> devices = deviceJpaRepository.findByFilterDynamic(
+                requestDto.deviceIds(),
+                requestDto.groupIds(),
+                requestDto.regionIds()
+        );
+
         Date expiresAt = Date.from(Instant.now().plus(Duration.ofMinutes(TIMEOUT)));
         String signedUrl;
         try {
@@ -46,7 +50,6 @@ public class FirmwareDeploymentService {
         }
 
         // TODO RESTClient를 이용해서 MQTT 핸들러로 HTTP 전송
-        FirmwareDeployInfo deployInfo = FirmwareDeployInfo.from(findFirmware, expiresAt);
-        return new FirmwareDeploymentDto(signedUrl, deployInfo, deviceTopics);
+        return new FirmwareDeploymentDto(signedUrl, FirmwareDeployInfo.from(findFirmware, expiresAt), devices);
     }
 }

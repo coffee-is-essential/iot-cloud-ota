@@ -2,13 +2,10 @@ package mqttclient
 
 import (
 	"encoding/json"
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"log"
 	"mqtt-handler/types"
 	"sync"
 )
-
-var Client mqtt.Client
 
 /*
 MQTT 클라이언트를 사용해 지정된 토픽으로 JSON 형태의 펌웨어 요청 메시지를 전송합니다.

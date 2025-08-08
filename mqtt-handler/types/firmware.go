@@ -33,14 +33,14 @@ type FirmwareDownloadCommand struct {
 	Timestamp string `json:"timestamp"`
 }
 
-type FirmwareAck struct {
+type FirmwareDownloadRequestAck struct {
 	CommandID string `json:"command_id"`
 	Status    string `json:"status"`
 	Message   string `json:"message"`
 	Timestamp string `json:"timestamp"`
 }
 
-type FirmwareProgress struct {
+type FirmwareDownloadProgress struct {
 	CommandID       string `json:"command_id"`
 	Progress        int64  `json:"progress"`
 	DownloadedBytes int64  `json:"downloaded_bytes"`
@@ -48,4 +48,20 @@ type FirmwareProgress struct {
 	SpeedKbps       int64  `json:"speed_kbps"`
 	EtaSeconds      int64  `json:"eta_seconds,omitempty"`
 	Timestamp       string `json:"timestamp"`
+}
+
+type FirmwareDownloadResult struct {
+	CommandID        string `json:"command_id"`
+	Status           string `json:"status"`
+	Message          string `json:"message"`
+	ChecksumVerified bool   `json:"checksum_verified"`
+	DownloadTime     int64  `json:"download_time"`
+	Timestamp        string `json:"timestamp"`
+}
+
+type FirmwareDownloadCancelAck struct {
+	CommandID string `json:"command_id"`
+	Status    string `json:"status"`
+	Message   string `json:"message"`
+	Timestamp string `json:"timestamp"`
 }
