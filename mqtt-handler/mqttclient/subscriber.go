@@ -74,7 +74,26 @@ func (m *MQTTClient) SubscribeDownloadProgress() {
 		log.Printf("[PROGRESS] ETA: %d초", progress.EtaSeconds)
 		log.Printf("[PROGRESS] Timestamp: %s", progress.Timestamp)
 
-		// TODO: DB 저장 또는 상태 업데이트 가능
+		topicParts := strings.Split(msg.Topic(), "/")
+		topicRegionId, _ := strconv.ParseInt(topicParts[1], 10, 64)
+		topicGroupId, _ := strconv.ParseInt(topicParts[2], 10, 64)
+		topicDeviceId, _ := strconv.ParseInt(topicParts[3], 10, 64)
+
+		event := types.FirmwareDownloadEvent{
+			CommandID:        progress.CommandID,
+			GroupID:          topicGroupId,
+			RegionID:         topicRegionId,
+			DeviceID:         topicDeviceId,
+			Message:          "Download in progress",
+			Status:           "IN PROGRESS",
+			Progress:         progress.Progress,
+			TotalBytes:       progress.TotalBytes,
+			DownloadBytes:    progress.DownloadedBytes,
+			SpeedKbps:        progress.SpeedKbps,
+			ChecksumVerified: false,
+			DownloadTime:     0, // 다운로드 진행 시간도 보내주면 좋을 거 같은데 ~
+		}
+		repository.InsertChan <- event
 	}
 
 	token := m.mqttClient.Subscribe(topic, 1, handler)
