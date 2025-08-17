@@ -64,32 +64,6 @@ resource "aws_internet_gateway" "main" {
   }
 }
 
-resource "aws_eip" "nat_a" {
-  domain = "vpc"
-}
-
-resource "aws_eip" "nat_b" {
-  domain = "vpc"
-}
-
-resource "aws_nat_gateway" "nat_a" {
-  allocation_id = aws_eip.nat_a.id
-  subnet_id     = aws_subnet.public_a.id
-
-  tags = {
-    Name = "iot-cloud-ota-nat-a"
-  }
-}
-
-resource "aws_nat_gateway" "nat_b" {
-  allocation_id = aws_eip.nat_b.id
-  subnet_id     = aws_subnet.public_b.id
-
-  tags = {
-    Name = "iot-cloud-ota-nat-b"
-  }
-}
-
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
@@ -107,10 +81,11 @@ resource "aws_route_table" "public" {
 resource "aws_route_table" "private_a" {
   vpc_id = aws_vpc.main.id
 
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat_a.id
-  }
+  # NOTE: Production 전까지 NAT Instance를 사용합니다.
+  # route {
+  #   cidr_block     = "0.0.0.0/0"
+  #   nat_gateway_id = aws_nat_gateway.nat_a.id
+  # }
 
   tags = {
     Name        = "iot-cloud-ota-private-route-table-a"
@@ -121,10 +96,11 @@ resource "aws_route_table" "private_a" {
 resource "aws_route_table" "private_b" {
   vpc_id = aws_vpc.main.id
 
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat_b.id
-  }
+  # NOTE: Production 전까지 NAT Instance를 사용합니다.
+  # route {
+  #   cidr_block     = "0.0.0.0/0"
+  #   nat_gateway_id = aws_nat_gateway.nat_b.id
+  # }
 
   tags = {
     Name        = "iot-cloud-ota-private-route-table-b"
@@ -151,3 +127,59 @@ resource "aws_route_table_association" "private_b" {
   subnet_id      = aws_subnet.private_b.id
   route_table_id = aws_route_table.private_b.id
 }
+
+################################################################
+# Private Subnet의 NAT Gateway 설정 시작 부분입니다.           #
+# NAT Gateway는 비싸므로 배포 전까지는 사용하지 않도록 합니다. #
+################################################################
+
+# resource "aws_eip" "nat_a" {
+#   domain = "vpc"
+# }
+#
+# resource "aws_eip" "nat_b" {
+#   domain = "vpc"
+# }
+#
+# resource "aws_nat_gateway" "nat_a" {
+#   allocation_id = aws_eip.nat_a.id
+#   subnet_id     = aws_subnet.public_a.id
+#
+#   tags = {
+#     Name = "iot-cloud-ota-nat-a"
+#   }
+# }
+#
+# resource "aws_nat_gateway" "nat_b" {
+#   allocation_id = aws_eip.nat_b.id
+#   subnet_id     = aws_subnet.public_b.id
+#
+#   tags = {
+#     Name = "iot-cloud-ota-nat-b"
+#   }
+# }
+#
+####################################################
+# Private Subnet의 NAT Gateway 설정 끝 부분입니다. #
+####################################################
+
+##################################################################
+# Private Subnet을 NAT Instance와 연결하는 설정 시작 부분입니다. #
+# 개발 단계에서는 비용을 줄이기 위해 NAT Instance를 사용합니다.  #
+##################################################################
+
+resource "aws_route" "private_a_to_nat_instance" {
+  route_table_id         = aws_route_table.private_a.id
+  destination_cidr_block = "0.0.0.0/0"
+  network_interface_id   = aws_instance.nat.primary_network_interface_id
+}
+
+resource "aws_route" "private_b_to_nat_instance" {
+  route_table_id         = aws_route_table.private_b.id
+  destination_cidr_block = "0.0.0.0/0"
+  network_interface_id   = aws_instance.nat.primary_network_interface_id
+}
+
+################################################################
+# Private Subnet을 NAT Instance와 연결하는 설정 끝 부분입니다. #
+################################################################
