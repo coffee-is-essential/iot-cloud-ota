@@ -29,7 +29,7 @@ resource "aws_instance" "nat" {
     Description = "NAT instance for iot-cloud-ota"
   }
 
-  user_data = <<-EOF
+  user_data = <<-EOT
     #!/bin/bash
     
     sudo yum install iptables-services -y
@@ -45,5 +45,5 @@ resource "aws_instance" "nat" {
     sudo /sbin/iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
     sudo /sbin/iptables -F FORWARD
     sudo service iptables save
-  EOF
+  EOT
 }
