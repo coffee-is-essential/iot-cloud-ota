@@ -30,6 +30,7 @@ func newFirmwareRouter(router *Network) *firmwareRouter {
 			mqttClient: mqttclient.NewMqttClient(),
 		}
 		router.firmwareDeployPOST("/api/firmwares/deployment", firmwareRouterInstance.firmwareDeploy)
+		router.firmwareDeployPOST("/api/firmwares/deployment/cancel", firmwareRouterInstance.cancelFirmwareDeploy)
 
 	})
 
@@ -53,9 +54,34 @@ func (f *firmwareRouter) firmwareDeploy(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	PrintLog(&req)
+	PrintDownloadLog(&req)
 
 	f.mqttClient.PublishDownloadRequest(&req)
+	f.router.okResponse(w, types.FirmwareDeployResponse{
+		ApiResponse: types.NewApiResponse("배포 요청 성공"),
+	})
+}
+
+// 클라이언트의 펌웨어 배포 취소 요청을 처리하는 엔드포인트입니다.
+func (f *firmwareRouter) cancelFirmwareDeploy(w http.ResponseWriter, r *http.Request) {
+	var req types.FirmwareDeployCancelRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		f.router.failedResponse(w, types.FirmwareDeployResponse{
+			ApiResponse: types.NewApiResponse("파싱 오류"),
+		})
+		return
+	}
+
+	if req.CommandID == "" || req.Reason == "" || len(req.Devices) == 0 {
+		f.router.failedResponse(w, types.FirmwareDeployResponse{
+			ApiResponse: types.NewApiResponse("필수 필드 누락"),
+		})
+		return
+	}
+
+	PrintDownloadCancelLog(&req)
+
+	f.mqttClient.PublishDownloadCancelRequest(&req)
 	f.router.okResponse(w, types.FirmwareDeployResponse{
 		ApiResponse: types.NewApiResponse("배포 요청 성공"),
 	})
@@ -77,14 +103,23 @@ func (n *Network) firmwareDeployPOST(path string, handler http.HandlerFunc) {
 }
 
 // 디버깅용 요청 로그 출력 함수
-func PrintLog(req *types.FirmwareDeployRequest) {
-	fmt.Println("signed URL: ", req.SignedUrl)
+func PrintDownloadLog(req *types.FirmwareDeployRequest) {
+	fmt.Println("Signed URL: ", req.SignedUrl)
 	fmt.Println("Deployment ID: ", req.FileInfo.DeploymentId)
 	fmt.Println("Version: ", req.FileInfo.Version)
 	fmt.Println("hash: ", req.FileInfo.FileHash)
 	fmt.Println("FileSize", req.FileInfo.FileSize)
 	fmt.Println("Expired At", req.FileInfo.ExpiresAt)
 	fmt.Println("deployed At", req.FileInfo.DeployedAt)
+	for _, device := range req.Devices {
+		fmt.Printf("[Device] - Device ID: %d, Group ID: %d, Region Id: %d\n", device.DeviceId, device.GroupId, device.RegionId)
+	}
+}
+
+// 디버깅용 요청 로그 출력 함수
+func PrintDownloadCancelLog(req *types.FirmwareDeployCancelRequest) {
+	fmt.Println("Command ID: ", req.CommandID)
+	fmt.Println("Reason: ", req.Reason)
 	for _, device := range req.Devices {
 		fmt.Printf("[Device] - Device ID: %d, Group ID: %d, Region Id: %d\n", device.DeviceId, device.GroupId, device.RegionId)
 	}

@@ -6,6 +6,12 @@ type FirmwareDeployRequest struct {
 	Devices   []DeviceIds `json:"devices"`
 }
 
+type FirmwareDeployCancelRequest struct {
+	Devices   []DeviceIds `json:"devices"`
+	CommandID string      `json:"commandId"`
+	Reason    string      `json:"reason"`
+}
+
 type FileInfo struct {
 	DeploymentId string `json:"deploymentId"`
 	Version      string `json:"version"`
@@ -33,6 +39,11 @@ type FirmwareDownloadCommand struct {
 	Size      int64  `json:"size"`
 	Timeout   string `json:"timeout"`
 	Timestamp string `json:"timestamp"`
+}
+
+type FirmwareDownloadCancelCommand struct {
+	CommandID string `json:"command_id"`
+	Reason    string `json:"reason"`
 }
 
 type FirmwareDownloadRequestAck struct {
