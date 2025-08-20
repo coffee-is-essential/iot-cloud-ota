@@ -239,7 +239,7 @@ resource "aws_security_group" "questdb" {
     from_port       = 9000
     to_port         = 9000
     protocol        = "tcp"
-    security_groups = [aws_security_group.bastion_sg.id]
+    security_groups = [aws_security_group.bastion_sg.id, aws_security_group.mqtt_handler.id, ]
   }
 
   ingress {
@@ -294,5 +294,25 @@ resource "aws_security_group" "nat" {
   tags = {
     Name        = "iot-cloud-ota-nat-instance-sg"
     Description = "Security group for NAT instance in iot-cloud-ota"
+  }
+}
+
+resource "aws_security_group" "mqtt_handler" {
+  name        = "iot-cloud-ota-mqtt-handler-sg"
+  description = "Security group for MQTT Handler service"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [aws_security_group.backend_alb.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
