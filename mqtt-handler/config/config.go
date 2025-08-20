@@ -1,13 +1,12 @@
 // 서버에 기본적인 설정을 하기 위한 패키지 입니다.
-// TOML 포맷의 설정 파일을 읽어 서버 설정값을 로드합니다.
+// 환경 변수를 읽어 서버 설정값을 로드합니다.
 package config
 
 import (
-	"github.com/naoina/toml"
 	"os"
 )
 
-// TOML 파일로부터 읽어들일 설정값의 구조를 정의합니다.
+// 환경 변수로부터 읽어들일 설정값의 구조를 정의합니다.
 type Config struct {
 	Server struct {
 		Port string
@@ -22,15 +21,22 @@ type Config struct {
 	}
 }
 
-// 주어진 filePath의 TOML 설정 파일을 읽어 Config 객체로 파싱합니다.
-func NewConfig(filePath string) *Config {
-	con := new(Config)
+// NewConfig는 환경 변수로부터 설정값을 읽어 Config 객체를 생성합니다.
+func NewConfig() *Config {
+	conf := new(Config)
 
-	if file, err := os.Open(filePath); err != nil {
-		panic(err)
-	} else if err = toml.NewDecoder(file).Decode(con); err != nil {
-		panic(err)
-	} else {
-		return con
+	conf.Server.Port = getEnv("SERVER_PORT", ":8080")
+	conf.MqttBroker.Url = getEnv("MQTT_BROKER_URL", "tcp://localhost:1883")
+	conf.MqttBroker.ClientId = getEnv("MQTT_CLIENT_ID", "mqtt-handler")
+	conf.QuestDB.Conf = getEnv("QUESTDB_CONF", "http::addr=localhost:9000")
+
+	return conf
+}
+
+// getEnv는 환경 변수에서 값을 읽어오고, 해당 키가 없을 경우 fallback 값을 반환합니다.
+func getEnv(key, fallback string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
 	}
+	return fallback
 }

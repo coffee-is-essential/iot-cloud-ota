@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	cmd.NewCmd("config.toml")
+	cmd.NewCmd()
 }

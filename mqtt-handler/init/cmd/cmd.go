@@ -10,7 +10,7 @@ import (
 )
 
 // 애플리케이션의 핵심 구성 요소들을 담고 있는 컨테이너입니다.
-// config: TOML 설정 파일로부터 로드된 설정 정보를 보관
+// config: 환경 변수로부터 로드된 설정 정보를 보관
 // network: HTTP 서버와 관련된 기능들을 관리
 type Cmd struct {
 	config        *config.Config
@@ -20,9 +20,9 @@ type Cmd struct {
 }
 
 // Cmd 구조체를 초기화하고, HTTP 서버를 시작합니다.
-func NewCmd(filePath string) *Cmd {
+func NewCmd() *Cmd {
 	c := &Cmd{
-		config:        config.NewConfig(filePath),
+		config:        config.NewConfig(),
 		network:       network.NewNetwork(),
 		mqttClient:    mqttclient.NewMqttClient(),
 		questDBClient: repository.NewDBClient(),
@@ -42,6 +42,8 @@ func NewCmd(filePath string) *Cmd {
 	c.mqttClient.SubscribeAllTopics()
 
 	// HTTP 서버 시작
-	c.network.ServerStart(c.config.Server.Port)
+	if err := c.network.ServerStart(c.config.Server.Port); err != nil {
+		panic(err)
+	}
 	return c
 }
