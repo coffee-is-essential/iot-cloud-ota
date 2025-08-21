@@ -3,7 +3,7 @@ name: Deploy to AWS ECS
 on:
   push:
     branches:
-      - implement-mqtt-handler-ci
+      - main
 
 env:
   AWS_REGION: ap-northeast-2
