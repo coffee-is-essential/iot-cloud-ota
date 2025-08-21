@@ -6,4 +6,5 @@ import (
 
 func main() {
 	cmd.NewCmd()
+	print("MQTT Handler started successfully!\n")
 }
