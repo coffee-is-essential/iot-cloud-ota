@@ -20,7 +20,7 @@ resource "aws_ecs_task_definition" "mqtt_handler" {
   container_definitions = jsonencode([
     {
       name      = "mqtt-handler"
-      image     = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-2.amazonaws.com/mqtt-handler:latest"
+      image     = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-2.amazonaws.com/mqtt-handler:${var.mqtt_handler_image_tag}"
       essential = true
 
       portMappings = [
