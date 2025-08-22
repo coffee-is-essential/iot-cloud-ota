@@ -65,6 +65,12 @@ export const FirmwareDeploy = ({
   const [error, setError] = useState<string | null>(null);
 
   const handleCategoryChange = (category: DeployCategory) => {
+    // Reset selections when changing category
+    // This ensures that previous selections do not carry over
+    setSelectedRegions([]);
+    setSelectedGroups([]);
+    setSelectedDevices([]);
+
     setDeployCategory(category);
   };
 
