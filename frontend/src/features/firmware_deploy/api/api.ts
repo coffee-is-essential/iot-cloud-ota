@@ -44,13 +44,9 @@ export const requestFirmwareDeploy = async (
   groups: Group[],
   devices: Device[],
 ): Promise<void> => {
-  const regionIds = regions.map((region) => region.regionId);
-  const groupIds = groups.map((group) => group.groupId);
-  const deviceIds = devices.map((device) => device.deviceId);
-
   await apiClient.post(`/api/firmwares/metadata/${firmwareId}/deployment`, {
-    regionIds: regionIds,
-    groupIds: groupIds,
-    deviceIds: deviceIds,
+    regionIds: regions.map((region) => region.regionId),
+    groupIds: groups.map((group) => group.groupId),
+    deviceIds: devices.map((device) => device.deviceId),
   });
 };
