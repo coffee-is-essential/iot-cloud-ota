@@ -4,6 +4,7 @@ import { Group } from "../../../entities/group/model/types";
 import { Device } from "../../../entities/device/model/types";
 import { GroupApiService } from "../../../entities/group/api/api";
 import { deviceApiService } from "../../../entities/device/api/api";
+import { apiClient } from "../../../shared/api/client";
 
 /**
  * Fetches all available regions from the API
@@ -27,4 +28,29 @@ export const fetchGroups = async (): Promise<Group[]> => {
  */
 export const fetchDevices = async (): Promise<Device[]> => {
   return await deviceApiService.getDevices();
+};
+
+/**
+ * Requests a firmware deployment to specified regions, groups, and devices
+ * @param {number} firmwareId - The ID of the firmware to deploy
+ * @param {Region[]} regions - Array of regions to deploy the firmware to
+ * @param {Group[]} groups - Array of groups to deploy the firmware to
+ * @param {Device[]} devices - Array of devices to deploy the firmware to
+ * @returns {Promise<void>} Promise that resolves when the deployment request is complete
+ */
+export const requestFirmwareDeploy = async (
+  firmwareId: number,
+  regions: Region[],
+  groups: Group[],
+  devices: Device[],
+): Promise<void> => {
+  const regionIds = regions.map((region) => region.regionId);
+  const groupIds = groups.map((group) => group.groupId);
+  const deviceIds = devices.map((device) => device.deviceId);
+
+  await apiClient.post(`/api/firmwares/metadata/${firmwareId}/deployment`, {
+    regionIds: regionIds,
+    groupIds: groupIds,
+    deviceIds: deviceIds,
+  });
 };

@@ -2,7 +2,12 @@ import { JSX, useEffect, useState } from "react";
 import { DeployCategory } from "../model/types";
 import { Region } from "../../../entities/region/model/types";
 import { Device } from "../../../entities/device/model/types";
-import { fetchDevices, fetchGroups, fetchRegions } from "../api/api";
+import {
+  fetchDevices,
+  fetchGroups,
+  fetchRegions,
+  requestFirmwareDeploy,
+} from "../api/api";
 import { RegionTable } from "./RegionTable";
 import { Group } from "../../../entities/group/model/types";
 import { GroupTable } from "./GroupTable";
@@ -185,9 +190,33 @@ export const FirmwareDeploy = ({
   };
 
   const handleDeploy = async () => {
-    // TODO: Implement the actual deployment API request
-    alert("배포 요청");
-    return;
+    if (
+      selectedRegions.length === 0 &&
+      selectedGroups.length === 0 &&
+      selectedDevices.length === 0
+    ) {
+      setError("배포할 대상을 하나 이상 선택해주세요.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await requestFirmwareDeploy(
+        firmware.id,
+        selectedRegions,
+        selectedGroups,
+        selectedDevices,
+      );
+      onClose();
+    } catch (error) {
+      setError(
+        `배포 요청 중 오류가 발생했습니다: ${error instanceof Error ? error.message : "알 수 없는 오류"}`,
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const summary = getSelectedSummary();
