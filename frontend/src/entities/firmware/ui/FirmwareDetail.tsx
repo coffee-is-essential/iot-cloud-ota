@@ -4,6 +4,7 @@ import { Firmware } from "../model/types";
 import { JSX } from "react";
 import { LabeledValue } from "../../../shared/ui/LabeledValue";
 import { firmwareApiService } from "../api/api";
+import { toast } from "react-toastify";
 
 /**
  * Props interface for the FirmwareDetail component
@@ -64,8 +65,8 @@ export const FirmwareDetail = ({
       a.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      alert("펌웨어 다운로드에 실패했습니다. 나중에 다시 시도해주세요.");
-      console.error("펌웨어 다운로드 실패:", error);
+      toast.error("펌웨어 다운로드에 실패했습니다. 다시 시도해주세요.");
+      console.error(error);
     }
   };
 

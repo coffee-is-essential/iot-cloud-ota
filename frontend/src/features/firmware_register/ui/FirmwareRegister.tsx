@@ -4,6 +4,7 @@ import { FileText, Upload } from "lucide-react";
 import { JSX } from "@emotion/react/jsx-runtime";
 import { FirmwareRegisterFormData } from "../../../entities/firmware/model/types";
 import { firmwareRegisterApiService } from "../api/api";
+import { toast } from "react-toastify";
 
 /**
  * Interface for FirmwareRegisterForm component props
@@ -89,7 +90,7 @@ export const FirmwareRegisterForm = ({
       // TODO: 펌웨어 파일 형식이 정해지고 나면 확장자 체크 추가
 
       if (file.size > 100 * 1024 * 1024) {
-        alert("파일 크기는 100MB를 초과할 수 없습니다.");
+        toast.error("파일 크기는 100MB를 초과할 수 없습니다.");
         return;
       }
 
@@ -135,18 +136,16 @@ export const FirmwareRegisterForm = ({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    // TODO: Implement toast message not alert for better UX
-
     if (!formData.version) {
-      alert("펌웨어 버전을 입력하세요.");
+      toast.error("펌웨어 버전을 입력하세요.");
       return;
     }
     if (!formData.releaseNote) {
-      alert("릴리즈 노트를 입력하세요.");
+      toast.error("릴리즈 노트를 입력하세요.");
       return;
     }
     if (!formData.file) {
-      alert("펌웨어 파일을 선택하세요.");
+      toast.error("펌웨어 파일을 선택하세요.");
       return;
     }
 
@@ -171,9 +170,10 @@ export const FirmwareRegisterForm = ({
         fileName: formData.file.name,
         s3Path: presignedUrl.s3Path,
       });
+      toast.success("펌웨어가 성공적으로 등록되었습니다.");
     } catch (error) {
-      console.error("펌웨어 등록 중 오류 발생:", error);
-      alert("펌웨어 등록에 실패했습니다. 다시 시도해주세요.");
+      toast.error("펌웨어 등록에 실패했습니다. 다시 시도해주세요.");
+      console.error(error);
       return;
     } finally {
       // Reset the form after successful submission
