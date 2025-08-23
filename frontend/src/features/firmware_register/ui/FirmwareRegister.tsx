@@ -3,8 +3,8 @@ import { Button } from "../../../shared/ui/Button";
 import { FileText, Upload } from "lucide-react";
 import { JSX } from "@emotion/react/jsx-runtime";
 import { FirmwareRegisterFormData } from "../../../entities/firmware/model/types";
-import { firmwareRegisterApiService } from "../api/api";
 import { toast } from "react-toastify";
+import { useFirmwareRegister } from "../api/useFirmwareRegister";
 
 /**
  * Interface for FirmwareRegisterForm component props
@@ -74,8 +74,10 @@ export const FirmwareRegisterForm = ({
     releaseNote: "",
     file: null,
   });
-
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // useMutation 훅을 사용하여 업로드 함수를 가져옵니다.
+  const { mutateAsync: uploadFirmware } = useFirmwareRegister();
 
   /**
    * File input change handler
@@ -86,14 +88,10 @@ export const FirmwareRegisterForm = ({
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
-
-      // TODO: 펌웨어 파일 형식이 정해지고 나면 확장자 체크 추가
-
       if (file.size > 100 * 1024 * 1024) {
         toast.error("파일 크기는 100MB를 초과할 수 없습니다.");
         return;
       }
-
       setFormData((prev) => ({ ...prev, file: file }));
     }
   };
@@ -116,13 +114,7 @@ export const FirmwareRegisterForm = ({
   /**
    * Resets form data and optionally closes the form
    */
-  const handleReset = () => {
-    setFormData({
-      version: "",
-      releaseNote: "",
-      file: null,
-    });
-    if (fileInputRef.current) fileInputRef.current.value = "";
+  const handleCancel = () => {
     if (onClose) onClose();
   };
 
@@ -136,49 +128,20 @@ export const FirmwareRegisterForm = ({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!formData.version) {
-      toast.error("펌웨어 버전을 입력하세요.");
-      return;
-    }
-    if (!formData.releaseNote) {
-      toast.error("릴리즈 노트를 입력하세요.");
-      return;
-    }
-    if (!formData.file) {
-      toast.error("펌웨어 파일을 선택하세요.");
+    if (!formData.version || !formData.releaseNote || !formData.file) {
+      toast.error("모든 필드를 정확히 입력해주세요.");
       return;
     }
 
-    // TODO: 아래의 API 호출을 비동기로 처리하고, 토스트 메시지로 성공/실패 알림을 구현하면 UX가 개선될 것입니다.
-    try {
-      // Step 1: 파일 업로드를 위해 Presigned URL을 가져옵니다.
-      const presignedUrl = await firmwareRegisterApiService.getPresignedUrl(
-        formData.version,
-        formData.file.name,
-      );
-
-      // Step 2: Presigned URL을 사용하여 파일을 S3에 업로드합니다.
-      await firmwareRegisterApiService.uploadFirmwareViaPresignedUrl(
-        presignedUrl.url,
-        formData.file,
-      );
-
-      // Step 3: 펌웨어 메타데이터를 등록합니다.
-      await firmwareRegisterApiService.uploadFirmwareMetadata({
-        version: formData.version,
-        releaseNote: formData.releaseNote,
-        fileName: formData.file.name,
-        s3Path: presignedUrl.s3Path,
-      });
-      toast.success("펌웨어가 성공적으로 등록되었습니다.");
-    } catch (error) {
-      toast.error("펌웨어 등록에 실패했습니다. 다시 시도해주세요.");
-      console.error(error);
-      return;
-    } finally {
-      // Reset the form after successful submission
-      handleReset();
+    if (onClose) {
+      onClose();
     }
+
+    await toast.promise(uploadFirmware(formData), {
+      pending: "펌웨어 업로드 중...",
+      success: "펌웨어 등록이 완료되었습니다.",
+      error: "펌웨어 등록에 실패했습니다. 다시 시도해주세요.",
+    });
   };
 
   return (
@@ -244,7 +207,12 @@ export const FirmwareRegisterForm = ({
 
         {/* Submit button */}
         <div className="flex items-center justify-end gap-2 mt-4">
-          <Button title="취소" variant="secondary" onClick={handleReset} />
+          <Button
+            title="취소"
+            variant="secondary"
+            onClick={handleCancel}
+            type="button"
+          />
           <Button title="등록" variant="primary" type="submit" />
         </div>
       </form>
