@@ -128,8 +128,16 @@ export const FirmwareRegisterForm = ({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!formData.version || !formData.releaseNote || !formData.file) {
-      toast.error("모든 필드를 정확히 입력해주세요.");
+    if (!formData.version) {
+      toast.error("펌웨어 버전을 입력해주세요.");
+      return;
+    }
+    if (!formData.releaseNote) {
+      toast.error("릴리즈 노트를 입력해주세요.");
+      return;
+    }
+    if (!formData.file) {
+      toast.error("펌웨어 파일을 선택해주세요.");
       return;
     }
 
