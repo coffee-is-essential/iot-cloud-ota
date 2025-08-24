@@ -1,6 +1,6 @@
 import ReactPaginate from "react-paginate";
 import { FirmwareList } from "../entities/firmware/ui/FirmwareList";
-import { useFirmwareSearch } from "../features/firmware/api/useFirmwareSearch";
+import { useFirmwareSearch } from "../entities/firmware/api/useFirmwareSearch";
 import { SearchBar } from "../shared/ui/SearchBar";
 import { MainTile } from "../widgets/layout/ui/MainTile";
 import { TitleTile } from "../widgets/layout/ui/TitleTile";
@@ -10,7 +10,7 @@ import { useState } from "react";
 import ReactModal from "react-modal";
 import { FirmwareRegisterForm } from "../features/firmware_register/ui/FirmwareRegister";
 
-export const FirmwarePage = () => {
+export const FirmwareListPage = () => {
   const {
     firmwares,
     isLoading,

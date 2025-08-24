@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { firmwareRegisterApiService } from "../../firmware/api/api";
+import { firmwareRegisterApiService } from "./api";
 import { FirmwareRegisterFormData } from "../../../entities/firmware/model/types";
 
 /**

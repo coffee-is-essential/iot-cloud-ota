@@ -29,6 +29,18 @@ export const useNavigation = () => {
         icon: <SquareTerminal />,
         name: "펌웨어 관리",
         path: "/firmware",
+        children: [
+          {
+            id: "firmware-list",
+            name: "펌웨어 목록",
+            path: "/firmware/list",
+          },
+          {
+            id: "firmware-deployment",
+            name: "배포 관리",
+            path: "/firmware/deployment",
+          },
+        ],
       },
       {
         id: "device",
