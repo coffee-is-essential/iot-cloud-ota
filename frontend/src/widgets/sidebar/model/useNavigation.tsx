@@ -9,9 +9,10 @@ import {
 
 export interface NavigationItemType {
   id: string;
-  icon: ReactNode;
+  icon?: ReactNode;
   name: string;
   path: string;
+  children?: NavigationItemType[];
 }
 
 export const useNavigation = () => {
