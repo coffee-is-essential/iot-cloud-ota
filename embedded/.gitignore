@@ -4,24 +4,5 @@
 # ESP-IDF build files
 /build/
 
-# External libraries
-/components/**
-
-# LVGL configuration file
-!/components/lvgl/
-!/components/lvgl/lv_conf.h
-
-# Components developed in the project
-!/components/task/
-!/components/task/**
-!/components/ui/
-!/components/ui/**
-
-# Private data and personal text files
-/private/
-
-# ESP-IDF dependency file
-/dependencies.lock
-
-# TODO file
-/TODO.md
+# Temporary files
+/temp/

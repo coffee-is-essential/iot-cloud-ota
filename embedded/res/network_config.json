@@ -1,0 +1,12 @@
+{
+  "wifi": {
+    "auto_connect": true,
+    "last_ssid": "nacho_iphone",
+    "last_password": "caffeinenicotine"
+  },
+  "mqtt": {
+    "auto_connect": false,
+    "last_server": "nacho2407.duckdns.org",
+    "last_port": 24072
+  }
+}
