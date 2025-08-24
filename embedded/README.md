@@ -1,6 +1,6 @@
-# iot-cloud-ota firmware
+# embedded firmware
 
-## Versions
+## versions
 
 ### 0.0.1
 

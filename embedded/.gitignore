@@ -4,5 +4,8 @@
 # ESP-IDF build files
 /build/
 
-# Temporary files
+# private project data
+/private/
+
+# temporary files
 /temp/
