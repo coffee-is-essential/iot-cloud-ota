@@ -54,7 +54,7 @@ export interface FirmwareDeploymentDetailsResponse
  */
 export type FirmwareDeploymentDeviceStatus = {
   id: number;
-  status: "SUCCESS" | "IN_PROGRESS" | "FAILED";
+  status: "SUCCESS" | "IN_PROGRESS" | "FAILED" | "TIMEOUT";
   progress: number;
   lastUpdatedAt: Date;
 };
