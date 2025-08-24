@@ -5,7 +5,7 @@ import { JSX } from "react";
  */
 export interface ProgressBarProps {
   total: number;
-  succeded: number;
+  succeeded: number;
   failed: number;
   inProgress: number;
 }
@@ -18,15 +18,15 @@ export interface ProgressBarProps {
  */
 export const DeploymentProgressBar = ({
   total,
-  succeded,
+  succeeded,
   failed,
   inProgress,
 }: ProgressBarProps): JSX.Element => {
-  const successWidth = total ? (succeded / total) * 100 : 0;
+  const successWidth = total ? (succeeded / total) * 100 : 0;
   const failedWidth = total ? (failed / total) * 100 : 0;
   const inProgressWidth = total ? (inProgress / total) * 100 : 0;
 
-  const overallProgress = total > 0 ? Math.round((succeded / total) * 100) : 0;
+  const overallProgress = total > 0 ? Math.round((succeeded / total) * 100) : 0;
 
   return (
     <div className="flex items-center gap-3">
@@ -34,7 +34,7 @@ export const DeploymentProgressBar = ({
         <div
           className="h-full bg-green-500 float-left"
           style={{ width: `${successWidth}%` }}
-          title={`성공: ${succeded}`}
+          title={`성공: ${succeeded}`}
         ></div>
         <div
           className="h-full bg-blue-500 float-left"

@@ -55,7 +55,7 @@ const DeploymentInfo = ({
           </div>
           <DeploymentProgressBar
             total={deployment.totalDevices}
-            succeded={deployment.successCount}
+            succeeded={deployment.successCount}
             failed={deployment.failedCount}
             inProgress={deployment.inProgressCount}
           />
