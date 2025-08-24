@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { FirmwareDeployment } from "../model/types";
 import { DeploymentStatusBadge } from "./DeploymentStatusBadge";
 import { DeploymentProgressBar } from "./DeploymentProgressBar";
+import { JSX } from "react";
 
 /**
  * 개별 배포 카드 컴포넌트
@@ -76,12 +77,17 @@ export interface FirmwareDeploymentListProps {
 
 /**
  * 펌웨어 배포 목록 컴포넌트
+ * 배포 ID, 타입, 대상, 시작 시간, 진행률, 상태 등의 정보를 카드 형식으로 표시합니다.
+ * @param deployments - 펌웨어 배포 목록
+ * @param isLoading - 데이터 로딩 상태
+ * @param error - 에러 메시지
+ * @returns {JSX.Element} 펌웨어 배포 목록 컴포넌트
  */
 export const FirmwareDeploymentList = ({
   deployments,
   isLoading,
   error,
-}: FirmwareDeploymentListProps) => {
+}: FirmwareDeploymentListProps): JSX.Element => {
   if (isLoading) {
     return <div className="flex justify-center py-8">로딩 중...</div>;
   }

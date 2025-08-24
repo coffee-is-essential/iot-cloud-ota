@@ -1,12 +1,22 @@
+import { JSX } from "react";
 import { FirmwareDeploymentDeviceStatus } from "../model/types";
 
+/**
+ * 디바이스별 배포 상태에 따른 배지 컴포넌트 Props 인터페이스
+ */
 export interface DeploymentDeviceStatusBadgeProps {
   status: FirmwareDeploymentDeviceStatus["status"];
 }
 
+/**
+ * 디바이스별 배포 상태에 따른 배지 컴포넌트
+ *
+ * @param {DeploymentDeviceStatusBadgeProps} props - 컴포넌트 Props
+ * @returns {JSX.Element} 상태에 따른 스타일과 라벨이 적용된 배지 컴포넌트
+ */
 export const DeploymentDeviceStatusBadge = ({
   status,
-}: DeploymentDeviceStatusBadgeProps) => {
+}: DeploymentDeviceStatusBadgeProps): JSX.Element => {
   let bgColor = "";
   let textColor = "";
   let label = "";

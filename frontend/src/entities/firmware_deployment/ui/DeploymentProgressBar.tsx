@@ -1,3 +1,8 @@
+import { JSX } from "react";
+
+/**
+ * 배포 진행 상황을 바 형태로 시각화하는 컴포넌트의 Props 인터페이스
+ */
 export interface ProgressBarProps {
   total: number;
   succeded: number;
@@ -5,12 +10,18 @@ export interface ProgressBarProps {
   inProgress: number;
 }
 
+/**
+ * 배포 진행 상황을 바 형태로 시각화하는 컴포넌트
+ *
+ * @param {ProgressBarProps} props - 컴포넌트 Props
+ * @returns {JSX.Element} 배포 진행 상황을 나타내는 프로그레스 바 컴포넌트
+ */
 export const DeploymentProgressBar = ({
   total,
   succeded,
   failed,
   inProgress,
-}: ProgressBarProps) => {
+}: ProgressBarProps): JSX.Element => {
   const successWidth = total ? (succeded / total) * 100 : 0;
   const failedWidth = total ? (failed / total) * 100 : 0;
   const inProgressWidth = total ? (inProgress / total) * 100 : 0;

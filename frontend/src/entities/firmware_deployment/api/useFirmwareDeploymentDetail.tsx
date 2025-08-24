@@ -41,7 +41,6 @@ export const useFirmwareDeploymentDetail = (
           await firmwareDeploymentApiService.getFirmwareDeploymentDetails(id);
         if (!result) {
           setError("배포를 찾을 수 없습니다.");
-          setIsLoading(false);
           return;
         }
         setDeployment(result);

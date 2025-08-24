@@ -12,22 +12,6 @@ import { DeploymentProgressBar } from "../entities/firmware_deployment/ui/Deploy
 import { DeploymentDeviceStatusBadge } from "../entities/firmware_deployment/ui/DeploymentDeviceStatusBadge";
 
 /**
- * 디바이스 상태에 따른 색상을 반환합니다.
- */
-const getDeviceStatusColor = (status: string) => {
-  switch (status) {
-    case "SUCCESS":
-      return "text-green-600 bg-green-50";
-    case "IN_PROGRESS":
-      return "text-blue-600 bg-blue-50";
-    case "FAILED":
-      return "text-red-600 bg-red-50";
-    default:
-      return "text-gray-600 bg-gray-50";
-  }
-};
-
-/**
  * 펌웨어 배포 세부 정보 컴포넌트
  */
 const DeploymentInfo = ({
@@ -159,6 +143,10 @@ const DeviceStatusList = ({
   );
 };
 
+/**
+ * 펌웨어 배포 세부 정보 페이지 컴포넌트
+ * 배포 ID를 URL 파라미터로 받아 해당 배포의 세부 정보를 표시합니다.
+ */
 export const FirmwareDeploymentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const parsedId = id ? parseInt(id) : null;
