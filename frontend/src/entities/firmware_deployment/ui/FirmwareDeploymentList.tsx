@@ -59,7 +59,7 @@ const DeploymentProgressBar = ({
 
   return (
     <div className="flex items-center gap-3">
-      <div className="w-full bg-gray-200 rounded-full h-3 flex overflow-hidden">
+      <div className="w-3/4 bg-gray-200 rounded-full h-3 flex overflow-hidden">
         {/* 성공 (초록색) */}
         <div
           className="h-full bg-green-500"
