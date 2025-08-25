@@ -1,0 +1,3 @@
+[submodule "embedded/components/coffee-driver"]
+	path = embedded/components/coffee-driver
+	url = https://github.com/coffee-is-essential/coffee-driver.git
