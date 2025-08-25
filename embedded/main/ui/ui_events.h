@@ -20,6 +20,7 @@ void config_screen_load(lv_event_t * e);
 void drop_screen_load(lv_event_t * e);
 void dropDone_screen_load(lv_event_t * e);
 void wifi_screen_load(lv_event_t * e);
+void wifi_screen_unload(lv_event_t * e);
 void wifi_connect(lv_event_t * e);
 void wifi_restore(lv_event_t * e);
 void server_screen_load(lv_event_t * e);

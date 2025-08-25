@@ -14,7 +14,8 @@
  * 
  *        firmware version information
  */
-#define COFFEE_FIRMWARE_NUM "0.0.1"
+
+#define COFFEE_FIRMWARE_NUM "0.0.2"
 #define COFFEE_ALPHA_TEST 1
 #define COFFEE_BETA_TEST  0
 
@@ -39,6 +40,15 @@
  */
 #define COFFEE_AD_TERM 5000
 
+/**
+ * @def COFFEE_MAX_STR_BUF
+ * 
+ * @brief 문자열 버퍼 최대 크기
+ * 
+ *        maximum size of the string buffer
+ */
+#define COFFEE_MAX_STR_BUF 256
+
 #include <esp_heap_caps.h>
 
 #include <Arduino.h>
@@ -58,10 +68,28 @@ namespace coffee {
     void init_network_config(void);
 
     /**
-     * @brief 네트워크 정보를 포함하는 JSON
+     * @brief JSON 파일로부터 마지막 Wi-Fi 연결 정보를 불러옵니다
      * 
-     *        JSON containing network information
+     *        loads the last Wi-Fi connection information from a JSON file
+     * 
+     * @param[out] ssid_out 마지막으로 연결된 Wi-Fi SSID
+     * 
+     *                      the SSID of the last connected Wi-Fi
+     * 
+     * @param[out] pw_out 마지막으로 연결된 Wi-Fi 비밀번호
+     * 
+     *                    the password of the last connected Wi-Fi
+     * 
+     * @return 마지막 Wi-Fi 연결 정보 불러오기 성공 여부
+     * 
+     *         whether loading the last Wi-Fi connection information succeeded
      */
-    extern cJSON* network_config;
+    bool get_last_wifi(const char** ssid_out, const char** pw_out);
+
+    extern cJSON* config_root;
+
+    extern cJSON* wifi_config;
+
+    extern cJSON* mqtt_config;
 }
 #endif

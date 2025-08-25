@@ -24,7 +24,7 @@ void ui_event_mainScreen(lv_event_t * e)
     if(event_code == LV_EVENT_SCREEN_LOAD_START) {
         main_screen_load(e);
     }
-    if(event_code == LV_EVENT_CLICKED) {
+    if(event_code == LV_EVENT_SCREEN_UNLOADED) {
         main_screen_unload(e);
     }
 }
@@ -80,7 +80,7 @@ void ui_mainScreen_screen_init(void)
     lv_obj_set_x(ui_mainWiFiLabel, 0);
     lv_obj_set_y(ui_mainWiFiLabel, 10);
     lv_obj_set_align(ui_mainWiFiLabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_mainWiFiLabel, "Wi-Fi: No Connection");
+    lv_label_set_text(ui_mainWiFiLabel, "Wi-Fi: Disconnected");
     lv_obj_set_style_text_align(ui_mainWiFiLabel, LV_TEXT_ALIGN_AUTO, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_mainConfigButton = lv_btn_create(ui_mainScreen);

@@ -31,6 +31,9 @@ void ui_event_wifiScreen(lv_event_t * e)
     if(event_code == LV_EVENT_SCREEN_LOAD_START) {
         wifi_screen_load(e);
     }
+    if(event_code == LV_EVENT_SCREEN_UNLOADED) {
+        wifi_screen_unload(e);
+    }
 }
 
 void ui_event_wifiSsidTextArea(lv_event_t * e)
@@ -109,7 +112,7 @@ void ui_wifiScreen_screen_init(void)
     lv_obj_set_x(ui_wifiInfoLabel, -30);
     lv_obj_set_y(ui_wifiInfoLabel, 0);
     lv_obj_set_align(ui_wifiInfoLabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_wifiInfoLabel, "Wi-Fi: No Connection");
+    lv_label_set_text(ui_wifiInfoLabel, "Wi-Fi: Disconnected");
     lv_obj_set_style_text_font(ui_wifiInfoLabel, &lv_font_montserrat_28, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_wifiInfoImage = lv_img_create(ui_wifiInfoContainer);
