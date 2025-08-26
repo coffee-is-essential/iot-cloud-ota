@@ -2,7 +2,7 @@ package network
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"mqtt-handler/mqttclient"
 	"mqtt-handler/types"
 	"net/http"
@@ -104,23 +104,25 @@ func (n *Network) firmwareDeployPOST(path string, handler http.HandlerFunc) {
 
 // 디버깅용 요청 로그 출력 함수
 func PrintDownloadLog(req *types.FirmwareDeployRequest) {
-	fmt.Println("Signed URL: ", req.SignedUrl)
-	fmt.Println("Deployment ID: ", req.FileInfo.DeploymentId)
-	fmt.Println("Version: ", req.FileInfo.Version)
-	fmt.Println("hash: ", req.FileInfo.FileHash)
-	fmt.Println("FileSize", req.FileInfo.FileSize)
-	fmt.Println("Expired At", req.FileInfo.ExpiresAt)
-	fmt.Println("deployed At", req.FileInfo.DeployedAt)
+	log.Println("========== Received Firmware Deploy ==========")
+	log.Println("Signed URL: ", req.SignedUrl)
+	log.Println("Deployment ID: ", req.FileInfo.DeploymentId)
+	log.Println("Version: ", req.FileInfo.Version)
+	log.Println("hash: ", req.FileInfo.FileHash)
+	log.Println("FileSize", req.FileInfo.FileSize)
+	log.Println("Expired At", req.FileInfo.ExpiresAt)
+	log.Println("deployed At", req.FileInfo.DeployedAt)
 	for _, device := range req.Devices {
-		fmt.Printf("[Device] - Device ID: %d\n", device.DeviceId)
+		log.Printf("Device ID: %d\n", device.DeviceId)
 	}
+	log.Println("==============================================")
 }
 
 // 디버깅용 요청 로그 출력 함수
 func PrintDownloadCancelLog(req *types.FirmwareDeployCancelRequest) {
-	fmt.Println("Command ID: ", req.CommandID)
-	fmt.Println("Reason: ", req.Reason)
+	log.Println("Command ID: ", req.CommandID)
+	log.Println("Reason: ", req.Reason)
 	for _, device := range req.Devices {
-		fmt.Printf("[Device] - Device ID: %d\n", device.DeviceId)
+		log.Printf("[Device] - Device ID: %d\n", device.DeviceId)
 	}
 }

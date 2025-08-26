@@ -52,22 +52,22 @@ type FirmwareDownloadRequestAck struct {
 }
 
 type FirmwareDownloadProgress struct {
-	CommandID       string `json:"command_id"`
-	Progress        int64  `json:"progress"`
-	DownloadedBytes int64  `json:"downloaded_bytes"`
-	TotalBytes      int64  `json:"total_bytes"`
-	SpeedKbps       int64  `json:"speed_kbps"`
-	EtaSeconds      int64  `json:"eta_seconds,omitempty"`
-	Timestamp       string `json:"timestamp"`
+	CommandID       string  `json:"command_id"`
+	Progress        int64   `json:"progress"`
+	DownloadedBytes int64   `json:"downloaded_bytes"`
+	TotalBytes      int64   `json:"total_bytes"`
+	SpeedKbps       float64 `json:"speed_kbps"`
+	EtaSeconds      int64   `json:"eta_seconds,omitempty"`
+	Timestamp       string  `json:"timestamp"`
 }
 
 type FirmwareDownloadResult struct {
-	CommandID        string `json:"command_id"`
-	Status           string `json:"status"`
-	Message          string `json:"message"`
-	ChecksumVerified bool   `json:"checksum_verified"`
-	DownloadTime     int64  `json:"download_time"`
-	Timestamp        string `json:"timestamp"`
+	CommandID        string  `json:"command_id"`
+	Status           string  `json:"status"`
+	Message          string  `json:"message"`
+	ChecksumVerified bool    `json:"checksum_verified"`
+	DownloadTime     float64 `json:"download_time"`
+	Timestamp        string  `json:"timestamp"`
 }
 
 type FirmwareDownloadCancelAck struct {
@@ -85,7 +85,7 @@ type FirmwareDownloadEvent struct {
 	Progress         int64
 	TotalBytes       int64
 	DownloadBytes    int64
-	SpeedKbps        int64
+	SpeedKbps        float64
 	ChecksumVerified bool
-	DownloadTime     int64
+	DownloadTime     float64
 }

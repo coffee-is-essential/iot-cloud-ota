@@ -17,9 +17,9 @@ func (c *DBClient) StartEventConsumer() {
 			Int64Column("progress", event.Progress).
 			Int64Column("total_bytes", event.TotalBytes).
 			Int64Column("download_bytes", event.DownloadBytes).
-			Int64Column("speed_kbps", event.SpeedKbps).
+			Float64Column("speed_kbps", event.SpeedKbps).
 			BoolColumn("checksum_verified", event.ChecksumVerified).
-			Int64Column("download_time", event.DownloadTime).
+			Float64Column("download_time", event.DownloadTime).
 			AtNow(ctx)
 
 		if err != nil {
