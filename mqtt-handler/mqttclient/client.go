@@ -49,7 +49,6 @@ func (m *MQTTClient) Connect(brokerURL string, clientId string) {
 	opts.SetClientID(clientId)
 	opts.SetDefaultPublishHandler(messagePubHandler)
 	opts.SetConnectionLostHandler(connectLostHandler)
-	opts.SetAutoReconnect(true)
 
 	client := mqtt.NewClient(opts)
 

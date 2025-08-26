@@ -16,14 +16,13 @@ func (m *MQTTClient) subscribe(topic string, parseFunc func(mqtt.Message) (*type
 	handler := func(client mqtt.Client, msg mqtt.Message) {
 		log.Printf("[MQTT] %s 수신 - 토픽: %s", label, msg.Topic())
 
-		go func(msg mqtt.Message) {
-			event, err := parseFunc(msg)
-			if err != nil {
-				log.Printf("[ERROR] %s 메시지 파싱 실패: %v", label, err)
-				return
-			}
-			repository.InsertChan <- *event
-		}(msg)
+		event, err := parseFunc(msg)
+		if err != nil {
+			log.Printf("[ERROR] %s 메시지 파싱 실패: %v", label, err)
+			return
+		}
+
+		repository.InsertChan <- *event
 	}
 
 	token := m.mqttClient.Subscribe(topic, 1, handler)
@@ -82,7 +81,7 @@ func parseDownloadCancelAck(msg mqtt.Message) (*types.FirmwareDownloadEvent, err
 }
 
 // 공통 이벤트 빌더 - 토픽에서 region/group/device ID 추출 + 이벤트 생성
-func buildDownloadEvent(topic, commandID, message, status string, progress int64, totalBytes int64, downloadBytes int64, speedKbps int64, verified bool, downloadTime int64) *types.FirmwareDownloadEvent {
+func buildDownloadEvent(topic, commandID, message, status string, progress int64, totalBytes int64, downloadBytes int64, speedKbps float64, verified bool, downloadTime float64) *types.FirmwareDownloadEvent {
 	topicParts := strings.Split(topic, "/")
 	deviceID, _ := strconv.ParseInt(topicParts[1], 10, 64)
 

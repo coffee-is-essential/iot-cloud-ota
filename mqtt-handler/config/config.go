@@ -27,7 +27,7 @@ func NewConfig() *Config {
 
 	conf.Server.Port = getEnv("SERVER_PORT", ":8080")
 	conf.MqttBroker.Url = getEnv("MQTT_BROKER_URL", "tcp://localhost:1883")
-	conf.MqttBroker.ClientId = getEnv("MQTT_CLIENT_ID", "mqtt-handler")
+	conf.MqttBroker.ClientId = getEnv("MQTT_CLIENT_ID", "local-mqtt-handler")
 	conf.QuestDB.Conf = getEnv("QUESTDB_CONF", "http::addr=localhost:9000")
 
 	return conf
