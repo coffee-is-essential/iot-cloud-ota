@@ -163,8 +163,8 @@ class FirmwareManager:
     def _verify_checksum(
         self,
         file_path: str,
-        expected_checksum_str: str,
-    ) -> tuple[bool, str]:
+        expected_checksum: str,
+    ) -> bool:
         """다운로드된 파일의 체크섬을 검증합니다.
 
         SHA256 알고리즘을 사용하여 파일의 체크섬을 계산하고,
@@ -178,13 +178,6 @@ class FirmwareManager:
         Returns:
             tuple: (검증 성공 여부, 실제 계산된 체크섬 또는 오류 메시지)
         """
-        try:
-            algo, expected_hash = expected_checksum_str.split(":", 1)
-            if algo.lower() != "sha256":
-                return False, f"Unsupported checksum algorithm: {algo}"
-        except ValueError:
-            return False, "Invalid checksum format. Expected 'algo:hash'."
-
         hasher = hashlib.sha256()
         try:
             with open(file_path, "rb") as f:
@@ -192,11 +185,13 @@ class FirmwareManager:
                 for chunk in iter(lambda: f.read(4096), b""):
                     hasher.update(chunk)
             actual_hash = hasher.hexdigest()
-            return actual_hash == expected_hash, actual_hash
+            return actual_hash == expected_checksum
         except FileNotFoundError:
-            return False, "File not found for checksum verification."
+            logger.error("File not found for checksum verification: %s", file_path)
+            return False
         except Exception as e:
-            return False, f"Error during checksum calculation: {e}"
+            logger.error("Error during checksum verification: %s", e)
+            return False
 
     def _download_firmware(self, download_request: FirmwareDownloadRequest) -> None:
         """HTTP 클라이언트를 사용하여 펌웨어 파일을 다운로드하는 전체 프로세스.
@@ -227,9 +222,7 @@ class FirmwareManager:
                 timeout=download_request.timeout,
             )
 
-            is_valid, actual_hash = self._verify_checksum(
-                file_path, download_request.checksum
-            )
+            is_valid = self._verify_checksum(file_path, download_request.checksum)
 
             if is_valid:
                 # 성공했으므로 상태 업데이트
@@ -238,7 +231,7 @@ class FirmwareManager:
                 checksum_verified = True
             else:
                 # 상태는 FAILED 유지
-                message = f"Checksum mismatch. Expected: {download_request.checksum}, Got: sha256:{actual_hash}"
+                message = "Checksum mismatch."
                 checksum_verified = False
 
         except TimeoutError as e:
