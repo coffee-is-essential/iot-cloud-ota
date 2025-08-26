@@ -3,7 +3,6 @@ package com.coffee_is_essential.iot_cloud_ota.domain;
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareDeployment;
 import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentStatus;
 import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentType;
-import com.coffee_is_essential.iot_cloud_ota.enums.OverallDeploymentStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,11 +32,11 @@ public record FirmwareDeploymentMetadata(
         Long successCount,
         Long inProgressCount,
         Long failedCount,
-        OverallDeploymentStatus status,
+        DeploymentStatus status,
         LocalDateTime deployedAt,
         LocalDateTime expiresAt
 ) {
-    public static FirmwareDeploymentMetadata of(FirmwareDeployment firmwareDeployment, List<Target> targetInfo, List<DeploymentStatusCount> countList) {
+    public static FirmwareDeploymentMetadata of(FirmwareDeployment firmwareDeployment, List<Target> targetInfo, List<DeploymentStatusCount> countList, DeploymentStatus overallDeployStatus) {
         long total = 0, success = 0, inProgress = 0, failed = 0;
         for (DeploymentStatusCount statusCount : countList) {
             if (statusCount.deploymentStatus().equals(DeploymentStatus.IN_PROGRESS.name())) {
@@ -62,7 +61,7 @@ public record FirmwareDeploymentMetadata(
                 success,
                 inProgress,
                 failed,
-                firmwareDeployment.getOverallDeploymentStatus(),
+                overallDeployStatus,
                 firmwareDeployment.getDeployedAt(),
                 firmwareDeployment.getExpiresAt()
         );

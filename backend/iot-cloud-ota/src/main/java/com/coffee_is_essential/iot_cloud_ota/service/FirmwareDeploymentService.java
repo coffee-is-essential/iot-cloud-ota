@@ -4,17 +4,10 @@ import com.coffee_is_essential.iot_cloud_ota.domain.*;
 import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareDeploymentDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareDeploymentListDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareDeploymentRequestDto;
-import com.coffee_is_essential.iot_cloud_ota.entity.Device;
-import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareDeployment;
-import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareDeploymentDevice;
-import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareMetadata;
+import com.coffee_is_essential.iot_cloud_ota.entity.*;
 import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentStatus;
 import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentType;
-import com.coffee_is_essential.iot_cloud_ota.enums.OverallDeploymentStatus;
-import com.coffee_is_essential.iot_cloud_ota.repository.DeviceJpaRepository;
-import com.coffee_is_essential.iot_cloud_ota.repository.FirmwareDeploymentDeviceRepository;
-import com.coffee_is_essential.iot_cloud_ota.repository.FirmwareDeploymentRepository;
-import com.coffee_is_essential.iot_cloud_ota.repository.FirmwareMetadataJpaRepository;
+import com.coffee_is_essential.iot_cloud_ota.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +38,7 @@ public class FirmwareDeploymentService {
     private final FirmwareDeploymentRepository firmwareDeploymentRepository;
     private final FirmwareDeploymentDeviceRepository firmwareDeploymentDeviceRepository;
     private final DeviceJpaRepository deviceJpaRepository;
+    private final OverallDeploymentStatusRepository overallDeploymentStatusRepository;
     private final RestClient restClient;
     private final CloudFrontSignedUrlService cloudFrontSignedUrlService;
     private static final int TIMEOUT = 10;
@@ -86,8 +80,9 @@ public class FirmwareDeploymentService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CloudFront 서명 URL 생성 실패", e);
         }
 
-        FirmwareDeployment firmwareDeployment = new FirmwareDeployment(findFirmware, deployInfo.deploymentId(), requestDto.deploymentType(), deployInfo.deployedAt().toLocalDateTime(), deployInfo.expiresAt().toLocalDateTime(), OverallDeploymentStatus.IN_PROGRESS);
+        FirmwareDeployment firmwareDeployment = new FirmwareDeployment(findFirmware, deployInfo.deploymentId(), requestDto.deploymentType(), deployInfo.deployedAt().toLocalDateTime(), deployInfo.expiresAt().toLocalDateTime());
         firmwareDeploymentRepository.save(firmwareDeployment);
+        overallDeploymentStatusRepository.save(new OverallDeploymentStatus(firmwareDeployment, DeploymentStatus.IN_PROGRESS));
         saveFirmwareDeploymentDevices(devices, firmwareDeployment, DeploymentStatus.IN_PROGRESS);
 
         List<DeployTargetDeviceInfo> deviceInfos = devices
@@ -96,7 +91,7 @@ public class FirmwareDeploymentService {
                 .toList();
 
         FirmwareDeploymentDto deploymentDto = new FirmwareDeploymentDto(signedUrl, deployInfo, deviceInfos);
-        sendMqttHandler(deploymentDto);
+//        sendMqttHandler(deploymentDto);
         return deploymentDto;
     }
 
@@ -169,16 +164,30 @@ public class FirmwareDeploymentService {
     private FirmwareDeploymentMetadata getFirmwareDeploymentMetadata(FirmwareDeployment firmwareDeployment) {
         Long deploymentId = firmwareDeployment.getId();
         List<DeploymentStatusCount> countList = firmwareDeploymentDeviceRepository.countStatusByLatestDeployment(deploymentId);
+        List<Target> targetInfo = getTargetList(firmwareDeployment);
+        OverallDeploymentStatus status = overallDeploymentStatusRepository.findLatestByDeploymentIdOrElseThrow(firmwareDeployment.getId());
+
+        return FirmwareDeploymentMetadata.of(firmwareDeployment, targetInfo, countList, status.getDeploymentStatus());
+    }
+
+    public void findFirmwareDeploymentById(Long id) {
+        FirmwareDeployment deployment = firmwareDeploymentRepository.findByIdOrElseThrow(id);
+        String commandId = deployment.getCommandId();
+        Firmware firmware = Firmware.from(deployment.getFirmwareMetadata());
+        List<Target> targetInfo = getTargetList(deployment);
+    }
+
+    private List<Target> getTargetList(FirmwareDeployment firmwareDeployment) {
         List<Target> targetInfo = new ArrayList<>();
 
         if (firmwareDeployment.getDeploymentType().equals(DeploymentType.DEVICE)) {
-            targetInfo = firmwareDeploymentDeviceRepository.findDeviceInfoByDeploymentId(deploymentId);
+            targetInfo = firmwareDeploymentDeviceRepository.findDeviceInfoByDeploymentId(firmwareDeployment.getId());
         } else if (firmwareDeployment.getDeploymentType().equals(DeploymentType.DIVISION)) {
-            targetInfo = firmwareDeploymentDeviceRepository.findDivisionInfoByDeploymentId(deploymentId);
+            targetInfo = firmwareDeploymentDeviceRepository.findDivisionInfoByDeploymentId(firmwareDeployment.getId());
         } else if (firmwareDeployment.getDeploymentType().equals(DeploymentType.REGION)) {
-            targetInfo = firmwareDeploymentDeviceRepository.findRegionInfoByDeploymentId(deploymentId);
+            targetInfo = firmwareDeploymentDeviceRepository.findRegionInfoByDeploymentId(firmwareDeployment.getId());
         }
 
-        return FirmwareDeploymentMetadata.of(firmwareDeployment, targetInfo, countList);
+        return targetInfo;
     }
 }
