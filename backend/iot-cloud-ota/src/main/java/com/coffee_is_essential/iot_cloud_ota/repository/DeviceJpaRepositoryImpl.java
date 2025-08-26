@@ -1,6 +1,6 @@
 package com.coffee_is_essential.iot_cloud_ota.repository;
 
-import com.coffee_is_essential.iot_cloud_ota.domain.DeployTargetDeviceInfo;
+import com.coffee_is_essential.iot_cloud_ota.entity.Device;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -28,9 +28,9 @@ public class DeviceJpaRepositoryImpl implements DeviceJpaRepositoryCustom {
      * @return 조건에 해당하는 디바이스들의 DTO 리스트
      */
     @Override
-    public List<DeployTargetDeviceInfo> findByFilterDynamic(List<Long> deviceIds, List<Long> groupIds, List<Long> regionIds) {
+    public List<Device> findByFilterDynamic(List<Long> deviceIds, List<Long> groupIds, List<Long> regionIds) {
         StringBuilder jpql = new StringBuilder(
-                "SELECT new com.coffee_is_essential.iot_cloud_ota.domain.DeployTargetDeviceInfo(d.id, d.division.id, d.region.id) " +
+                "SELECT d " +
                 "FROM Device d " +
                 "WHERE 1=0"
         );
@@ -47,7 +47,7 @@ public class DeviceJpaRepositoryImpl implements DeviceJpaRepositoryCustom {
             jpql.append(" OR d.region.id IN :regionIds");
         }
 
-        TypedQuery<DeployTargetDeviceInfo> query = em.createQuery(jpql.toString(), DeployTargetDeviceInfo.class);
+        TypedQuery<Device> query = em.createQuery(jpql.toString(), Device.class);
         if (!deviceIds.isEmpty()) query.setParameter("deviceIds", deviceIds);
         if (!groupIds.isEmpty()) query.setParameter("groupIds", groupIds);
         if (!regionIds.isEmpty()) query.setParameter("regionIds", regionIds);

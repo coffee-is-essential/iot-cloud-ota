@@ -1,6 +1,6 @@
 package com.coffee_is_essential.iot_cloud_ota.repository;
 
-import com.coffee_is_essential.iot_cloud_ota.domain.DeployTargetDeviceInfo;
+import com.coffee_is_essential.iot_cloud_ota.entity.Device;
 
 import java.util.List;
 
@@ -16,5 +16,5 @@ public interface DeviceJpaRepositoryCustom {
      * @param regionIds 조회할 리전 ID 리스트
      * @return 조건에 해당하는 디바이스들의 DTO 리스트
      */
-    List<DeployTargetDeviceInfo> findByFilterDynamic(List<Long> deviceIds, List<Long> groupIds, List<Long> regionIds);
+    List<Device> findByFilterDynamic(List<Long> deviceIds, List<Long> groupIds, List<Long> regionIds);
 }

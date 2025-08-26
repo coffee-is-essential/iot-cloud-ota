@@ -1,5 +1,7 @@
 package com.coffee_is_essential.iot_cloud_ota.dto;
 
+import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentType;
+
 import java.util.List;
 
 /**
@@ -11,6 +13,7 @@ import java.util.List;
  * @param regionIds 디바이스 지역 ID 목록
  */
 public record FirmwareDeploymentRequestDto(
+        DeploymentType deploymentType,
         List<Long> deviceIds,
         List<Long> groupIds,
         List<Long> regionIds

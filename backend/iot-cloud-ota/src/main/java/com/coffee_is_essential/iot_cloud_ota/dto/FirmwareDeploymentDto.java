@@ -2,6 +2,7 @@ package com.coffee_is_essential.iot_cloud_ota.dto;
 
 import com.coffee_is_essential.iot_cloud_ota.domain.DeployTargetDeviceInfo;
 import com.coffee_is_essential.iot_cloud_ota.domain.FirmwareDeployInfo;
+import com.coffee_is_essential.iot_cloud_ota.entity.Device;
 
 import java.util.List;
 
@@ -10,7 +11,6 @@ import java.util.List;
  *
  * @param signedUrl CloudFront로부터 발급된 Signed URL
  * @param fileInfo  펌웨어 배포 관련 메타데이터 (버전, 크기, 해시 등)
- * @param devices   실제 배포 대상이 되는 디바이스 정보 목록
  */
 public record FirmwareDeploymentDto(
         String signedUrl,

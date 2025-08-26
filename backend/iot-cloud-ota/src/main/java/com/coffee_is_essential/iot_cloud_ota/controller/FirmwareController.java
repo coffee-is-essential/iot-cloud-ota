@@ -66,11 +66,17 @@ public class FirmwareController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    // TODO RESTClient를 통한 API 호출
     @PostMapping("/metadata/{id}/deployment")
     public ResponseEntity<FirmwareDeploymentDto> deploy(@PathVariable Long id, @RequestBody FirmwareDeploymentRequestDto requestDto) {
         FirmwareDeploymentDto dto = firmwareDeploymentService.deployFirmware(id, requestDto);
 
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
+
+    @GetMapping("/deployment/list")
+    public ResponseEntity<FirmwareDeploymentListDto> findAllDeploymentList() {
+        FirmwareDeploymentListDto list = firmwareDeploymentService.getFirmwareDeploymentList();
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
 }
