@@ -1,7 +1,6 @@
 package mqttclient
 
 import (
-	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"log"
 	"mqtt-handler/repository"
@@ -23,12 +22,12 @@ type MQTTClient struct {
 
 // 메시지 수신 시 호출되는 기본 핸들러
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, message mqtt.Message) {
-	fmt.Printf("Received message: %s from topic: %s\n", message.Payload(), message.Topic())
+	log.Printf("Received message: %s from topic: %s\n", message.Payload(), message.Topic())
 }
 
 // MQTT 연결이 끊겼을 때 호출되는 핸들러
 var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
-	fmt.Printf("Connect loss: %v", err)
+	log.Printf("Connect loss: %v", err)
 }
 
 // NewMqttClient는 MQTTClient 인스턴스를 한 번만 생성합니다.
@@ -55,7 +54,7 @@ func (m *MQTTClient) Connect(brokerURL string, clientId string) {
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		log.Fatalf("[MQTT] 브로커 연결 실패: %v", token.Error())
 	}
-	fmt.Printf("%s 가 브로커 [%s]에 연결됨\n", opts.ClientID, opts.Servers[0].String())
+	log.Printf("%s 가 브로커 [%s]에 연결됨\n", opts.ClientID, opts.Servers[0].String())
 	m.mqttClient = client
 	log.Println("[MQTT] 연결 성공")
 }

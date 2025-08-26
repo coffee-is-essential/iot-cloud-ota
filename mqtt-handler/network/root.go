@@ -1,7 +1,7 @@
 package network
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -24,7 +24,7 @@ func NewNetwork() *Network {
 // HTTP 서버를 시작합니다.
 // 주어진 포트에서 요청을 수신하며, mux에 등록된 핸들러에 따라 라우팅됩니다.
 func (n *Network) ServerStart(port string) error {
-	fmt.Println("서버 시작 [Port: " + port + "]")
+	log.Println("서버 시작 [Port: " + port + "]")
 
 	return http.ListenAndServe(port, n.mux)
 }
