@@ -13,8 +13,6 @@ func (c *DBClient) StartEventConsumer() {
 			Symbol("command_id", event.CommandID).
 			Symbol("message", event.Message).
 			Symbol("status", event.Status).
-			Int64Column("group_id", event.GroupID).
-			Int64Column("region_id", event.RegionID).
 			Int64Column("device_id", event.DeviceID).
 			Int64Column("progress", event.Progress).
 			Int64Column("total_bytes", event.TotalBytes).

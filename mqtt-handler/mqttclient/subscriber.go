@@ -83,14 +83,10 @@ func parseDownloadCancelAck(msg mqtt.Message) (*types.FirmwareDownloadEvent, err
 // 공통 이벤트 빌더 - 토픽에서 region/group/device ID 추출 + 이벤트 생성
 func buildDownloadEvent(topic, commandID, message, status string, progress int64, totalBytes int64, downloadBytes int64, speedKbps int64, verified bool, downloadTime int64) *types.FirmwareDownloadEvent {
 	topicParts := strings.Split(topic, "/")
-	regionID, _ := strconv.ParseInt(topicParts[1], 10, 64)
-	groupID, _ := strconv.ParseInt(topicParts[2], 10, 64)
-	deviceID, _ := strconv.ParseInt(topicParts[3], 10, 64)
+	deviceID, _ := strconv.ParseInt(topicParts[1], 10, 64)
 
 	return &types.FirmwareDownloadEvent{
 		CommandID:        commandID,
-		GroupID:          groupID,
-		RegionID:         regionID,
 		DeviceID:         deviceID,
 		Message:          message,
 		Status:           status,
@@ -105,8 +101,8 @@ func buildDownloadEvent(topic, commandID, message, status string, progress int64
 
 // 전체 구독 시작 - 모든 관련 토픽을 한 번에 등록
 func (m *MQTTClient) SubscribeAllTopics() {
-	m.subscribe("v1/+/+/+/firmware/download/request/ack", parseDownloadRequestAck, "[ACK]")
-	m.subscribe("v1/+/+/+/firmware/download/progress", parseDownloadProgress, "[PROGRESS]")
-	m.subscribe("v1/+/+/+/firmware/download/result", parseDownloadResult, "[RESULT]")
-	m.subscribe("v1/+/+/+/firmware/download/cancel/ack", parseDownloadCancelAck, "[CANCEL ACK]")
+	m.subscribe("v1/+/firmware/download/request/ack", parseDownloadRequestAck, "[ACK]")
+	m.subscribe("v1/+/firmware/download/progress", parseDownloadProgress, "[PROGRESS]")
+	m.subscribe("v1/+/firmware/download/result", parseDownloadResult, "[RESULT]")
+	m.subscribe("v1/+/firmware/download/cancel/ack", parseDownloadCancelAck, "[CANCEL ACK]")
 }

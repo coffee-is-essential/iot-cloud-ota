@@ -23,8 +23,6 @@ type FileInfo struct {
 
 type DeviceIds struct {
 	DeviceId int64 `json:"deviceId"`
-	GroupId  int64 `json:"groupId"`
-	RegionId int64 `json:"regionId"`
 }
 
 type FirmwareDeployResponse struct {
@@ -81,8 +79,6 @@ type FirmwareDownloadCancelAck struct {
 
 type FirmwareDownloadEvent struct {
 	CommandID        string
-	GroupID          int64
-	RegionID         int64
 	DeviceID         int64
 	Message          string
 	Status           string
