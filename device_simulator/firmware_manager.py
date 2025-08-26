@@ -178,6 +178,13 @@ class FirmwareManager:
         Returns:
             tuple: (검증 성공 여부, 실제 계산된 체크섬 또는 오류 메시지)
         """
+        # 체크섬 문자열이 "sha256:..." 형식인지 확인하고, 그렇지 않으면 기본적으로 SHA256으로 간주
+        if ":" in expected_checksum:
+            algo, expected_checksum = expected_checksum.split(":", 1)
+            if algo.lower() != "sha256":
+                logger.error("Unsupported checksum algorithm: %s", algo)
+                return False
+
         hasher = hashlib.sha256()
         try:
             with open(file_path, "rb") as f:

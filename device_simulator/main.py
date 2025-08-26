@@ -80,12 +80,13 @@ if __name__ == "__main__":
     simulator.run()
 
     logger.info("====== Device Simulator started. ======")
-    logger.info(f"Device ID  : {config.DEVICE_ID}")
-    logger.info(f"Broker URL : {config.BROKER_URL}")
-    logger.info(f"Broker Port: {config.BROKER_PORT}")
+    logger.info("Device ID  : %s", config.DEVICE_ID)
+    logger.info("Broker URL : %s", config.BROKER_URL)
+    logger.info("Broker Port: %d", config.BROKER_PORT)
     logger.info("=======================================")
     logger.info(
-        f"Listening for messages on topic: v1/{config.DEVICE_ID}/firmware/download/request"
+        "Listening for messages on topic: v1/%s/firmware/download/request",
+        config.DEVICE_ID,
     )
     logger.info("Press Ctrl+C to exit.")
 
