@@ -16,13 +16,14 @@ func (m *MQTTClient) subscribe(topic string, parseFunc func(mqtt.Message) (*type
 	handler := func(client mqtt.Client, msg mqtt.Message) {
 		log.Printf("[MQTT] %s 수신 - 토픽: %s", label, msg.Topic())
 
-		event, err := parseFunc(msg)
-		if err != nil {
-			log.Printf("[ERROR] %s 메시지 파싱 실패: %v", label, err)
-			return
-		}
-
-		repository.InsertChan <- *event
+		go func(msg mqtt.Message) {
+			event, err := parseFunc(msg)
+			if err != nil {
+				log.Printf("[ERROR] %s 메시지 파싱 실패: %v", label, err)
+				return
+			}
+			repository.InsertChan <- *event
+		}(msg)
 	}
 
 	token := m.mqttClient.Subscribe(topic, 1, handler)
