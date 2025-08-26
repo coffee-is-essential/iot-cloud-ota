@@ -26,6 +26,9 @@ void ui_event_debugScreen(lv_event_t * e)
     if(event_code == LV_EVENT_SCREEN_LOAD_START) {
         debug_screen_load(e);
     }
+    if(event_code == LV_EVENT_SCREEN_UNLOADED) {
+        debug_screen_unload(e);
+    }
 }
 
 void ui_event_debugCmdTextArea(lv_event_t * e)

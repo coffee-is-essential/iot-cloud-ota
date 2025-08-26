@@ -1,5 +1,7 @@
 idf_component_register(SRCS "src/main.cpp"
         "src/config.cpp"
+        "src/debug_task.cpp"
+        "src/ipc.cpp"
         "src/network_task.cpp"
         "src/ui_task.cpp"
         "ui/ui_comp_hook.c"
@@ -18,6 +20,7 @@ idf_component_register(SRCS "src/main.cpp"
     INCLUDE_DIRS "include"
         "ui"
     REQUIRES arduino-esp32
+        mbedtls
         cJSON
         coffee-driver
         lvgl

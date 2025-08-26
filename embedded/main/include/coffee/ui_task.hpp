@@ -3,15 +3,12 @@
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include <freertos/queue.h>
 
 #include <Arduino.h>
 
 #include <ui.h>
 
 #include "coffee/config.hpp"
-
-#define COFFEE_MAX_QUEUE 8
 
 namespace coffee {
     /**
@@ -20,7 +17,5 @@ namespace coffee {
      *        initializes the UI and starts the update task
      */
     void init_ui_task(void);
-
-    extern QueueHandle_t wifiTextArea_q;
 }
 #endif

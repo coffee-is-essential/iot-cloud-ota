@@ -11,9 +11,7 @@ namespace coffee {
     void init_ui_task(void) {
         ui_init();
 
-        wifiTextArea_q = xQueueCreate(COFFEE_MAX_QUEUE, COFFEE_MAX_STR_BUF);
-
-        xTaskCreatePinnedToCore(coffee::ui_task, "ui", 8192, NULL, 4, NULL, 1);
+        xTaskCreatePinnedToCore(coffee::ui_task, "ui", 8192, nullptr, tskIDLE_PRIORITY + 1, nullptr, 1);
     }
 
     static void ui_task(void* task_param) {
@@ -23,6 +21,6 @@ namespace coffee {
             delay(5);
         }
 
-        vTaskDelete(NULL);
+        vTaskDelete(nullptr);
     }
 }

@@ -15,7 +15,7 @@
  *        firmware version information
  */
 
-#define COFFEE_FIRMWARE_NUM "0.0.2"
+#define COFFEE_FIRMWARE_NUM "0.0.3"
 #define COFFEE_ALPHA_TEST 1
 #define COFFEE_BETA_TEST  0
 
@@ -41,6 +41,13 @@
 #define COFFEE_AD_TERM 5000
 
 /**
+ * @def COFFEE_QUEUE_SIZE
+ * 
+ * @brief 메시지 전달을 위한 큐 크기
+ */
+#define COFFEE_QUEUE_SIZE 8
+
+/**
  * @def COFFEE_MAX_STR_BUF
  * 
  * @brief 문자열 버퍼 최대 크기
@@ -48,6 +55,24 @@
  *        maximum size of the string buffer
  */
 #define COFFEE_MAX_STR_BUF 256
+
+/**
+ * @def COFFEE_NETWORK_TIMEOUT_MS
+ * 
+ * @brief 네트워크 최대 대기 시간
+ * 
+ *        maximum network timeout duration
+ */
+#define COFFEE_NETWORK_TIMEOUT_MS 10000
+
+/**
+ * @def COFFEE_FILE_CHUNK_SIZE
+ * 
+ * @brief 파일 다운로드 청크 크기
+ * 
+ *        file download chunk size
+ */
+#define COFFEE_FILE_CHUNK_SIZE 0x19000
 
 #include <esp_heap_caps.h>
 
@@ -84,7 +109,18 @@ namespace coffee {
      * 
      *         whether loading the last Wi-Fi connection information succeeded
      */
-    bool get_last_wifi(const char** ssid_out, const char** pw_out);
+    bool get_last_wifi(const char*& ssid_out, const char*& pw_out);
+
+    /**
+     * @brief config_root의 내용을 이용하여 파일을 업데이트 합니다
+     * 
+     *        updates the file using the contents of config_root
+     * 
+     * @return 파일 업데이트 성공 여부
+     * 
+     *         whether the file update was successful
+     */
+    bool write_config(void);
 
     extern cJSON* config_root;
 

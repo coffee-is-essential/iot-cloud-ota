@@ -27,6 +27,9 @@ void ui_event_serverScreen(lv_event_t * e)
     if(event_code == LV_EVENT_SCREEN_LOAD_START) {
         server_screen_load(e);
     }
+    if(event_code == LV_EVENT_SCREEN_UNLOADED) {
+        server_screen_unload(e);
+    }
 }
 
 void ui_event_serverAddressTextArea(lv_event_t * e)

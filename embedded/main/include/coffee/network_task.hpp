@@ -5,11 +5,19 @@
 #include <freertos/task.h>
 #include <freertos/queue.h>
 
+#include <cJSON.h>
+
 #include <coffee_drv/wifi.hpp>
 
 #include "coffee/config.hpp"
+#include "coffee/ipc.hpp"
 
 namespace coffee {
+    typedef struct con_info {
+        const char* ssid;
+        const char* pw;
+    } con_info;
+
     /**
      * @brief Wi-Fi에 연결합니다
      * 
@@ -25,13 +33,8 @@ namespace coffee {
      */
     void connect_wifi(const char* ssid, const char* pw);
 
-    /**
-     * @brief 마지막 Wi-Fi 연결 정보를 이용하여 Wi-Fi에 연결합니다
-     * 
-     *        connects to Wi-Fi using the last saved connection information
-     */
-    void restore_wifi(void);
-
     extern QueueHandle_t wifiTextArea_q;
+
+    extern QueueHandle_t debugTextArea_q;
 }
 #endif

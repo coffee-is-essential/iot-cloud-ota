@@ -24,10 +24,12 @@ void wifi_screen_unload(lv_event_t * e);
 void wifi_connect(lv_event_t * e);
 void wifi_restore(lv_event_t * e);
 void server_screen_load(lv_event_t * e);
+void server_screen_unload(lv_event_t * e);
 void server_set(lv_event_t * e);
 void firmware_screen_load(lv_event_t * e);
 void firmware_check(lv_event_t * e);
 void debug_screen_load(lv_event_t * e);
+void debug_screen_unload(lv_event_t * e);
 void debug_function1(lv_event_t * e);
 void debug_function2(lv_event_t * e);
 
