@@ -14,4 +14,7 @@ public record PaginationInfo(
         int limit,
         String search
 ) {
+    public static PaginationInfo of(int page, int limit) {
+        return new PaginationInfo(page, limit, null);
+    }
 }

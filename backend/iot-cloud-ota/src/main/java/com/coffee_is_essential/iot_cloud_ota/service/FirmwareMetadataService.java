@@ -5,7 +5,6 @@ import com.coffee_is_essential.iot_cloud_ota.domain.S3FileHashResult;
 import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareMetadataRequestDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareMetadataResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareMetadataWithPageResponseDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.PaginationMetadataDto;
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareMetadata;
 import com.coffee_is_essential.iot_cloud_ota.repository.FirmwareMetadataJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 /**
  * 펌웨어 메타데이터의 비즈니스 로직을 처리하는 서비스 클래스입니다.

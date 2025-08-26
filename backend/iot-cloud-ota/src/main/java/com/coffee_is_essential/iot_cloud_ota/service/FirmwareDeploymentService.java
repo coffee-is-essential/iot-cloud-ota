@@ -9,6 +9,7 @@ import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareDeployment;
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareDeploymentDevice;
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareMetadata;
 import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentStatus;
+import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentType;
 import com.coffee_is_essential.iot_cloud_ota.enums.OverallDeploymentStatus;
 import com.coffee_is_essential.iot_cloud_ota.repository.DeviceJpaRepository;
 import com.coffee_is_essential.iot_cloud_ota.repository.FirmwareDeploymentDeviceRepository;
@@ -18,6 +19,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -28,7 +33,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +49,19 @@ public class FirmwareDeploymentService {
     private final CloudFrontSignedUrlService cloudFrontSignedUrlService;
     private static final int TIMEOUT = 10;
 
+    /**
+     * 펌웨어를 지정된 기기/그룹/리전에 배포 요청합니다.
+     * 1. 펌웨어 메타데이터 조회
+     * 2. 배포 대상(Device) 필터링
+     * 3. CloudFront Signed URL 생성
+     * 4. FirmwareDeployment 엔티티 저장
+     * 5. FirmwareDeploymentDevice 엔티티 저장 (대상 장치별 상태 기록)
+     * 6. MQTT Handler에 배포 요청 전송
+     *
+     * @param firmwareId 배포할 펌웨어 메타데이터 ID
+     * @param requestDto 배포 요청 DTO (대상 장치/그룹/리전, 배포 타입 등)
+     * @return 배포 요청 결과 DTO
+     */
     @Transactional
     public FirmwareDeploymentDto deployFirmware(Long firmwareId, FirmwareDeploymentRequestDto requestDto) {
         FirmwareMetadata findFirmware = firmwareMetadataJpaRepository.findByIdOrElseThrow(firmwareId);
@@ -79,10 +96,17 @@ public class FirmwareDeploymentService {
                 .toList();
 
         FirmwareDeploymentDto deploymentDto = new FirmwareDeploymentDto(signedUrl, deployInfo, deviceInfos);
-//        sendMqttHandler(deploymentDto);
+        sendMqttHandler(deploymentDto);
         return deploymentDto;
     }
 
+    /**
+     * 대상 장치 목록을 FirmwareDeploymentDevice 엔티티로 변환 후 DB에 저장
+     *
+     * @param devices            배포 대상 장치 목록
+     * @param firmwareDeployment 배포 엔티티
+     * @param deploymentStatus   초기 배포 상태 (보통 IN_PROGRESS)
+     */
     private void saveFirmwareDeploymentDevices(List<Device> devices, FirmwareDeployment firmwareDeployment, DeploymentStatus deploymentStatus) {
         for (Device device : devices) {
             FirmwareDeploymentDevice firmwareDeploymentDevice = new FirmwareDeploymentDevice(device, firmwareDeployment, deploymentStatus);
@@ -90,6 +114,12 @@ public class FirmwareDeploymentService {
         }
     }
 
+    /**
+     * MQTT Handler API 호출
+     * 배포 요청 DTO를 JSON 직렬화 후 POST 요청 전송
+     *
+     * @param firmwareDeploymentDto 배포 요청 DTO
+     */
     private void sendMqttHandler(FirmwareDeploymentDto firmwareDeploymentDto) {
         String url = mqttHandlerBaseUrl + "/api/firmwares/deployment";
 
@@ -108,8 +138,16 @@ public class FirmwareDeploymentService {
         }
     }
 
-    public FirmwareDeploymentListDto getFirmwareDeploymentList() {
-        List<FirmwareDeployment> deployments = firmwareDeploymentRepository.findAll();
+    /**
+     * 펌웨어 배포 이력 목록 조회 (페이지네이션 적용)
+     *
+     * @param paginationInfo 페이지 번호/사이즈 정보
+     * @return 배포 목록 + 페이지네이션 메타데이터
+     */
+    public FirmwareDeploymentListDto getFirmwareDeploymentList(PaginationInfo paginationInfo) {
+        Pageable pageable = PageRequest.of(paginationInfo.page() - 1, paginationInfo.limit(), Sort.by("createdAt").descending());
+        Page<FirmwareDeployment> deploymentPage = firmwareDeploymentRepository.findAll(pageable);
+        List<FirmwareDeployment> deployments = deploymentPage.getContent();
         List<FirmwareDeploymentMetadata> list = new ArrayList<>();
 
         for (FirmwareDeployment firmwareDeployment : deployments) {
@@ -117,16 +155,30 @@ public class FirmwareDeploymentService {
             list.add(metadata);
         }
 
-        return null;
+        return FirmwareDeploymentListDto.of(list, deploymentPage.getPageable(), deploymentPage.getTotalPages(), deploymentPage.getTotalElements());
     }
 
+    /**
+     * 단일 배포 엔티티를 Metadata DTO로 변환
+     * 상태별 카운트 조회
+     * 대상(Target) 정보 조회 (Device, Division, Region 별 분기)
+     *
+     * @param firmwareDeployment 배포 엔티티
+     * @return FirmwareDeploymentMetadata DTO
+     */
     private FirmwareDeploymentMetadata getFirmwareDeploymentMetadata(FirmwareDeployment firmwareDeployment) {
         Long deploymentId = firmwareDeployment.getId();
-        Firmware firmware = Firmware.from(firmwareDeployment.getFirmwareMetadata());
-        List<FirmwareDeploymentDevice> firmwareDeploymentDeviceList = firmwareDeploymentDeviceRepository.findLatestByDeploymentId(deploymentId);
+        List<DeploymentStatusCount> countList = firmwareDeploymentDeviceRepository.countStatusByLatestDeployment(deploymentId);
+        List<Target> targetInfo = new ArrayList<>();
 
-        System.out.println("firmwareDeploymentDeviceList = " + firmwareDeploymentDeviceList);
+        if (firmwareDeployment.getDeploymentType().equals(DeploymentType.DEVICE)) {
+            targetInfo = firmwareDeploymentDeviceRepository.findDeviceInfoByDeploymentId(deploymentId);
+        } else if (firmwareDeployment.getDeploymentType().equals(DeploymentType.DIVISION)) {
+            targetInfo = firmwareDeploymentDeviceRepository.findDivisionInfoByDeploymentId(deploymentId);
+        } else if (firmwareDeployment.getDeploymentType().equals(DeploymentType.REGION)) {
+            targetInfo = firmwareDeploymentDeviceRepository.findRegionInfoByDeploymentId(deploymentId);
+        }
 
-        return null;
+        return FirmwareDeploymentMetadata.of(firmwareDeployment, targetInfo, countList);
     }
 }

@@ -2,10 +2,12 @@ package com.coffee_is_essential.iot_cloud_ota.entity;
 
 import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentStatus;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "firmware_deployment_device")
+@Getter
 @NoArgsConstructor
 public class FirmwareDeploymentDevice extends BaseEntity {
     @Id
