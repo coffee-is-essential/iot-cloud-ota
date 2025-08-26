@@ -1,6 +1,7 @@
 package mqttclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,8 +12,9 @@ import (
 
 // MQTT 클라이언트를 사용해 지정된 토픽으로 JSON 형태의 펌웨어 배포 요청 메시지를 전송합니다.
 func (m *MQTTClient) PublishDownloadRequest(req *types.FirmwareDeployRequest) {
-	var wg sync.WaitGroup
+	var buf bytes.Buffer
 
+	var wg sync.WaitGroup
 	command := types.FirmwareDownloadCommand{
 		CommandID: req.FileInfo.DeploymentId,
 		SignedURL: req.SignedUrl,
@@ -23,11 +25,13 @@ func (m *MQTTClient) PublishDownloadRequest(req *types.FirmwareDeployRequest) {
 		Timestamp: req.FileInfo.DeployedAt,
 	}
 
-	payload, err := json.Marshal(command)
-	if err != nil {
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+	if err := enc.Encode(command); err != nil {
 		log.Printf("[ERROR] JSON 직렬화 실패: %v", err)
 		return
 	}
+	payload := buf.String()
 
 	for _, deviceInfo := range req.Devices {
 		wg.Add(1)
@@ -35,13 +39,11 @@ func (m *MQTTClient) PublishDownloadRequest(req *types.FirmwareDeployRequest) {
 		deviceInfoCopy := deviceInfo
 		go func(d types.DeviceIds) {
 			defer wg.Done()
-			topic := fmt.Sprintf("v1/%d/%d/%d/firmware/download/request", d.RegionId, d.GroupId, d.DeviceId)
+			topic := fmt.Sprintf("v1/%d/firmware/download/request", d.DeviceId)
 			token := m.mqttClient.Publish(topic, 2, false, payload)
 
 			event := types.FirmwareDownloadEvent{
 				CommandID:        command.CommandID,
-				GroupID:          d.GroupId,
-				RegionID:         d.RegionId,
 				DeviceID:         d.DeviceId,
 				Message:          "Download Command",
 				Status:           "WAITING",
@@ -87,13 +89,11 @@ func (m *MQTTClient) PublishDownloadCancelRequest(req *types.FirmwareDeployCance
 		deviceInfoCopy := deviceInfo
 		go func(d types.DeviceIds) {
 			defer wg.Done()
-			topic := fmt.Sprintf("v1/%d/%d/%d/firmware/download/cancel", d.RegionId, d.GroupId, d.DeviceId)
+			topic := fmt.Sprintf("v1/%d/firmware/download/cancel", d.DeviceId)
 			token := m.mqttClient.Publish(topic, 2, false, payload)
 
 			event := types.FirmwareDownloadEvent{
 				CommandID:        command.CommandID,
-				GroupID:          d.GroupId,
-				RegionID:         d.RegionId,
 				DeviceID:         d.DeviceId,
 				Message:          command.Reason,
 				Status:           "CANCELED",

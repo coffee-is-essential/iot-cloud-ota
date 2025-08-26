@@ -112,7 +112,7 @@ func PrintDownloadLog(req *types.FirmwareDeployRequest) {
 	fmt.Println("Expired At", req.FileInfo.ExpiresAt)
 	fmt.Println("deployed At", req.FileInfo.DeployedAt)
 	for _, device := range req.Devices {
-		fmt.Printf("[Device] - Device ID: %d, Group ID: %d, Region Id: %d\n", device.DeviceId, device.GroupId, device.RegionId)
+		fmt.Printf("[Device] - Device ID: %d\n", device.DeviceId)
 	}
 }
 
@@ -121,6 +121,6 @@ func PrintDownloadCancelLog(req *types.FirmwareDeployCancelRequest) {
 	fmt.Println("Command ID: ", req.CommandID)
 	fmt.Println("Reason: ", req.Reason)
 	for _, device := range req.Devices {
-		fmt.Printf("[Device] - Device ID: %d, Group ID: %d, Region Id: %d\n", device.DeviceId, device.GroupId, device.RegionId)
+		fmt.Printf("[Device] - Device ID: %d\n", device.DeviceId)
 	}
 }
