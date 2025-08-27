@@ -36,7 +36,7 @@ public class FirmwareDeployment extends BaseEntity {
     public FirmwareDeployment(FirmwareMetadata firmwareMetadata, String commandId, DeploymentType deploymentType, LocalDateTime deployedAt, LocalDateTime expiresAt) {
         this.firmwareMetadata = firmwareMetadata;
         this.commandId = commandId;
-        this.deploymentType = deploymentType;
+        this.deploymentType = deploymentType.name().equals("GROUP") ? DeploymentType.DIVISION : deploymentType;
         this.deployedAt = deployedAt;
         this.expiresAt = expiresAt;
     }

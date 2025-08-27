@@ -27,10 +27,14 @@ public interface RegionJpaRepository extends JpaRepository<Region, Long> {
      * @return RegionSummary 리스트 (regionId, regionCode, regionName, count)
      */
     @Query(value = """
-            SELECT r.id AS regionId , region_code AS regionCode, region_name as regionName, COUNT(*) AS count
+            SELECT r.id AS regionId,
+                   r.region_code AS regionCode,
+                   r.region_name AS regionName,
+                   COUNT(d.id) AS count
             FROM region r
-                     JOIN device d ON r.id = d.region_id
-            GROUP BY r.id, region_code, region_name
+                     LEFT JOIN device d ON r.id = d.region_id
+            GROUP BY r.id, r.region_code, r.region_name
+            ORDER BY r.id;
             """, nativeQuery = true)
     List<RegionSummary> findRegionSummary();
 }

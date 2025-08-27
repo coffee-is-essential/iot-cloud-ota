@@ -27,10 +27,14 @@ public interface DivisionJpaRepository extends JpaRepository<Division, Long> {
      * @return DivisionSummary 리스트
      */
     @Query(value = """
-            SELECT di.id AS divisionId , division_code AS divisionCode, division_name as divisionName, COUNT(*) AS count
+            SELECT di.id AS divisionId,
+                   di.division_code AS divisionCode,
+                   di.division_name AS divisionName,
+                   COUNT(de.id) AS count
             FROM division di
-                     JOIN device de ON di.id = de.division_id
-            GROUP BY di.id, division_code, division_name
+                     LEFT JOIN device de ON di.id = de.division_id
+            GROUP BY di.id, di.division_code, di.division_name
+            ORDER BY di.id;
             """, nativeQuery = true)
     List<DivisionSummary> findDivisionSummary();
 }
