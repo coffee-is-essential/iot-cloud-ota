@@ -34,7 +34,7 @@ export const fetchDevices = async (): Promise<Device[]> => {
 /**
  * Requests a firmware deployment to specified regions, groups, and devices
  * @param {number} firmwareId - The ID of the firmware to deploy
- * @param {string} deploymentType - The type of deployment (e.g., "DEVICE", "GROUP", "REGION")
+ * @param {DeploymentType} deploymentType - The type of deployment (e.g., "DEVICE", "GROUP", "REGION")
  * @param {Region[]} regions - Array of regions to deploy the firmware to
  * @param {Group[]} groups - Array of groups to deploy the firmware to
  * @param {Device[]} devices - Array of devices to deploy the firmware to
