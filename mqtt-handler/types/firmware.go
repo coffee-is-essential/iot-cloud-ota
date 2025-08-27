@@ -4,6 +4,7 @@ type FirmwareDeployRequest struct {
 	SignedUrl string      `json:"signedUrl"`
 	FileInfo  FileInfo    `json:"fileInfo"`
 	Devices   []DeviceIds `json:"devices"`
+	Timeout   int64       `json:"timeout"`
 }
 
 type FirmwareDeployCancelRequest struct {
@@ -35,7 +36,7 @@ type FirmwareDownloadCommand struct {
 	Version   string `json:"version"`
 	Checksum  string `json:"checksum"`
 	Size      int64  `json:"size"`
-	Timeout   string `json:"timeout"`
+	Timeout   int64  `json:"timeout"`
 	Timestamp string `json:"timestamp"`
 }
 

@@ -92,7 +92,7 @@ public class FirmwareDeploymentService {
                 .map(DeployTargetDeviceInfo::from)
                 .toList();
 
-        FirmwareDeploymentDto deploymentDto = new FirmwareDeploymentDto(signedUrl, deployInfo, deviceInfos);
+        FirmwareDeploymentDto deploymentDto = new FirmwareDeploymentDto(signedUrl, deployInfo, deviceInfos, TIMEOUT);
         sendMqttHandler(deploymentDto);
         return deploymentDto;
     }

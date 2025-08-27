@@ -14,6 +14,7 @@ import java.util.List;
 public record FirmwareDeploymentDto(
         String signedUrl,
         FirmwareDeployInfo fileInfo,
-        List<DeployTargetDeviceInfo> devices
+        List<DeployTargetDeviceInfo> devices,
+        int timeout
 ) {
 }

@@ -21,7 +21,7 @@ func (m *MQTTClient) PublishDownloadRequest(req *types.FirmwareDeployRequest) {
 		Version:   req.FileInfo.Version,
 		Checksum:  req.FileInfo.FileHash,
 		Size:      req.FileInfo.FileSize,
-		Timeout:   req.FileInfo.ExpiresAt,
+		Timeout:   req.Timeout,
 		Timestamp: req.FileInfo.DeployedAt,
 	}
 
