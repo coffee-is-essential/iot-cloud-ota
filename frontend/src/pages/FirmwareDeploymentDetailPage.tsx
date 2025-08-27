@@ -34,12 +34,12 @@ const DeploymentInfo = ({
         />
         <LabeledValue
           label="시작 일시"
-          value={deployment.startedAt.toLocaleString()}
+          value={deployment.deployedAt.toLocaleString()}
           size="sm"
         />
         <LabeledValue
           label="만료 일시"
-          value={deployment.expiredAt?.toLocaleString() ?? "없음"}
+          value={deployment.expiresAt?.toLocaleString() ?? "없음"}
           size="sm"
         />
         <div className="flex items-center gap-2">
@@ -54,13 +54,13 @@ const DeploymentInfo = ({
             전체 진행률
           </div>
           <DeploymentProgressBar
-            total={deployment.totalDevices}
+            total={deployment.totalCount}
             succeeded={deployment.successCount}
             failed={deployment.failedCount}
             inProgress={deployment.inProgressCount}
           />
           <div className="text-xs text-neutral-500">
-            {deployment.successCount} / {deployment.totalDevices} 디바이스 완료
+            {deployment.successCount} / {deployment.totalCount} 디바이스 완료
           </div>
         </div>
 
@@ -118,7 +118,7 @@ const DeviceStatusList = ({
                   <DeploymentDeviceStatusBadge status={device.status} />
                 </div>
                 <span className="text-sm text-neutral-500">
-                  {device.lastUpdatedAt.toLocaleString()}
+                  {device.timestamp.toLocaleString()}
                 </span>
               </div>
 

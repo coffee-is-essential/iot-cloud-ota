@@ -5,6 +5,7 @@ import { Device } from "../../../entities/device/model/types";
 import { GroupApiService } from "../../../entities/group/api/api";
 import { deviceApiService } from "../../../entities/device/api/api";
 import { apiClient } from "../../../shared/api/client";
+import { DeploymentType } from "../model/types";
 
 /**
  * Fetches all available regions from the API
@@ -33,6 +34,7 @@ export const fetchDevices = async (): Promise<Device[]> => {
 /**
  * Requests a firmware deployment to specified regions, groups, and devices
  * @param {number} firmwareId - The ID of the firmware to deploy
+ * @param {string} deploymentType - The type of deployment (e.g., "DEVICE", "GROUP", "REGION")
  * @param {Region[]} regions - Array of regions to deploy the firmware to
  * @param {Group[]} groups - Array of groups to deploy the firmware to
  * @param {Device[]} devices - Array of devices to deploy the firmware to
@@ -40,11 +42,13 @@ export const fetchDevices = async (): Promise<Device[]> => {
  */
 export const requestFirmwareDeploy = async (
   firmwareId: number,
+  deploymentType: DeploymentType,
   regions: Region[],
   groups: Group[],
   devices: Device[],
 ): Promise<void> => {
   await apiClient.post(`/api/firmwares/metadata/${firmwareId}/deployment`, {
+    deploymentType,
     regionIds: regions.map((region) => region.regionId),
     groupIds: groups.map((group) => group.groupId),
     deviceIds: devices.map((device) => device.deviceId),

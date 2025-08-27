@@ -33,7 +33,7 @@ export const firmwareDeploymentApiService = {
   ): Promise<PaginatedFirmwareDeployments> => {
     const { data } = await apiClient.get<
       PaginatedApiResponse<FirmwareDeploymentResponse>
-    >(`/api/firmware-deployments`, {
+    >(`/api/firmwares/deployment/list`, {
       params: { page, limit, search: query },
     });
 
@@ -56,7 +56,7 @@ export const firmwareDeploymentApiService = {
     id: number,
   ): Promise<FirmwareDeploymentDetails> => {
     const { data } = await apiClient.get<FirmwareDeploymentDetailsResponse>(
-      `/api/firmware-deployments/${id}`,
+      `/api/firmwares/deployment/${id}`,
     );
 
     return toFirmwareDeploymentDetails(data);

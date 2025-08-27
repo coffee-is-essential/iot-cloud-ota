@@ -1,5 +1,5 @@
 import { JSX, useEffect, useState } from "react";
-import { DeployCategory } from "../model/types";
+import { DeployCategory, DeploymentType } from "../model/types";
 import { Region } from "../../../entities/region/model/types";
 import { Device } from "../../../entities/device/model/types";
 import {
@@ -209,8 +209,16 @@ export const FirmwareDeploy = ({
     setError(null);
 
     try {
+      const deploymentType =
+        deployCategory === "region"
+          ? DeploymentType.REGION
+          : deployCategory === "group"
+            ? DeploymentType.GROUP
+            : DeploymentType.DEVICE;
+
       await requestFirmwareDeploy(
         firmware.id,
+        deploymentType,
         selectedRegions,
         selectedGroups,
         selectedDevices,

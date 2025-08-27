@@ -14,7 +14,7 @@ export const toFirmwareDeploymentDeviceStatus = (
   dto: FirmwareDeploymentDeviceStatusResponse,
 ): FirmwareDeploymentDeviceStatus => ({
   ...dto,
-  lastUpdatedAt: new Date(dto.lastUpdatedAt),
+  timestamp: new Date(dto.timestamp),
 });
 
 /**
@@ -24,8 +24,8 @@ export const toFirmwareDeployment = (
   dto: FirmwareDeploymentResponse,
 ): FirmwareDeployment => ({
   ...dto,
-  startedAt: new Date(dto.startedAt),
-  expiredAt: dto.expiredAt ? new Date(dto.expiredAt) : null,
+  deployedAt: new Date(dto.deployedAt),
+  expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
 });
 
 /**

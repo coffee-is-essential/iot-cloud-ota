@@ -22,7 +22,7 @@ const DeploymentCard = ({ deployment }: { deployment: FirmwareDeployment }) => {
           <DeploymentStatusBadge status={deployment.status} />
         </div>
         <span className="text-sm text-neutral-500">
-          {deployment.startedAt.toLocaleString()}
+          {deployment.deployedAt.toLocaleString()}
         </span>
       </div>
 
@@ -32,13 +32,13 @@ const DeploymentCard = ({ deployment }: { deployment: FirmwareDeployment }) => {
           <div>
             <span className="text-xs text-neutral-500">타입: </span>
             <span className="text-sm text-neutral-800">
-              {deployment.target.type}
+              {deployment.deploymentType}
             </span>
           </div>
           <div>
             <span className="text-xs text-neutral-500">대상: </span>
             <span className="text-sm text-neutral-800">
-              {deployment.target.name}
+              {deployment.targetInfo.map((info) => info.name).join(", ")}
             </span>
           </div>
         </div>
@@ -56,7 +56,7 @@ const DeploymentCard = ({ deployment }: { deployment: FirmwareDeployment }) => {
       {/* 진행률 */}
       <div>
         <DeploymentProgressBar
-          total={deployment.totalDevices}
+          total={deployment.totalCount}
           succeeded={deployment.successCount}
           failed={deployment.failedCount}
           inProgress={deployment.inProgressCount}

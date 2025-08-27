@@ -8,3 +8,12 @@ export interface DeploymentRequest {
   targetType: DeployCategory;
   targetIds: string[];
 }
+
+/**
+ * Enum for deployment types
+ */
+export enum DeploymentType {
+  DEVICE = "DEVICE",
+  GROUP = "GROUP",
+  REGION = "REGION",
+}

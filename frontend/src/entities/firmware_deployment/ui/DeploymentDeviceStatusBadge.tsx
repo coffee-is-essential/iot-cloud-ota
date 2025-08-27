@@ -22,6 +22,11 @@ export const DeploymentDeviceStatusBadge = ({
   let label = "";
 
   switch (status) {
+    case "WAITING":
+      bgColor = "bg-yellow-100";
+      textColor = "text-yellow-800";
+      label = "대기 중";
+      break;
     case "SUCCESS":
       bgColor = "bg-green-100";
       textColor = "text-green-800";

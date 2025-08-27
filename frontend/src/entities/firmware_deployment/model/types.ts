@@ -4,8 +4,7 @@ import { Firmware } from "../../firmware/model/types";
 /**
  * 펌웨어 배포 대상 인터페이스
  */
-export interface FirmwareDeploymentTarget {
-  type: "REGION" | "GROUP" | "DEVICE";
+export interface DeploymentTargetInfo {
   id: number;
   name: string;
 }
@@ -17,9 +16,9 @@ export interface FirmwareDeploymentTarget {
  */
 export interface FirmwareDeploymentDeviceStatusResponse {
   id: number;
-  status: "SUCCESS" | "IN_PROGRESS" | "FAILED";
+  status: "WAITING" | "SUCCESS" | "IN_PROGRESS" | "FAILED";
   progress: number;
-  lastUpdatedAt: string;
+  timestamp: string;
 }
 
 /**
@@ -28,14 +27,15 @@ export interface FirmwareDeploymentDeviceStatusResponse {
 export interface FirmwareDeploymentResponse {
   id: number;
   firmware: Firmware;
-  target: FirmwareDeploymentTarget;
-  totalDevices: number;
+  deploymentType: "REGION" | "GROUP" | "DEVICE";
+  targetInfo: DeploymentTargetInfo[];
+  totalCount: number;
   successCount: number;
   inProgressCount: number;
   failedCount: number;
   status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
-  startedAt: string;
-  expiredAt: string | null;
+  deployedAt: string;
+  expiresAt: string | null;
 }
 
 /**
@@ -54,9 +54,9 @@ export interface FirmwareDeploymentDetailsResponse
  */
 export type FirmwareDeploymentDeviceStatus = {
   id: number;
-  status: "SUCCESS" | "IN_PROGRESS" | "FAILED" | "TIMEOUT";
+  status: "WAITING" | "SUCCESS" | "IN_PROGRESS" | "FAILED" | "TIMEOUT";
   progress: number;
-  lastUpdatedAt: Date;
+  timestamp: Date;
 };
 
 /**
@@ -66,14 +66,15 @@ export type FirmwareDeploymentDeviceStatus = {
 export type FirmwareDeployment = {
   id: number;
   firmware: Firmware;
-  target: FirmwareDeploymentTarget;
-  totalDevices: number;
+  deploymentType: "REGION" | "GROUP" | "DEVICE";
+  targetInfo: DeploymentTargetInfo[];
+  totalCount: number;
   successCount: number;
   inProgressCount: number;
   failedCount: number;
   status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
-  startedAt: Date;
-  expiredAt: Date | null;
+  deployedAt: Date;
+  expiresAt: Date | null;
 };
 
 /**
