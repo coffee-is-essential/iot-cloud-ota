@@ -56,6 +56,7 @@ public class QuestDbRepository {
             e.setChecksumVerified(rs.getBoolean("checksum_verified"));
             e.setDownloadTime(rs.getDouble("download_time"));
             e.setTimestamp(rs.getTimestamp("timestamp"));
+
             return e;
         }
     };
