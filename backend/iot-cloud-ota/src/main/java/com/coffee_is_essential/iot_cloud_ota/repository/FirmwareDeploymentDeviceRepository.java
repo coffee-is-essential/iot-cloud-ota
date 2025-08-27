@@ -10,15 +10,13 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface FirmwareDeploymentDeviceRepository extends JpaRepository<FirmwareDeploymentDevice, Long> {
-    @Query(value = "SELECT * FROM (" +
-                   "  SELECT *, ROW_NUMBER() OVER(PARTITION BY device_id ORDER BY created_at DESC) AS rn " +
-                   "  FROM firmware_deployment_device " +
-                   "  WHERE deployment_id = :deploymentId" +
-                   ") AS ranked_devices " +
-                   "WHERE rn = 1",
-            nativeQuery = true)
-    List<FirmwareDeploymentDevice> findLatestByDeploymentId(@Param("deploymentId") Long deploymentId);
-
+    /**
+     * 특정 배포 ID에 대해 디바이스별 최신 상태만 집계하여 상태별(IN_PROGRESS, SUCCEED, FAILED, TIMEOUT)
+     * 장치 개수를 반환합니다.
+     *
+     * @param deploymentId 조회할 배포 ID
+     * @return 상태별 장치 개수를 담은 리스트 (DeploymentStatusCount)
+     */
     @Query(value = """
             SELECT
                 all_statuses.status,
@@ -52,6 +50,12 @@ public interface FirmwareDeploymentDeviceRepository extends JpaRepository<Firmwa
             nativeQuery = true)
     List<DeploymentStatusCount> countStatusByLatestDeployment(@Param("deploymentId") Long deploymentId);
 
+    /**
+     * 특정 배포 ID에 포함된 모든 디바이스의 Division 정보를 조회합니다.
+     *
+     * @param deploymentId 조회할 배포 ID
+     * @return 배포 대상 Division 정보 리스트 (id, name)
+     */
     @Query(value = """
             SELECT id, division_name AS name
             FROM division
@@ -65,6 +69,12 @@ public interface FirmwareDeploymentDeviceRepository extends JpaRepository<Firmwa
             nativeQuery = true)
     List<Target> findDivisionInfoByDeploymentId(@Param("deploymentId") Long deploymentId);
 
+    /**
+     * 특정 배포 ID에 포함된 모든 디바이스의 Region 정보를 조회합니다.
+     *
+     * @param deploymentId 조회할 배포 ID
+     * @return 배포 대상 Region 정보 리스트 (id, name)
+     */
     @Query(value = """
             SELECT id, region_name AS name
             FROM region
@@ -77,6 +87,12 @@ public interface FirmwareDeploymentDeviceRepository extends JpaRepository<Firmwa
             nativeQuery = true)
     List<Target> findRegionInfoByDeploymentId(@Param("deploymentId") Long deploymentId);
 
+    /**
+     * 특정 배포 ID에 포함된 모든 디바이스의 기본 정보를 조회합니다.
+     *
+     * @param deploymentId 조회할 배포 ID
+     * @return 배포 대상 Device 정보 리스트 (id, name)
+     */
     @Query(value = """
             SELECT DISTINCT d.id, d.name
             FROM firmware_deployment_device fd

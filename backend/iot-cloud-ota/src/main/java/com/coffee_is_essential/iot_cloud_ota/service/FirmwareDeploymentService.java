@@ -1,6 +1,7 @@
 package com.coffee_is_essential.iot_cloud_ota.service;
 
 import com.coffee_is_essential.iot_cloud_ota.domain.*;
+import com.coffee_is_essential.iot_cloud_ota.dto.DetailDeploymentResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareDeploymentDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareDeploymentListDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareDeploymentRequestDto;
@@ -40,6 +41,7 @@ public class FirmwareDeploymentService {
     private final DeviceJpaRepository deviceJpaRepository;
     private final OverallDeploymentStatusRepository overallDeploymentStatusRepository;
     private final RestClient restClient;
+    private final QuestDbRepository questDbRepository;
     private final CloudFrontSignedUrlService cloudFrontSignedUrlService;
     private static final int TIMEOUT = 10;
 
@@ -91,7 +93,7 @@ public class FirmwareDeploymentService {
                 .toList();
 
         FirmwareDeploymentDto deploymentDto = new FirmwareDeploymentDto(signedUrl, deployInfo, deviceInfos);
-//        sendMqttHandler(deploymentDto);
+        sendMqttHandler(deploymentDto);
         return deploymentDto;
     }
 
@@ -170,13 +172,32 @@ public class FirmwareDeploymentService {
         return FirmwareDeploymentMetadata.of(firmwareDeployment, targetInfo, countList, status.getDeploymentStatus());
     }
 
-    public void findFirmwareDeploymentById(Long id) {
+    /**
+     * 배포 ID로 상세 정보를 조회합니다.
+     * 배포 메타데이터, 전체 상태, 대상 목록, 상태 집계,
+     * 디바이스별 최신 다운로드 이벤트를 조합해 DTO를 반환합니다.
+     *
+     * @param id 배포 ID
+     * @return 배포 상세 DTO
+     */
+    public DetailDeploymentResponseDto findFirmwareDeploymentById(Long id) {
         FirmwareDeployment deployment = firmwareDeploymentRepository.findByIdOrElseThrow(id);
-        String commandId = deployment.getCommandId();
-        Firmware firmware = Firmware.from(deployment.getFirmwareMetadata());
+        OverallDeploymentStatus status = overallDeploymentStatusRepository.findLatestByDeploymentIdOrElseThrow(id);
         List<Target> targetInfo = getTargetList(deployment);
+        List<DeploymentStatusCount> countList = firmwareDeploymentDeviceRepository.countStatusByLatestDeployment(id);
+        List<DeviceDeploymentStatus> downloadEvents = questDbRepository.findLatestPerDeviceByCommandId(deployment.getCommandId()).stream()
+                .map(DeviceDeploymentStatus::from)
+                .toList();
+
+        return DetailDeploymentResponseDto.of(deployment, targetInfo, downloadEvents, countList, status);
     }
 
+    /**
+     * 배포 타입에 따라 대상(Device/Division/Region) 목록을 조회합니다.
+     *
+     * @param firmwareDeployment 배포 엔티티
+     * @return 대상 정보 리스트
+     */
     private List<Target> getTargetList(FirmwareDeployment firmwareDeployment) {
         List<Target> targetInfo = new ArrayList<>();
 

@@ -97,4 +97,18 @@ public class FirmwareController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
+    /**
+     * 특정 ID에 해당하는 펌웨어 배포 상세 정보를 조회합니다.
+     * 배포 식별자 ID를 Path Variable로 받아서,
+     * 해당 배포의 세부 내역(대상 장치, 상태, 메타데이터 등)을 반환합니다.
+     *
+     * @param id 조회할 펌웨어 배포의 고유 식별자
+     * @return 배포 상세 정보를 담은 DTO
+     */
+    @GetMapping("/deployment/{id}")
+    public ResponseEntity<DetailDeploymentResponseDto> findDetailDeploymentById(@PathVariable Long id) {
+        DetailDeploymentResponseDto dto = firmwareDeploymentService.findFirmwareDeploymentById(id);
+
+        return new ResponseEntity<>(dto, HttpStatus.OK);
+    }
 }
