@@ -77,8 +77,8 @@ resource "aws_ecs_task_definition" "backend" {
         { name = "QUESTDB_DATASOURCE_USERNAME", value = local.questdb_credentials.username },
         { name = "QUESTDB_DATASOURCE_PASSWORD", value = local.questdb_credentials.password },
         { name = "MQTT_HANDLER_BASE_URL", value = "http://${aws_service_discovery_service.mqtt_handler.name}.${aws_service_discovery_private_dns_namespace.main.name}:8080" },
-        { name = "REDIS_HOST", value = aws_elasticache_cluster.redis_cluster.cache_nodes[0].address },
-        { name = "REDIS_PORT", value = tostring(aws_elasticache_cluster.redis_cluster.cache_nodes[0].port) },
+        { name = "REDIS_HOST", value = aws_elasticache_cluster.redis.cache_nodes[0].address },
+        { name = "REDIS_PORT", value = tostring(aws_elasticache_cluster.redis.cache_nodes[0].port) },
       ]
 
       logConfiguration = {
