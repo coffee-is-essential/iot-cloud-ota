@@ -316,3 +316,24 @@ resource "aws_security_group" "mqtt_handler" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+resource "aws_security_group" "elasticache" {
+  name        = "iot-cloud-ota-elasticache-sg"
+  description = "Security group for ElastiCache Redis"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.backend.id]
+    description     = "Redis access from Backend and Lambda"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
