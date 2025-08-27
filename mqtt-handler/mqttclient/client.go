@@ -5,6 +5,7 @@ import (
 	"log"
 	"mqtt-handler/repository"
 	"sync"
+	"time"
 )
 
 // mqttClientInit: 초기화를 한 번만 수행하기 위한 sync.Once
@@ -48,6 +49,29 @@ func (m *MQTTClient) Connect(brokerURL string, clientId string) {
 	opts.SetClientID(clientId)
 	opts.SetDefaultPublishHandler(messagePubHandler)
 	opts.SetConnectionLostHandler(connectLostHandler)
+
+	// 안정성 튜닝
+	opts.SetKeepAlive(30 * time.Second)
+	opts.SetPingTimeout(10 * time.Second)
+	opts.SetWriteTimeout(10 * time.Second)
+	opts.SetConnectTimeout(10 * time.Second)
+
+	// 끊겨도 자동 복구
+	opts.SetAutoReconnect(true)
+	opts.SetConnectRetry(true)
+	opts.SetConnectRetryInterval(3 * time.Second)
+	opts.SetMaxReconnectInterval(30 * time.Second)
+
+	// 세션/구독 유지
+	opts.CleanSession = false
+	opts.SetResumeSubs(true)
+	opts.SetProtocolVersion(4)
+
+	// 재연결/최초 연결 시 구독
+	opts.OnConnect = func(c mqtt.Client) {
+		log.Println("[MQTT] connected, subscribing...")
+		m.SubscribeAllTopics()
+	}
 
 	client := mqtt.NewClient(opts)
 

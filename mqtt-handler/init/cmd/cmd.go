@@ -38,9 +38,6 @@ func NewCmd() *Cmd {
 	// MQTT 연결
 	c.mqttClient.Connect(c.config.MqttBroker.Url, c.config.MqttBroker.ClientId)
 
-	// MQTT Subscribe
-	c.mqttClient.SubscribeAllTopics()
-
 	// HTTP 서버 시작
 	if err := c.network.ServerStart(c.config.Server.Port); err != nil {
 		panic(err)
