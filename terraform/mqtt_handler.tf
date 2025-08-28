@@ -26,17 +26,14 @@ resource "aws_ecs_task_definition" "mqtt_handler" {
       portMappings = [
         {
           containerPort = 1883
-          hostPort      = 1883
           protocol      = "tcp"
         },
         {
           containerPort = 8883
-          hostPort      = 8883
           protocol      = "tcp"
         },
         {
           containerPort = 8080
-          hostPort      = 8080
           protocol      = "tcp"
         }
       ]
@@ -82,7 +79,7 @@ resource "aws_ecs_service" "mqtt_handler" {
 
   network_configuration {
     subnets          = [aws_subnet.private_a.id, aws_subnet.private_b.id]
-    security_groups  = [aws_security_group.mqtt_handler.id]
+    security_groups  = [aws_security_group.mqtt_handler.id, aws_security_group.ecs_internal_services.id]
     assign_public_ip = false
   }
 

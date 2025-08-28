@@ -152,7 +152,7 @@ resource "aws_ecs_service" "emqx" {
 
   network_configuration {
     subnets          = [aws_subnet.private_a.id, aws_subnet.private_b.id]
-    security_groups  = [aws_security_group.emqx_sg.id]
+    security_groups  = [aws_security_group.emqx_sg.id, aws_security_group.ecs_internal_services.id]
     assign_public_ip = false
   }
 

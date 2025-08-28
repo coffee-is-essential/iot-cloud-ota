@@ -337,3 +337,29 @@ resource "aws_security_group" "elasticache" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+resource "aws_security_group" "ecs_internal_services" {
+  name        = "iot-cloud-ota-ecs-internal-services-sg"
+  description = "Allow communication between internal ECS services"
+  vpc_id      = aws_vpc.main.id
+
+  # 같은 보안 그룹 내에서의 모든 인바운드 트래픽 허용
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    self      = true
+  }
+
+  # 모든 아웃바운드 트래픽 허용
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "iot-cloud-ota-ecs-internal-services-sg"
+  }
+}
