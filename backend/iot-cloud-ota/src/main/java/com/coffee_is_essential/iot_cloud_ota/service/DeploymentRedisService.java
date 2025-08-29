@@ -1,7 +1,6 @@
 package com.coffee_is_essential.iot_cloud_ota.service;
 
 import com.coffee_is_essential.iot_cloud_ota.domain.DeployTargetDeviceInfo;
-import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareDeploymentDevice;
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareDownloadEvents;
 import com.coffee_is_essential.iot_cloud_ota.repository.QuestDbRepository;
 import jakarta.transaction.Transactional;
@@ -12,12 +11,22 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Redis에 배포 대상 디바이스 ID를 저장/삭제/조회하고,
+ * 필요 시 QuestDB에 타임아웃 이벤트를 기록하는 서비스.
+ */
 @Service
 @RequiredArgsConstructor
 public class DeploymentRedisService {
     private final StringRedisTemplate srt;
     private final QuestDbRepository questDbRepository;
 
+    /**
+     * 배포 대상 디바이스들을 Redis Set에 추가한다.
+     *
+     * @param commandId         배포 식별자
+     * @param targetDeviceInfos 배포 대상 디바이스 정보 목록
+     */
     public void addDevices(String commandId, List<DeployTargetDeviceInfo> targetDeviceInfos) {
         srt.opsForSet().add(
                 commandId,
@@ -27,6 +36,12 @@ public class DeploymentRedisService {
         );
     }
 
+    /**
+     * 완료된 디바이스들을 Redis Set에서 제거한다.
+     *
+     * @param commandId       배포 식별자
+     * @param completedEvents 완료된 이벤트 목록
+     */
     public void deleteDevices(String commandId, List<FirmwareDownloadEvents> completedEvents) {
         srt.opsForSet().remove(
                 commandId,
@@ -37,6 +52,12 @@ public class DeploymentRedisService {
         System.out.printf("[DELETED] commandId=%s, saved count=%d, removed count=%d%n", commandId, completedEvents.size(), completedEvents.size());
     }
 
+    /**
+     * Redis Set에서 현재 남아있는 모든 디바이스 ID를 조회한다.
+     *
+     * @param commandId 배포 식별자
+     * @return 디바이스 ID 리스트
+     */
     public List<Long> getAllDeviceIdsFromRedisById(String commandId) {
         List<Long> deviceIds = srt.opsForSet().members(commandId).stream()
                 .map(Long::parseLong)
@@ -45,6 +66,12 @@ public class DeploymentRedisService {
         return deviceIds;
     }
 
+    /**
+     * QuestDB에 지정된 디바이스들을 타임아웃 이벤트로 저장한다.
+     *
+     * @param commandId 배포 식별자
+     * @param deviceIds 타임아웃 처리할 디바이스 ID 목록
+     */
     @Transactional
     public void saveTimeoutDevices(String commandId, List<Long> deviceIds) {
         for (Long deviceId : deviceIds) {

@@ -26,8 +26,8 @@ public record FirmwareDeployInfo(
         OffsetDateTime deployedAt
 ) {
     public static FirmwareDeployInfo from(FirmwareMetadata firmwareMetadata, Date expiresAt) {
-        OffsetDateTime expiresAtKST = expiresAt.toInstant()
-                .atZone(ZoneId.of("Asia/Seoul"))
+        OffsetDateTime expiresAtUtc = expiresAt.toInstant()
+                .atZone(ZoneId.of("UTC"))
                 .toOffsetDateTime();
 
         return new FirmwareDeployInfo(
@@ -35,8 +35,8 @@ public record FirmwareDeployInfo(
                 firmwareMetadata.getVersion(),
                 firmwareMetadata.getFileHash(),
                 firmwareMetadata.getFileSize(),
-                expiresAtKST,
-                OffsetDateTime.now()
+                expiresAtUtc,
+                OffsetDateTime.now(ZoneId.of("UTC"))
         );
     }
 }

@@ -18,10 +18,17 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * 배포 상태를 주기적으로 점검하는 스케줄러 서비스.
+ * Redis에 저장된 배포 키(commandId)를 순회하면서 각 디바이스의 다운로드 이벤트를 조회하고,
+ * 배포 완료 / 실패 / 타임아웃 여부를 판별하여 DB에 반영한다.
+ */
 @Service
 @RequiredArgsConstructor
 public class DeployJudgeScheduler {
@@ -35,6 +42,9 @@ public class DeployJudgeScheduler {
 
     private static final int SCAN_COUNT = 200;
 
+    /**
+     * 30초마다 실행되며, Redis에 저장된 배포 commandId들을 스캔한다.
+     */
     @Scheduled(fixedDelay = 30_000)
     public void dumpDeploySets() {
         System.out.println("=== Redis Dump Start ===");
@@ -59,6 +69,15 @@ public class DeployJudgeScheduler {
         System.out.println("=== Redis Dump End ===");
     }
 
+    /**
+     * 주어진 commandId와 디바이스 리스트에 대해 배포 상태를 판별한다.
+     * 1. QuestDB에서 최신 다운로드 이벤트를 가져와 완료된 디바이스 처리
+     * 2. Redis에 남은 디바이스가 없으면 전체 배포 완료 처리
+     * 3. 만료 시간이 지나면 타임아웃 처리
+     *
+     * @param commandId 배포 식별자
+     * @param deviceIds 해당 배포에 포함된 디바이스 ID 리스트
+     */
     @Transactional
     public void judge(String commandId, List<Long> deviceIds) {
         FirmwareDeployment firmwareDeployment = firmwareDeploymentRepository.findByCommandIdOrElseThrow(commandId);
@@ -80,12 +99,18 @@ public class DeployJudgeScheduler {
             return;
         }
 
-        if (LocalDateTime.now().isAfter(expiresAt)) {
+        if (Instant.now().isAfter(expiresAt.atZone(ZoneOffset.UTC).toInstant())) {
             processTimeoutEvents(commandId, firmwareDeployment);
             overallDeploymentStatusRepository.save(new OverallDeploymentStatus(firmwareDeployment, OverallStatus.COMPLETED));
         }
     }
 
+    /**
+     * 만료된 배포에 대해 타임아웃 상태로 저장하고 Redis 키를 제거한다.
+     *
+     * @param commandId  배포 식별자
+     * @param deployment 배포 엔티티
+     */
     private void processTimeoutEvents(String commandId, FirmwareDeployment deployment) {
         List<Long> deviceIds = deploymentRedisService.getAllDeviceIdsFromRedisById(commandId);
         List<FirmwareDeploymentDevice> list = deviceIds.stream()
@@ -95,19 +120,18 @@ public class DeployJudgeScheduler {
                         DeploymentStatus.TIMEOUT
                 ))
                 .toList();
-//        List<FirmwareDeploymentDevice> list = deploymentRedisService.getAllDeviceIdsFromRedisById(commandId).stream()
-//                .map(e -> new FirmwareDeploymentDevice(
-//                        em.getReference(Device.class, e),
-//                        deployment,
-//                        DeploymentStatus.TIMEOUT
-//                ))
-//                .toList();
-
         firmwareDeploymentDeviceRepository.saveAll(list);
         deploymentRedisService.saveTimeoutDevices(commandId, deviceIds);
         srt.delete(commandId);
     }
 
+    /**
+     * 완료된 디바이스 이벤트를 DB에 반영하고 Redis에서 제거한다.
+     *
+     * @param commandId       배포 식별자
+     * @param completedEvents 완료된 이벤트 목록
+     * @param deployment      배포 엔티티
+     */
     private void processCompletedEvents(String commandId, List<FirmwareDownloadEvents> completedEvents, FirmwareDeployment deployment) {
         List<FirmwareDeploymentDevice> list = completedEvents.stream()
                 .map(e -> new FirmwareDeploymentDevice(
@@ -120,6 +144,12 @@ public class DeployJudgeScheduler {
         deploymentRedisService.deleteDevices(commandId, completedEvents);
     }
 
+    /**
+     * 이벤트 상태가 완료 상태(SUCCESS, FAILED, CANCELLED, TIMEOUT)인지 여부를 판별한다.
+     *
+     * @param deploymentStatus 이벤트 상태 문자열
+     * @return 완료 상태이면 true, 아니면 false
+     */
     private boolean isCompleted(String deploymentStatus) {
         return deploymentStatus.equals(DeploymentStatus.SUCCESS.name()) || deploymentStatus.equals(DeploymentStatus.FAILED.name())
                || deploymentStatus.equals(DeploymentStatus.CANCELLED.name()) || deploymentStatus.equals(DeploymentStatus.TIMEOUT.name());

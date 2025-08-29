@@ -10,7 +10,6 @@ public class IotCloudOtaApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(IotCloudOtaApplication.class, args);
-
     }
 }
 
