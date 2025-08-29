@@ -1,13 +1,10 @@
 package com.coffee_is_essential.iot_cloud_ota.dto;
 
-import com.coffee_is_essential.iot_cloud_ota.domain.DeploymentStatusCount;
-import com.coffee_is_essential.iot_cloud_ota.domain.DeviceDeploymentStatus;
-import com.coffee_is_essential.iot_cloud_ota.domain.Firmware;
-import com.coffee_is_essential.iot_cloud_ota.domain.Target;
+import com.coffee_is_essential.iot_cloud_ota.domain.*;
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareDeployment;
 import com.coffee_is_essential.iot_cloud_ota.entity.OverallDeploymentStatus;
-import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentStatus;
 import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentType;
+import com.coffee_is_essential.iot_cloud_ota.enums.OverallStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,40 +38,26 @@ public record DetailDeploymentResponseDto(
         Long successCount,
         Long inProgressCount,
         Long failedCount,
-        DeploymentStatus status,
+        OverallStatus status,
         LocalDateTime deployedAt,
         LocalDateTime expiresAt,
         List<DeviceDeploymentStatus> devices
 ) {
-    public static DetailDeploymentResponseDto of(FirmwareDeployment firmwareDeployment, List<Target> targetInfo, List<DeviceDeploymentStatus> devices, List<DeploymentStatusCount> countList, OverallDeploymentStatus status) {
-        long total = 0, success = 0, inProgress = 0, failed = 0;
-        for (DeploymentStatusCount statusCount : countList) {
-            if (statusCount.deploymentStatus().equals(DeploymentStatus.IN_PROGRESS.name())) {
-                inProgress += statusCount.count();
-            } else if (statusCount.deploymentStatus().equals(DeploymentStatus.TIMEOUT.name())) {
-                failed += statusCount.count();
-            } else if (statusCount.deploymentStatus().equals(DeploymentStatus.SUCCESS.name())) {
-                success += statusCount.count();
-            } else if (statusCount.deploymentStatus().equals(DeploymentStatus.FAILED.name())) {
-                failed += statusCount.count();
-            }
-
-            total += statusCount.count();
-        }
-        return null;
-//        return new DetailDeploymentResponseDto(
-//                firmwareDeployment.getId(),
-//                firmwareDeployment.getCommandId(),
-//                Firmware.from(firmwareDeployment.getFirmwareMetadata()),
-//                firmwareDeployment.getDeploymentType(),
-//                targetInfo,
-//                total,
-//                success,
-//                inProgress,
-//                failed,
-//                status.getDeploymentStatus(),
-//                firmwareDeployment.getDeployedAt(),
-//                firmwareDeployment.getExpiresAt(),
-//                devices
+    public static DetailDeploymentResponseDto of(FirmwareDeployment firmwareDeployment, List<Target> targetInfo, List<DeviceDeploymentStatus> devices, ProgressCount progressCount, OverallDeploymentStatus status) {
+        return new DetailDeploymentResponseDto(
+                firmwareDeployment.getId(),
+                firmwareDeployment.getCommandId(),
+                Firmware.from(firmwareDeployment.getFirmwareMetadata()),
+                firmwareDeployment.getDeploymentType(),
+                targetInfo,
+                progressCount.getTotalCount(),
+                progressCount.getSuccessCount(),
+                progressCount.getInProgressCount(),
+                progressCount.getFailedCount(),
+                status.getOverallStatus(),
+                firmwareDeployment.getDeployedAt(),
+                firmwareDeployment.getExpiresAt(),
+                devices
+        );
     }
 }

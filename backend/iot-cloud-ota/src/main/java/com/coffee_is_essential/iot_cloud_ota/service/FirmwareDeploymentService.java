@@ -166,11 +166,22 @@ public class FirmwareDeploymentService {
      */
     private FirmwareDeploymentMetadata getFirmwareDeploymentMetadata(FirmwareDeployment firmwareDeployment) {
         Long deploymentId = firmwareDeployment.getId();
-        List<DeploymentStatusCount> countList = firmwareDeploymentDeviceRepository.countStatusByLatestDeployment(deploymentId);
+        ProgressCount progressCount = getProgressCount(deploymentId);
         List<Target> targetInfo = getTargetList(firmwareDeployment);
         OverallDeploymentStatus status = overallDeploymentStatusRepository.findLatestByDeploymentIdOrElseThrow(firmwareDeployment.getId());
 
-        return FirmwareDeploymentMetadata.of(firmwareDeployment, targetInfo, ProgressCount.from(countList), status.getOverallStatus());
+        return FirmwareDeploymentMetadata.of(firmwareDeployment, targetInfo, progressCount, status.getOverallStatus());
+    }
+
+    /**
+     * 배포 id를 통해 totalCount, successCount, inProgressCount, failedCount를 계산합니다.
+     *
+     * @param deploymentId 배포 id
+     * @return totalCount, successCount, inProgressCount, failedCount를 멤버로 가지고 있는 ProgressCount
+     */
+    private ProgressCount getProgressCount(Long deploymentId) {
+        List<DeploymentStatusCount> countList = firmwareDeploymentDeviceRepository.countStatusByLatestDeployment(deploymentId);
+        return ProgressCount.from(countList);
     }
 
     /**
@@ -185,12 +196,12 @@ public class FirmwareDeploymentService {
         FirmwareDeployment deployment = firmwareDeploymentRepository.findByIdOrElseThrow(id);
         OverallDeploymentStatus status = overallDeploymentStatusRepository.findLatestByDeploymentIdOrElseThrow(id);
         List<Target> targetInfo = getTargetList(deployment);
-        List<DeploymentStatusCount> countList = firmwareDeploymentDeviceRepository.countStatusByLatestDeployment(id);
+        ProgressCount progressCount = getProgressCount(id);
         List<DeviceDeploymentStatus> downloadEvents = questDbRepository.findLatestPerDeviceByCommandId(deployment.getCommandId()).stream()
                 .map(DeviceDeploymentStatus::from)
                 .toList();
 
-        return DetailDeploymentResponseDto.of(deployment, targetInfo, downloadEvents, countList, status);
+        return DetailDeploymentResponseDto.of(deployment, targetInfo, downloadEvents, progressCount, status);
     }
 
     /**
