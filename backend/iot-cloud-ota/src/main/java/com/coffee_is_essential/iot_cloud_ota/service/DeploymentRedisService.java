@@ -1,7 +1,10 @@
 package com.coffee_is_essential.iot_cloud_ota.service;
 
 import com.coffee_is_essential.iot_cloud_ota.domain.DeployTargetDeviceInfo;
+import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareDeploymentDevice;
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareDownloadEvents;
+import com.coffee_is_essential.iot_cloud_ota.repository.QuestDbRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DeploymentRedisService {
     private final StringRedisTemplate srt;
+    private final QuestDbRepository questDbRepository;
 
     public void addDevices(String commandId, List<DeployTargetDeviceInfo> targetDeviceInfos) {
         srt.opsForSet().add(
@@ -39,5 +43,12 @@ public class DeploymentRedisService {
                 .collect(Collectors.toList());
 
         return deviceIds;
+    }
+
+    @Transactional
+    public void saveTimeoutDevices(String commandId, List<Long> deviceIds) {
+        for (Long deviceId : deviceIds) {
+            questDbRepository.saveTimeoutDevice(commandId, deviceId);
+        }
     }
 }

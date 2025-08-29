@@ -81,22 +81,30 @@ public class DeployJudgeScheduler {
         }
 
         if (LocalDateTime.now().isAfter(expiresAt)) {
-            processExpireEvents(commandId, firmwareDeployment);
+            processTimeoutEvents(commandId, firmwareDeployment);
             overallDeploymentStatusRepository.save(new OverallDeploymentStatus(firmwareDeployment, OverallStatus.COMPLETED));
         }
     }
 
-
-    private void processExpireEvents(String commandId, FirmwareDeployment deployment) {
-        List<FirmwareDeploymentDevice> list = deploymentRedisService.getAllDeviceIdsFromRedisById(commandId).stream()
+    private void processTimeoutEvents(String commandId, FirmwareDeployment deployment) {
+        List<Long> deviceIds = deploymentRedisService.getAllDeviceIdsFromRedisById(commandId);
+        List<FirmwareDeploymentDevice> list = deviceIds.stream()
                 .map(e -> new FirmwareDeploymentDevice(
                         em.getReference(Device.class, e),
                         deployment,
                         DeploymentStatus.TIMEOUT
                 ))
                 .toList();
+//        List<FirmwareDeploymentDevice> list = deploymentRedisService.getAllDeviceIdsFromRedisById(commandId).stream()
+//                .map(e -> new FirmwareDeploymentDevice(
+//                        em.getReference(Device.class, e),
+//                        deployment,
+//                        DeploymentStatus.TIMEOUT
+//                ))
+//                .toList();
 
         firmwareDeploymentDeviceRepository.saveAll(list);
+        deploymentRedisService.saveTimeoutDevices(commandId, deviceIds);
         srt.delete(commandId);
     }
 

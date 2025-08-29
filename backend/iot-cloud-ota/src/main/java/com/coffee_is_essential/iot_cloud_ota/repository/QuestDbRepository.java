@@ -83,4 +83,11 @@ public class QuestDbRepository {
             return e;
         }
     };
+
+    public void saveTimeoutDevice(String commandId, Long deviceId) {
+        jdbcTemplate.update(
+                "INSERT INTO firmware_download_events (command_id, message, status, device_id, timestamp) VALUES (?, ?, ?, ?, NOW())",
+                commandId, "Timeout", "TIMEOUT", deviceId
+        );
+    }
 }
