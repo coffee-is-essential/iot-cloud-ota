@@ -53,7 +53,7 @@ public record DetailDeploymentResponseDto(
                 inProgress += statusCount.count();
             } else if (statusCount.deploymentStatus().equals(DeploymentStatus.TIMEOUT.name())) {
                 failed += statusCount.count();
-            } else if (statusCount.deploymentStatus().equals(DeploymentStatus.SUCCEED.name())) {
+            } else if (statusCount.deploymentStatus().equals(DeploymentStatus.SUCCESS.name())) {
                 success += statusCount.count();
             } else if (statusCount.deploymentStatus().equals(DeploymentStatus.FAILED.name())) {
                 failed += statusCount.count();
@@ -61,20 +61,20 @@ public record DetailDeploymentResponseDto(
 
             total += statusCount.count();
         }
-        return new DetailDeploymentResponseDto(
-                firmwareDeployment.getId(),
-                firmwareDeployment.getCommandId(),
-                Firmware.from(firmwareDeployment.getFirmwareMetadata()),
-                firmwareDeployment.getDeploymentType(),
-                targetInfo,
-                total,
-                success,
-                inProgress,
-                failed,
-                status.getDeploymentStatus(),
-                firmwareDeployment.getDeployedAt(),
-                firmwareDeployment.getExpiresAt(),
-                devices
-        );
+        return null;
+//        return new DetailDeploymentResponseDto(
+//                firmwareDeployment.getId(),
+//                firmwareDeployment.getCommandId(),
+//                Firmware.from(firmwareDeployment.getFirmwareMetadata()),
+//                firmwareDeployment.getDeploymentType(),
+//                targetInfo,
+//                total,
+//                success,
+//                inProgress,
+//                failed,
+//                status.getDeploymentStatus(),
+//                firmwareDeployment.getDeployedAt(),
+//                firmwareDeployment.getExpiresAt(),
+//                devices
     }
 }

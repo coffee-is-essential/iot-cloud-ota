@@ -5,16 +5,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
 public class QuestDbRepository {
     private final @Qualifier("questDbJdbcTemplate") JdbcTemplate jdbcTemplate;
+    private final @Qualifier("questDbNamedJdbc") NamedParameterJdbcTemplate namedJdbc;
 
     /**
      * 주어진 commandId에 해당하는 펌웨어 다운로드 이벤트 중
@@ -36,6 +39,26 @@ public class QuestDbRepository {
                 ORDER BY device_id
                 """;
         return jdbcTemplate.query(sql, new Object[]{commandId}, mapper);
+    }
+
+    public List<FirmwareDownloadEvents> findLatestPerDeviceByCommandIdAndDeviceIds(
+            String commandId, List<Long> deviceIds) {
+        if (deviceIds == null || deviceIds.isEmpty()) return List.of();
+
+        String sql = """
+                SELECT *
+                FROM (
+                    SELECT f.*,
+                           ROW_NUMBER() OVER (PARTITION BY device_id ORDER BY "timestamp" DESC) rn
+                    FROM firmware_download_events f
+                    WHERE command_id = :cmd
+                      AND device_id IN (:ids)
+                ) t
+                WHERE rn = 1
+                ORDER BY device_id
+                """;
+
+        return namedJdbc.query(sql, Map.of("cmd", commandId, "ids", deviceIds), mapper);
     }
 
     /**

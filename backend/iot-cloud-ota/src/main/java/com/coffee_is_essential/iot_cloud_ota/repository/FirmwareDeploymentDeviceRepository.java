@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface FirmwareDeploymentDeviceRepository extends JpaRepository<FirmwareDeploymentDevice, Long> {
     /**
-     * 특정 배포 ID에 대해 디바이스별 최신 상태만 집계하여 상태별(IN_PROGRESS, SUCCEED, FAILED, TIMEOUT)
+     * 특정 배포 ID에 대해 디바이스별 최신 상태만 집계하여 상태별(IN_PROGRESS, SUCCESS, FAILED, TIMEOUT)
      * 장치 개수를 반환합니다.
      *
      * @param deploymentId 조회할 배포 ID
@@ -23,7 +23,7 @@ public interface FirmwareDeploymentDeviceRepository extends JpaRepository<Firmwa
                 COALESCE(counted_devices.count, 0) AS count
             FROM (
                      SELECT 'IN_PROGRESS' AS status
-                     UNION ALL SELECT 'SUCCEED'
+                     UNION ALL SELECT 'SUCCESS'
                      UNION ALL SELECT 'FAILED'
                      UNION ALL SELECT 'TIMEOUT'
                  ) AS all_statuses

@@ -1,6 +1,6 @@
 package com.coffee_is_essential.iot_cloud_ota.entity;
 
-import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentStatus;
+import com.coffee_is_essential.iot_cloud_ota.enums.OverallStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,10 +20,10 @@ public class OverallDeploymentStatus extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    DeploymentStatus deploymentStatus;
+    OverallStatus overallStatus;
 
-    public OverallDeploymentStatus(FirmwareDeployment firmwareDeployment, DeploymentStatus deploymentStatus) {
+    public OverallDeploymentStatus(FirmwareDeployment firmwareDeployment, OverallStatus overallStatus) {
         this.firmwareDeployment = firmwareDeployment;
-        this.deploymentStatus = deploymentStatus;
+        this.overallStatus = overallStatus;
     }
 }

@@ -1,8 +1,10 @@
 package com.coffee_is_essential.iot_cloud_ota.domain;
 
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareDeployment;
+import com.coffee_is_essential.iot_cloud_ota.entity.OverallDeploymentStatus;
 import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentStatus;
 import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentType;
+import com.coffee_is_essential.iot_cloud_ota.enums.OverallStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,36 +34,22 @@ public record FirmwareDeploymentMetadata(
         Long successCount,
         Long inProgressCount,
         Long failedCount,
-        DeploymentStatus status,
+        OverallStatus status,
         LocalDateTime deployedAt,
         LocalDateTime expiresAt
 ) {
-    public static FirmwareDeploymentMetadata of(FirmwareDeployment firmwareDeployment, List<Target> targetInfo, List<DeploymentStatusCount> countList, DeploymentStatus overallDeployStatus) {
-        long total = 0, success = 0, inProgress = 0, failed = 0;
-        for (DeploymentStatusCount statusCount : countList) {
-            if (statusCount.deploymentStatus().equals(DeploymentStatus.IN_PROGRESS.name())) {
-                inProgress += statusCount.count();
-            } else if (statusCount.deploymentStatus().equals(DeploymentStatus.TIMEOUT.name())) {
-                failed += statusCount.count();
-            } else if (statusCount.deploymentStatus().equals(DeploymentStatus.SUCCEED.name())) {
-                success += statusCount.count();
-            } else if (statusCount.deploymentStatus().equals(DeploymentStatus.FAILED.name())) {
-                failed += statusCount.count();
-            }
-
-            total += statusCount.count();
-        }
+    public static FirmwareDeploymentMetadata of(FirmwareDeployment firmwareDeployment, List<Target> targetInfo, ProgressCount progressCount, OverallStatus overallStatus) {
 
         return new FirmwareDeploymentMetadata(
                 firmwareDeployment.getId(),
                 Firmware.from(firmwareDeployment.getFirmwareMetadata()),
                 firmwareDeployment.getDeploymentType(),
                 targetInfo,
-                total,
-                success,
-                inProgress,
-                failed,
-                overallDeployStatus,
+                progressCount.getTotalCount(),
+                progressCount.getSuccessCount(),
+                progressCount.getInProgressCount(),
+                progressCount.getFailedCount(),
+                overallStatus,
                 firmwareDeployment.getDeployedAt(),
                 firmwareDeployment.getExpiresAt()
         );

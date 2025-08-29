@@ -3,7 +3,9 @@ package com.coffee_is_essential.iot_cloud_ota.service;
 import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
@@ -38,22 +40,23 @@ public class CloudFrontSignedUrlService {
      * 주어진 리소스 경로에 대해 지정된 유효 시간 동안 사용할 . 있는 CloudFront Signed URL을 생성합니다.
      *
      * @param resourcePath CloudFront에서 접근할 리소스의 경로
-     * @param expiresAt     URL이 유효한 시간
+     * @param expiresAt    URL이 유효한 시간
      * @return 서명된 CloudFront URL 문자열
-     * @throws Exception 개인키 로딩 실패 등 오류 발생 시
      */
-    public String generateSignedUrl(String resourcePath, Date expiresAt) throws Exception {
-        String privateKeyPem = getPrivateKeyPem(secretId);
-        PrivateKey privateKey = loadPrivateKeyFromPem(privateKeyPem);
-
-        String urlString = "https://" + cloudFrontDomain + "/" + resourcePath;
-
-        return CloudFrontUrlSigner.getSignedURLWithCannedPolicy(
-                urlString,
-                keyPairId,
-                privateKey,
-                expiresAt
-        );
+    public String generateSignedUrl(String resourcePath, Date expiresAt) {
+        try {
+            String privateKeyPem = getPrivateKeyPem(secretId);
+            PrivateKey privateKey = loadPrivateKeyFromPem(privateKeyPem);
+            String urlString = "https://" + cloudFrontDomain + "/" + resourcePath;
+            return CloudFrontUrlSigner.getSignedURLWithCannedPolicy(
+                    urlString,
+                    keyPairId,
+                    privateKey,
+                    expiresAt
+            );
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CloudFront 서명 URL 생성 실패", e);
+        }
     }
 
     /**
