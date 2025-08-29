@@ -53,7 +53,7 @@ func parseDownloadProgress(msg mqtt.Message) (*types.FirmwareDownloadEvent, erro
 		return nil, err
 	}
 
-	return buildDownloadEvent(msg.Topic(), progress.CommandID, "Download in progress", "IN PROGRESS",
+	return buildDownloadEvent(msg.Topic(), progress.CommandID, "Download in progress", "IN_PROGRESS",
 		progress.Progress, progress.TotalBytes, progress.DownloadedBytes, progress.SpeedKbps, false, 0), nil
 }
 
