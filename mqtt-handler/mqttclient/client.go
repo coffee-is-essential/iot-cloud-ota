@@ -69,7 +69,7 @@ func (m *MQTTClient) Connect(brokerURL string, clientId string) {
 
 	// 재연결/최초 연결 시 구독
 	opts.OnConnect = func(c mqtt.Client) {
-		log.Println("[MQTT] connected, subscribing...")
+		log.Println("[MQTT] connected, subscribing......")
 		m.SubscribeAllTopics()
 	}
 
