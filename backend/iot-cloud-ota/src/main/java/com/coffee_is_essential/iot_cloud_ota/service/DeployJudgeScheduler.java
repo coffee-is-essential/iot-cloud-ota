@@ -45,7 +45,7 @@ public class DeployJudgeScheduler {
     /**
      * 30초마다 실행되며, Redis에 저장된 배포 commandId들을 스캔한다.
      */
-    @Scheduled(fixedDelay = 30_000)
+    @Scheduled(fixedDelay = 36000000)
     public void dumpDeploySets() {
         System.out.println("=== Redis Dump Start ===");
 
