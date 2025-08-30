@@ -5,6 +5,7 @@ import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareDownloadEvents;
 import com.coffee_is_essential.iot_cloud_ota.repository.QuestDbRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
  * 필요 시 QuestDB에 타임아웃 이벤트를 기록하는 서비스.
  */
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class DeploymentRedisService {
     private final StringRedisTemplate srt;
@@ -43,13 +45,17 @@ public class DeploymentRedisService {
      * @param completedEvents 완료된 이벤트 목록
      */
     public void deleteDevices(String commandId, List<FirmwareDownloadEvents> completedEvents) {
-        srt.opsForSet().remove(
+        List<String> removedIds = completedEvents.stream()
+                .map(e -> String.valueOf(e.getDeviceId()))
+                .toList();
+
+        srt.opsForSet().remove(commandId, removedIds.toArray());
+        log.info(
+                "[DELETED] commandId={}, removedIds={}, removedCount={}",
                 commandId,
-                completedEvents.stream()
-                        .map(e -> String.valueOf(e.getDeviceId()))
-                        .toArray()
+                removedIds,
+                removedIds.size()
         );
-        System.out.printf("[DELETED] commandId=%s, saved count=%d, removed count=%d%n", commandId, completedEvents.size(), completedEvents.size());
     }
 
     /**

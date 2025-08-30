@@ -45,6 +45,7 @@ public class FirmwareDeploymentService {
     private final QuestDbRepository questDbRepository;
     private final CloudFrontSignedUrlService cloudFrontSignedUrlService;
     private final DeploymentRedisService deploymentRedisService;
+    private final DeployJudgeScheduler deployJudgeScheduler;
     private static final int TIMEOUT = 10;
 
     /**
@@ -95,6 +96,7 @@ public class FirmwareDeploymentService {
         FirmwareDeploymentDto deploymentDto = new FirmwareDeploymentDto(signedUrl, deployInfo, deviceInfos, TIMEOUT);
         sendMqttHandler(deploymentDto);
         deploymentRedisService.addDevices(firmwareDeployment.getCommandId(), deviceInfos);
+        deployJudgeScheduler.startScheduler(firmwareDeployment.getCommandId());
         return deploymentDto;
     }
 
