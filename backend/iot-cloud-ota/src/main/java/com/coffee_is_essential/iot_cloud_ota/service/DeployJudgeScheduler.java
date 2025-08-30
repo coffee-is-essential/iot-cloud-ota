@@ -19,8 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,7 +44,7 @@ public class DeployJudgeScheduler {
     /**
      * 30초마다 실행되며, Redis에 저장된 배포 commandId들을 스캔한다.
      */
-    @Scheduled(fixedDelay = 36000000)
+    @Scheduled(fixedDelay = 600000)
     public void dumpDeploySets() {
         System.out.println("=== Redis Dump Start ===");
 
@@ -81,7 +80,7 @@ public class DeployJudgeScheduler {
     @Transactional
     public void judge(String commandId, List<Long> deviceIds) {
         FirmwareDeployment firmwareDeployment = firmwareDeploymentRepository.findByCommandIdOrElseThrow(commandId);
-        LocalDateTime expiresAt = firmwareDeployment.getExpiresAt();
+        OffsetDateTime expiresAt = firmwareDeployment.getExpiresAt();
         System.out.printf("[SET] commandId=%s, devices=%s, expires=%s%n", commandId, deviceIds, expiresAt);
 
         List<FirmwareDownloadEvents> downloadEvents = questDbRepository.findLatestPerDeviceByCommandIdAndDeviceIds(commandId, deviceIds);
@@ -99,7 +98,7 @@ public class DeployJudgeScheduler {
             return;
         }
 
-        if (Instant.now().isAfter(expiresAt.atZone(ZoneOffset.UTC).toInstant())) {
+        if (Instant.now().isAfter(expiresAt.toInstant())) {
             processTimeoutEvents(commandId, firmwareDeployment);
             overallDeploymentStatusRepository.save(new OverallDeploymentStatus(firmwareDeployment, OverallStatus.COMPLETED));
         }

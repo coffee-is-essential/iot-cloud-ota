@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Getter
 @Entity
@@ -28,12 +28,12 @@ public class FirmwareDeployment extends BaseEntity {
     private DeploymentType deploymentType;
 
     @Column(nullable = false)
-    private LocalDateTime deployedAt;
+    private OffsetDateTime deployedAt;
 
     @Column(nullable = false)
-    private LocalDateTime expiresAt;
+    private OffsetDateTime expiresAt;
 
-    public FirmwareDeployment(FirmwareMetadata firmwareMetadata, String commandId, DeploymentType deploymentType, LocalDateTime deployedAt, LocalDateTime expiresAt) {
+    public FirmwareDeployment(FirmwareMetadata firmwareMetadata, String commandId, DeploymentType deploymentType, OffsetDateTime deployedAt, OffsetDateTime expiresAt) {
         this.firmwareMetadata = firmwareMetadata;
         this.commandId = commandId;
         this.deploymentType = deploymentType.name().equals("GROUP") ? DeploymentType.DIVISION : deploymentType;

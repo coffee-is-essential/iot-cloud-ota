@@ -1,12 +1,10 @@
 package com.coffee_is_essential.iot_cloud_ota.domain;
 
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareDeployment;
-import com.coffee_is_essential.iot_cloud_ota.entity.OverallDeploymentStatus;
-import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentStatus;
 import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentType;
 import com.coffee_is_essential.iot_cloud_ota.enums.OverallStatus;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
@@ -35,8 +33,8 @@ public record FirmwareDeploymentMetadata(
         Long inProgressCount,
         Long failedCount,
         OverallStatus status,
-        LocalDateTime deployedAt,
-        LocalDateTime expiresAt
+        OffsetDateTime deployedAt,
+        OffsetDateTime expiresAt
 ) {
     public static FirmwareDeploymentMetadata of(FirmwareDeployment firmwareDeployment, List<Target> targetInfo, ProgressCount progressCount, OverallStatus overallStatus) {
 

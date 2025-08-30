@@ -6,7 +6,7 @@ import com.coffee_is_essential.iot_cloud_ota.entity.OverallDeploymentStatus;
 import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentType;
 import com.coffee_is_essential.iot_cloud_ota.enums.OverallStatus;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
@@ -39,8 +39,8 @@ public record DetailDeploymentResponseDto(
         Long inProgressCount,
         Long failedCount,
         OverallStatus status,
-        LocalDateTime deployedAt,
-        LocalDateTime expiresAt,
+        OffsetDateTime deployedAt,
+        OffsetDateTime expiresAt,
         List<DeviceDeploymentStatus> devices
 ) {
     public static DetailDeploymentResponseDto of(FirmwareDeployment firmwareDeployment, List<Target> targetInfo, List<DeviceDeploymentStatus> devices, ProgressCount progressCount, OverallDeploymentStatus status) {

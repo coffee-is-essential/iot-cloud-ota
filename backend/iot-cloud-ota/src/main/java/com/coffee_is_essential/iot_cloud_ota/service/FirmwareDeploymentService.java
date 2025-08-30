@@ -78,7 +78,7 @@ public class FirmwareDeploymentService {
         FirmwareDeployInfo deployInfo = FirmwareDeployInfo.from(findFirmware, expiresAt);
         String signedUrl = cloudFrontSignedUrlService.generateSignedUrl(findFirmware.getS3Path(), expiresAt);
 
-        FirmwareDeployment firmwareDeployment = new FirmwareDeployment(findFirmware, deployInfo.deploymentId(), requestDto.deploymentType(), deployInfo.deployedAt().toLocalDateTime(), deployInfo.expiresAt().toLocalDateTime());
+        FirmwareDeployment firmwareDeployment = new FirmwareDeployment(findFirmware, deployInfo.deploymentId(), requestDto.deploymentType(), deployInfo.deployedAt(), deployInfo.expiresAt());
         firmwareDeploymentRepository.save(firmwareDeployment);
         overallDeploymentStatusRepository.save(new OverallDeploymentStatus(firmwareDeployment, OverallStatus.IN_PROGRESS));
         saveFirmwareDeploymentDevices(devices, firmwareDeployment, DeploymentStatus.IN_PROGRESS);

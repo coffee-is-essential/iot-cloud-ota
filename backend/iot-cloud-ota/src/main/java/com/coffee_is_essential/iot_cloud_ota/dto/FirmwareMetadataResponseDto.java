@@ -2,7 +2,7 @@ package com.coffee_is_essential.iot_cloud_ota.dto;
 
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareMetadata;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * 펌웨어 메타데이터 응답을 위한 DTO 입니다.
@@ -19,8 +19,8 @@ public record FirmwareMetadataResponseDto(
         String version,
         String fileName,
         String releaseNote,
-        LocalDateTime createdAt,
-        LocalDateTime modifiedAt
+        OffsetDateTime createdAt,
+        OffsetDateTime modifiedAt
 ) {
 
     /**
