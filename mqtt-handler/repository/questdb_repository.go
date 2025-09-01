@@ -15,8 +15,17 @@ var (
 	questDBClientInstance *DBClient
 )
 
-// 이벤트 처리를 위한 비동기 채널 (버퍼: 1000개)
-var InsertChan = make(chan types.FirmwareDownloadEvent, 1000)
+// 다운로드 이벤트 처리를 위한 비동기 채널 (버퍼: 1000개)
+var DownloadInsertChan = make(chan types.FirmwareDownloadEvent, 1000)
+
+// 기기 상태 이벤트 처리를 위한 비동기 채널 (버퍼: 1000개)
+var SystemStatusInsertChan = make(chan types.SystemStatusEvent, 1000)
+
+// 기기 네트워크 상태 이벤트 처리를 위한 비동기 채널 (버퍼: 1000개)
+var NetworkStatusInsertChan = make(chan types.NetworkStatusEvent, 1000)
+
+// 기기 health 상태 이벤트 처리를 위한 비동기 채널 (버퍼: 1000개)
+var HealthStatusInsertChan = make(chan types.HealthStatusEvent, 1000)
 
 // DBClient는 QuestDB와 통신하기 위한 객체입니다.
 type DBClient struct {

@@ -7,6 +7,7 @@ import (
 	"mqtt-handler/types"
 	"strconv"
 	"strings"
+	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
@@ -22,7 +23,7 @@ func (m *MQTTClient) subscribe(topic string, parseFunc func(mqtt.Message) (*type
 			return
 		}
 
-		repository.InsertChan <- *event
+		repository.DownloadInsertChan <- *event
 	}
 
 	token := m.mqttClient.Subscribe(topic, 1, handler)
@@ -42,7 +43,7 @@ func parseDownloadRequestAck(msg mqtt.Message) (*types.FirmwareDownloadEvent, er
 		return nil, err
 	}
 
-	return buildDownloadEvent(msg.Topic(), ack.CommandID, ack.Message, ack.Status, 0, 0, 0, 0, false, 0), nil
+	return buildDownloadEvent(msg.Topic(), ack.CommandID, ack.Message, ack.Status, 0, 0, 0, 0, false, 0, ack.Timestamp), nil
 }
 
 // 다운로드 진행 중(Progress) 메시지 처리
@@ -54,7 +55,7 @@ func parseDownloadProgress(msg mqtt.Message) (*types.FirmwareDownloadEvent, erro
 	}
 
 	return buildDownloadEvent(msg.Topic(), progress.CommandID, "Download in progress", "IN_PROGRESS",
-		progress.Progress, progress.TotalBytes, progress.DownloadedBytes, progress.SpeedKbps, false, 0), nil
+		progress.Progress, progress.TotalBytes, progress.DownloadedBytes, progress.SpeedKbps, false, 0, progress.Timestamp), nil
 }
 
 // 다운로드 결과(Result) 메시지 처리
@@ -66,7 +67,7 @@ func parseDownloadResult(msg mqtt.Message) (*types.FirmwareDownloadEvent, error)
 	}
 
 	return buildDownloadEvent(msg.Topic(), result.CommandID, result.Message, result.Status,
-		0, 0, 0, 0, result.ChecksumVerified, result.DownloadTime), nil
+		0, 0, 0, 0, result.ChecksumVerified, result.DownloadTime, result.Timestamp), nil
 }
 
 // 다운로드 취소 응답 메시지 처리
@@ -77,17 +78,17 @@ func parseDownloadCancelAck(msg mqtt.Message) (*types.FirmwareDownloadEvent, err
 		return nil, err
 	}
 
-	return buildDownloadEvent(msg.Topic(), ack.CommandID, ack.Message, ack.Status, 0, 0, 0, 0, false, 0), nil
+	return buildDownloadEvent(msg.Topic(), ack.CommandID, ack.Message, ack.Status, 0, 0, 0, 0, false, 0, ack.Timestamp), nil
 }
 
-// 공통 이벤트 빌더 - 토픽에서 region/group/device ID 추출 + 이벤트 생성
-func buildDownloadEvent(topic, commandID, message, status string, progress int64, totalBytes int64, downloadBytes int64, speedKbps float64, verified bool, downloadTime float64) *types.FirmwareDownloadEvent {
+// 공통 이벤트 빌더 - 토픽에서 ID 추출 + 이벤트 생성
+func buildDownloadEvent(topic, commandID, message, status string, progress int64, totalBytes int64, downloadBytes int64, speedKbps float64, verified bool, downloadTime float64, timestamp time.Time) *types.FirmwareDownloadEvent {
 	topicParts := strings.Split(topic, "/")
-	deviceID, _ := strconv.ParseInt(topicParts[1], 10, 64)
+	deviceId, _ := strconv.ParseInt(topicParts[1], 10, 64)
 
 	return &types.FirmwareDownloadEvent{
 		CommandID:        commandID,
-		DeviceID:         deviceID,
+		DeviceID:         deviceId,
 		Message:          message,
 		Status:           status,
 		Progress:         progress,
@@ -96,13 +97,6 @@ func buildDownloadEvent(topic, commandID, message, status string, progress int64
 		SpeedKbps:        speedKbps,
 		ChecksumVerified: verified,
 		DownloadTime:     downloadTime,
+		Timestamp:        timestamp,
 	}
-}
-
-// 전체 구독 시작 - 모든 관련 토픽을 한 번에 등록
-func (m *MQTTClient) SubscribeAllTopics() {
-	m.subscribe("v1/+/firmware/download/request/ack", parseDownloadRequestAck, "[ACK]")
-	m.subscribe("v1/+/firmware/download/progress", parseDownloadProgress, "[PROGRESS]")
-	m.subscribe("v1/+/firmware/download/result", parseDownloadResult, "[RESULT]")
-	m.subscribe("v1/+/firmware/download/cancel/ack", parseDownloadCancelAck, "[CANCEL ACK]")
 }

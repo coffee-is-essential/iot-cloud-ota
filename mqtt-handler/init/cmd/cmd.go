@@ -33,7 +33,7 @@ func NewCmd() *Cmd {
 	c.questDBClient.Connect(ctx, c.config.QuestDB.Conf)
 
 	// event consumer 고루틴 실행
-	go c.questDBClient.StartEventConsumer()
+	go c.questDBClient.StartAllConsumer()
 
 	// MQTT 연결
 	c.mqttClient.Connect(c.config.MqttBroker.Url, c.config.MqttBroker.ClientId)

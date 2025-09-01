@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 type FirmwareDeployRequest struct {
 	SignedUrl string      `json:"signedUrl"`
 	FileInfo  FileInfo    `json:"fileInfo"`
@@ -14,12 +16,12 @@ type FirmwareDeployCancelRequest struct {
 }
 
 type FileInfo struct {
-	DeploymentId string `json:"deploymentId"`
-	Version      string `json:"version"`
-	FileHash     string `json:"fileHash"`
-	FileSize     int64  `json:"fileSize"`
-	ExpiresAt    string `json:"expiresAt"`
-	DeployedAt   string `json:"deployedAt"`
+	DeploymentId string    `json:"deploymentId"`
+	Version      string    `json:"version"`
+	FileHash     string    `json:"fileHash"`
+	FileSize     int64     `json:"fileSize"`
+	ExpiresAt    time.Time `json:"expiresAt"`
+	DeployedAt   time.Time `json:"deployedAt"`
 }
 
 type DeviceIds struct {
@@ -31,13 +33,13 @@ type FirmwareDeployResponse struct {
 }
 
 type FirmwareDownloadCommand struct {
-	CommandID string `json:"command_id"`
-	SignedURL string `json:"signed_url"`
-	Version   string `json:"version"`
-	Checksum  string `json:"checksum"`
-	Size      int64  `json:"size"`
-	Timeout   int64  `json:"timeout"`
-	Timestamp string `json:"timestamp"`
+	CommandID string    `json:"command_id"`
+	SignedURL string    `json:"signed_url"`
+	Version   string    `json:"version"`
+	Checksum  string    `json:"checksum"`
+	Size      int64     `json:"size"`
+	Timeout   int64     `json:"timeout"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 type FirmwareDownloadCancelCommand struct {
@@ -46,36 +48,36 @@ type FirmwareDownloadCancelCommand struct {
 }
 
 type FirmwareDownloadRequestAck struct {
-	CommandID string `json:"command_id"`
-	Status    string `json:"status"`
-	Message   string `json:"message"`
-	Timestamp string `json:"timestamp"`
+	CommandID string    `json:"command_id"`
+	Status    string    `json:"status"`
+	Message   string    `json:"message"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 type FirmwareDownloadProgress struct {
-	CommandID       string  `json:"command_id"`
-	Progress        int64   `json:"progress"`
-	DownloadedBytes int64   `json:"downloaded_bytes"`
-	TotalBytes      int64   `json:"total_bytes"`
-	SpeedKbps       float64 `json:"speed_kbps"`
-	EtaSeconds      int64   `json:"eta_seconds,omitempty"`
-	Timestamp       string  `json:"timestamp"`
+	CommandID       string    `json:"command_id"`
+	Progress        int64     `json:"progress"`
+	DownloadedBytes int64     `json:"downloaded_bytes"`
+	TotalBytes      int64     `json:"total_bytes"`
+	SpeedKbps       float64   `json:"speed_kbps"`
+	EtaSeconds      int64     `json:"eta_seconds,omitempty"`
+	Timestamp       time.Time `json:"timestamp"`
 }
 
 type FirmwareDownloadResult struct {
-	CommandID        string  `json:"command_id"`
-	Status           string  `json:"status"`
-	Message          string  `json:"message"`
-	ChecksumVerified bool    `json:"checksum_verified"`
-	DownloadTime     float64 `json:"download_time"`
-	Timestamp        string  `json:"timestamp"`
+	CommandID        string    `json:"command_id"`
+	Status           string    `json:"status"`
+	Message          string    `json:"message"`
+	ChecksumVerified bool      `json:"checksum_verified"`
+	DownloadTime     float64   `json:"download_time"`
+	Timestamp        time.Time `json:"timestamp"`
 }
 
 type FirmwareDownloadCancelAck struct {
-	CommandID string `json:"command_id"`
-	Status    string `json:"status"`
-	Message   string `json:"message"`
-	Timestamp string `json:"timestamp"`
+	CommandID string    `json:"command_id"`
+	Status    string    `json:"status"`
+	Message   string    `json:"message"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 type FirmwareDownloadEvent struct {
@@ -89,4 +91,5 @@ type FirmwareDownloadEvent struct {
 	SpeedKbps        float64
 	ChecksumVerified bool
 	DownloadTime     float64
+	Timestamp        time.Time
 }

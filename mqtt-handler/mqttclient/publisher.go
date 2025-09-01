@@ -55,7 +55,7 @@ func (m *MQTTClient) PublishDownloadRequest(req *types.FirmwareDeployRequest) {
 				DownloadTime:     0,
 			}
 
-			repository.InsertChan <- event
+			repository.DownloadInsertChan <- event
 			token.Wait()
 			if token.Error() != nil {
 				log.Printf("[MQTT] Publish 실패: %s → %v", topic, token.Error())
@@ -105,7 +105,7 @@ func (m *MQTTClient) PublishDownloadCancelRequest(req *types.FirmwareDeployCance
 				DownloadTime:     0,
 			}
 
-			repository.InsertChan <- event
+			repository.DownloadInsertChan <- event
 			token.Wait()
 			if token.Error() != nil {
 				log.Printf("[MQTT] Publish 실패: %s → %v", topic, token.Error())
