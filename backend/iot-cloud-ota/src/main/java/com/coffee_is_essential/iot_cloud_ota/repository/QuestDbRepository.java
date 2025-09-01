@@ -23,7 +23,7 @@ public class QuestDbRepository {
      * 주어진 commandId에 해당하는 펌웨어 다운로드 이벤트 중
      * 디바이스별 최신 이벤트를 조회합니다.
      *
-     * @param commandId 조회할 대상 command_id (UUID 문자열)
+     * @param commandId 조회할 대상 command_id
      * @return 디바이스별 최신 펌웨어 다운로드 이벤트 리스트
      */
     public List<FirmwareDownloadEvents> findLatestPerDeviceByCommandId(String commandId) {
