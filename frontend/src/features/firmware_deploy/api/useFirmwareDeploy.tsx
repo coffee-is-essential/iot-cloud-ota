@@ -11,6 +11,11 @@ interface DeployFirmwareVariables {
   devices: any[];
 }
 
+/**
+ * 펌웨어 배포 프로세스를 담당하는 커스텀 훅
+ * @description useMutation을 사용하여 펌웨어 배포를 처리하고,
+ * 성공 시 펌웨어 배포 목록 쿼리를 무효화하여 자동 리프레시를 유발합니다.
+ */
 export const useFirmwareDeploy = () => {
   const queryClient = useQueryClient();
 
@@ -28,7 +33,6 @@ export const useFirmwareDeploy = () => {
       groups,
       devices,
     );
-    queryClient.invalidateQueries({ queryKey: ["firmwares"] });
   };
 
   return useMutation<void, Error, DeployFirmwareVariables>({
