@@ -2,18 +2,15 @@ import { JSX, useEffect, useState } from "react";
 import { DeployCategory, DeploymentType } from "../model/types";
 import { Region } from "../../../entities/region/model/types";
 import { Device } from "../../../entities/device/model/types";
-import {
-  fetchDevices,
-  fetchGroups,
-  fetchRegions,
-  requestFirmwareDeploy,
-} from "../api/api";
+import { fetchDevices, fetchGroups, fetchRegions } from "../api/api";
 import { RegionTable } from "./RegionTable";
 import { Group } from "../../../entities/group/model/types";
 import { GroupTable } from "./GroupTable";
 import { DeviceTable } from "./DeviceTable";
 import { Firmware } from "../../../entities/firmware/model/types";
 import { Button } from "../../../shared/ui/Button";
+import { toast } from "react-toastify";
+import { useFirmwareDeploy } from "../api/useFirmwareDeploy";
 
 /**
  * Interface for FirmwareDeploy component props
@@ -63,6 +60,8 @@ export const FirmwareDeploy = ({
   const [selectedDevices, setSelectedDevices] = useState<Device[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { mutateAsync: deployFirmware } = useFirmwareDeploy();
 
   const handleCategoryChange = (category: DeployCategory) => {
     // Reset selections when changing category
@@ -216,14 +215,24 @@ export const FirmwareDeploy = ({
             ? DeploymentType.GROUP
             : DeploymentType.DEVICE;
 
-      await requestFirmwareDeploy(
-        firmware.id,
-        deploymentType,
-        selectedRegions,
-        selectedGroups,
-        selectedDevices,
+      if (onClose) {
+        onClose();
+      }
+
+      await toast.promise(
+        deployFirmware({
+          firmwareId: firmware.id,
+          deploymentType,
+          regions: selectedRegions,
+          groups: selectedGroups,
+          devices: selectedDevices,
+        }),
+        {
+          pending: "배포 요청 중...",
+          success: "배포 요청이 성공적으로 접수되었습니다.",
+          error: "배포 요청 중 오류가 발생했습니다.",
+        },
       );
-      onClose();
     } catch (error) {
       setError(
         `배포 요청 중 오류가 발생했습니다: ${error instanceof Error ? error.message : "알 수 없는 오류"}`,
