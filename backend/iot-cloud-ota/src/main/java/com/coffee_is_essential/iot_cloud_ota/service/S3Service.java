@@ -9,6 +9,7 @@ import com.coffee_is_essential.iot_cloud_ota.domain.S3FileHashResult;
 import com.coffee_is_essential.iot_cloud_ota.dto.AdsUploadPresignedUrlResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.DownloadPresignedUrlResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.UploadPresignedUrlResponseDto;
+import com.coffee_is_essential.iot_cloud_ota.entity.AdvertisementMetadata;
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareMetadata;
 import com.coffee_is_essential.iot_cloud_ota.repository.AdvertisementMetadataJpaRepository;
 import com.coffee_is_essential.iot_cloud_ota.repository.FirmwareMetadataJpaRepository;
@@ -113,6 +114,29 @@ public class S3Service {
         }
 
         GeneratePresignedUrlRequest generatedPresignedUrlRequest = generatePresignedDownloadUrl(bucketName, findMetadata.get().getS3Path());
+        String url = amazonS3.generatePresignedUrl(generatedPresignedUrlRequest).toString();
+
+        return new DownloadPresignedUrlResponseDto(url);
+    }
+
+    /**
+     * 광고 메타데이터를 조회하여 S3 Presigned 다운로드 URL을 생성합니다.
+     * 광고 제목으로 메타데이터 조회
+     * 존재하지 않으면 404 에러 발생
+     * 존재하면 해당 광고의 원본 S3 경로를 기반으로 Presigned URL 생성
+     *
+     * @param title 광고 제목
+     * @return Presigned 다운로드 URL 응답 DTO
+     */
+    @Transactional
+    public DownloadPresignedUrlResponseDto getAdsPresignedDownloadUrl(String title) {
+        Optional<AdvertisementMetadata> findAds = advertisementMetadataJpaRepository.findByTitle(title);
+
+        if (findAds.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 광고 정보를 찾을 수 없습니다.");
+        }
+
+        GeneratePresignedUrlRequest generatedPresignedUrlRequest = generatePresignedDownloadUrl(bucketName, findAds.get().getOriginalS3Path());
         String url = amazonS3.generatePresignedUrl(generatedPresignedUrlRequest).toString();
 
         return new DownloadPresignedUrlResponseDto(url);

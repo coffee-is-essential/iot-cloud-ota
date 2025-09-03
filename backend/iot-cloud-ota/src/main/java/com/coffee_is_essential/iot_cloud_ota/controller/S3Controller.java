@@ -59,4 +59,19 @@ public class S3Controller {
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
+    /**
+     * 광고 파일 다운로드를 위한 S3 Presigned URL을 반환합니다.
+     *
+     * @param title 광고 제목
+     * @return Presigned URL을 담은 응답 DTO
+     */
+    @GetMapping("/ads/presigned_download")
+    public ResponseEntity<DownloadPresignedUrlResponseDto> getPresignedDownloadUrl(
+            @RequestParam(required = true) String title
+    ) {
+        DownloadPresignedUrlResponseDto responseDto = s3Service.getAdsPresignedDownloadUrl(title);
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 }
