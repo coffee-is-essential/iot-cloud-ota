@@ -1,8 +1,6 @@
 package com.coffee_is_essential.iot_cloud_ota.controller;
 
-import com.coffee_is_essential.iot_cloud_ota.dto.DownloadPresignedUrlResponseDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.PresignedUrlRequestDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.UploadPresignedUrlResponseDto;
+import com.coffee_is_essential.iot_cloud_ota.dto.*;
 import com.coffee_is_essential.iot_cloud_ota.service.S3Service;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +43,19 @@ public class S3Controller {
             @RequestParam(required = true) String fileName
     ) {
         DownloadPresignedUrlResponseDto responseDto = s3Service.getPresignedDownloadUrl(version, fileName);
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    /**
+     * 광고 업로드를 위한 S3 Presigned URL을 생성합니다.
+     *
+     * @param requestDto 업로드할 광고의 제목 정보를 담은 요청 DTO
+     * @return 업로드용 Presigned URL을 포함한 응답 DTO
+     */
+    @PostMapping("/ads/presigned_upload")
+    public ResponseEntity<AdsUploadPresignedUrlResponseDto> getAdsPresignedUploadUrl(@Valid @RequestBody AdsPresignedUrlRequestDto requestDto) {
+        AdsUploadPresignedUrlResponseDto responseDto = s3Service.getAdsPresignedUploadUrl(requestDto.title());
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
