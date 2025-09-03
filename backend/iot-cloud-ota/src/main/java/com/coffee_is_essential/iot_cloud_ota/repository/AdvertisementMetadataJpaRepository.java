@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface AdvertisementMetadataJpaRepository extends JpaRepository<AdvertisementMetadata, Long> {
     Optional<AdvertisementMetadata> findByTitle(String title);
+
+    boolean existsByOriginalS3Path(String originalS3Path);
 }
