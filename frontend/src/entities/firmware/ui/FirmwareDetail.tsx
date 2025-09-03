@@ -106,7 +106,7 @@ export const FirmwareDetail = ({
         <div className="mb-2 text-sm font-normal text-neutral-600">
           릴리즈 노트
         </div>
-        <div className="flex-1 p-2 overflow-auto text-sm font-normal border border-gray-200 rounded-lg shadow-sm text-neutral-800">
+        <div className="flex-1 p-2 overflow-auto text-sm font-normal border border-gray-200 rounded-lg shadow-sm text-neutral-800 whitespace-pre-line">
           {firmware?.releaseNote}
         </div>
       </div>

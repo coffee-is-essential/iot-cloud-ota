@@ -57,8 +57,10 @@ export const FirmwareList = ({
               <div className="col-span-2 text-sm text-neutral-600">
                 {firmware.createdAt.toLocaleString()}
               </div>
-              <div className="col-span-4 text-sm text-neutral-600">
-                {firmware.releaseNote}
+              <div className="col-span-4 text-sm text-neutral-600 whitespace-pre-line">
+                {firmware.releaseNote.length > 50
+                  ? firmware.releaseNote.slice(0, 50) + "..."
+                  : firmware.releaseNote}
               </div>
             </Link>
           ))}
