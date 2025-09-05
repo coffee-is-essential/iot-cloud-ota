@@ -2,7 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router";
 import { Layout } from "../widgets/layout/ui/Layout";
 import { DashboardPage } from "../pages/DashboardPage";
 import { FirmwareListPage } from "../pages/FirmwareListPage";
-import { AdsPage } from "../pages/AdsPage";
+import { AdListPage } from "../pages/AdListPage";
 import { MonitoringPage } from "../pages/MonitoringPage";
 import { FirmwareDetailPage } from "../pages/FirmwareDetailPage";
 import { DevicePage } from "../pages/DevicePage";
@@ -26,7 +26,7 @@ export const Router = createBrowserRouter([
         element: <FirmwareDeploymentDetailPage />,
       },
       { path: "device", element: <DevicePage /> },
-      { path: "ads", element: <AdsPage /> },
+      { path: "ads", element: <AdListPage /> },
       { path: "monitoring", element: <MonitoringPage /> },
     ],
   },
