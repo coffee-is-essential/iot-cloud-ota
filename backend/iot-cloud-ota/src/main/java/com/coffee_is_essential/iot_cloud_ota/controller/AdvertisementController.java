@@ -50,4 +50,10 @@ public class AdvertisementController {
         AdvertisementMetadataWithPageResponseDto responseDto = advertisementService.findAllWithPagination(paginationInfo);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
+    @PostMapping("/metadata/{id}/deploy")
+    public ResponseEntity<Void> deploy(@PathVariable Long id) {
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
