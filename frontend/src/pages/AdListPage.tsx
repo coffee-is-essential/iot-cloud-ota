@@ -6,12 +6,15 @@ import { MainTile } from "../widgets/layout/ui/MainTile";
 import { TitleTile } from "../widgets/layout/ui/TitleTile";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../shared/ui/Button";
-import { useState } from "react";
+import { JSX, useState } from "react";
 import ReactModal from "react-modal";
-import { FirmwareRegisterForm } from "../features/firmware_register/ui/FirmwareRegister";
 import { AdRegisterForm } from "../features/ad_register/ui/adRegisterForm";
 
-export const AdListPage = () => {
+/**
+ * 광고 목록 페이지 컴포넌트
+ * @returns {JSX.Element} 광고 목록 페이지 컴포넌트
+ */
+export const AdListPage = (): JSX.Element => {
   const { ads, isLoading, error, pagination, handleSearch, handlePageChange } =
     useAdSearch();
 
@@ -22,7 +25,6 @@ export const AdListPage = () => {
     handlePageChange(newPage);
   };
 
-  // pagination 객체가 없을 경우를 대비하여 기본값을 설정합니다.
   const pageCount = pagination?.totalPage ?? 0;
   const currentPage = pagination?.page ?? 1;
 
@@ -34,14 +36,13 @@ export const AdListPage = () => {
       <div>
         <MainTile
           title="업로드 된 광고"
-          rightElement={<SearchBar onSearch={(query) => console.log(query)} />}
+          rightElement={<SearchBar onSearch={handleSearch} />}
         >
           <AdList ads={ads} isLoading={isLoading} error={error} />
 
           <div className="flex items-center justify-between mt-6 text-neutral-500">
             {/* Empty div to align pagination & button to the right */}
             <div></div>
-            {/* 페이지가 있을 때만 페이지네이션을 렌더링합니다. */}
             {pageCount > 0 && (
               <ReactPaginate
                 previousLabel={<ChevronLeft size={18} />}
