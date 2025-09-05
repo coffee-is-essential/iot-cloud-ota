@@ -301,7 +301,7 @@ export const AdRegisterForm = ({
             ref={binaryFileInputRef}
             onChange={handleFileChange}
             className="hidden"
-            accept="*/*"
+            accept=".bin"
           />
         </div>
 
