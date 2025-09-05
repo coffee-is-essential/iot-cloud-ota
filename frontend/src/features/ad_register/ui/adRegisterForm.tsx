@@ -100,19 +100,14 @@ export const AdRegisterForm = ({
       onClose();
     }
 
-    try {
-      await toast.promise(uploadAd(adData), {
-        pending: "광고 업로드 중...",
-        success: "광고가 성공적으로 업로드되었습니다!",
-        error: "광고 업로드에 실패했습니다.",
-      });
+    await toast.promise(uploadAd(adData), {
+      pending: "광고 업로드 중...",
+      success: "광고가 성공적으로 업로드되었습니다!",
+      error: "광고 업로드에 실패했습니다.",
+    });
 
-      // 성공 시 프리뷰 URL 정리
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    } catch (error) {
-      // 에러 처리는 toast.promise에서 처리됨
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
     }
   };
 
@@ -122,7 +117,6 @@ export const AdRegisterForm = ({
       setPreviewUrl(null);
     }
     setAdData((prev) => ({ ...prev, originalFile: null }));
-    // input 값도 초기화
     if (originalFileInputRef.current) {
       originalFileInputRef.current.value = "";
     }
@@ -130,7 +124,6 @@ export const AdRegisterForm = ({
 
   const removeBinaryFile = () => {
     setAdData((prev) => ({ ...prev, binaryFile: null }));
-    // input 값도 초기화
     if (binaryFileInputRef.current) {
       binaryFileInputRef.current.value = "";
     }
