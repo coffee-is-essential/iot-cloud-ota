@@ -204,7 +204,7 @@ export const AdRegisterForm = ({
                     이미지 선택
                   </span>
                   <span className="text-xs text-gray-500">
-                    .png .jpeg 파일 지원
+                    .png .jpg .jpeg 파일 지원
                   </span>
                 </div>
               </button>
