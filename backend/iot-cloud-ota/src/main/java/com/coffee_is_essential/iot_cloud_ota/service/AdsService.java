@@ -1,11 +1,12 @@
 package com.coffee_is_essential.iot_cloud_ota.service;
 
-import com.coffee_is_essential.iot_cloud_ota.domain.DeviceSummary;
 import com.coffee_is_essential.iot_cloud_ota.domain.PaginationInfo;
 import com.coffee_is_essential.iot_cloud_ota.domain.S3FileHashResult;
 import com.coffee_is_essential.iot_cloud_ota.dto.*;
+import com.coffee_is_essential.iot_cloud_ota.entity.ActiveDeviceInfo;
 import com.coffee_is_essential.iot_cloud_ota.entity.AdsMetadata;
 import com.coffee_is_essential.iot_cloud_ota.repository.AdsMetadataJpaRepository;
+import com.coffee_is_essential.iot_cloud_ota.repository.DeviceAdsJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdsService {
     private final AdsMetadataJpaRepository adsMetadataJpaRepository;
-    private final DeviceAdsService deviceAdsService;
+    private final DeviceAdsJpaRepository deviceAdsJpaRepository;
     private final S3Service s3Service;
     private final CloudFrontSignedUrlService cloudFrontSignedUrlService;
     private static final int TIMEOUT = 10;
@@ -99,13 +100,13 @@ public class AdsService {
     }
 
     /**
-     * 광고 메타데이터 ID로 상세 정보를 조회합니다.
-     * 존재하지 않는 ID에 대해 조회 시 404 예외 발생
-     * 조회된 광고 메타데이터에 대해 만료 시간이 설정된 서명된 URL 생성
-     * 해당 광고를 활성화한 디바이스들의 요약 정보 조회
+     * ID로 광고 메타데이터를 조회합니다.
+     * 광고 메타데이터가 존재하지 않으면 404 예외 발생
+     * 광고 메타데이터에 대한 Presigned 다운로드 URL 생성
+     * 해당 광고가 활성화된(endedAt이 NULL인) 디바이스 목록 조회
      *
      * @param id 광고 메타데이터 ID
-     * @return 광고 메타데이터 상세 정보와 활성화한 디바이스 요약 정보를 포함한 응답 DTO
+     * @return 광고 메타데이터 상세 정보와 활성화된 디바이스 목록을 담은 응답 DTO
      */
     public AdsDetailResponseDto findById(Long id) {
         AdsMetadata adsMetadata = adsMetadataJpaRepository.findByIdOrElseThrow(id);
@@ -116,7 +117,7 @@ public class AdsService {
                 cloudFrontSignedUrlService.generateSignedUrl(adsMetadata.getOriginalS3Path(), expiresAt)
         );
 
-        List<DeviceSummary> activeDevicesSummaryByAds = deviceAdsService.findActiveDevicesSummaryByAds(adsMetadata);
+        List<ActiveDeviceInfo> activeDevicesSummaryByAds = deviceAdsJpaRepository.findActiveDevicesByAdsId(adsMetadata.getId());
 
         return new AdsDetailResponseDto(adsMetadataResponseDto, activeDevicesSummaryByAds);
     }
