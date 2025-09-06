@@ -1,12 +1,17 @@
 package com.coffee_is_essential.iot_cloud_ota.controller;
 
 import com.coffee_is_essential.iot_cloud_ota.dto.*;
+import com.coffee_is_essential.iot_cloud_ota.service.CloudFrontSignedUrlService;
 import com.coffee_is_essential.iot_cloud_ota.service.S3Service;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
 
 /**
  * AWS S3 관련 요청을 처리하는 REST 컨트롤러 입니다.
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/s3")
 public class S3Controller {
     private final S3Service s3Service;
+    private final CloudFrontSignedUrlService cloudFrontSignedUrlService;
 
     /**
      * Presigned URL을 발급하여 클라이언트가 인증 없이 S3에 펌웨어 파일을 업로드할 수 있도록 합니다.
@@ -71,6 +77,15 @@ public class S3Controller {
             @RequestParam(required = true) String title
     ) {
         DownloadPresignedUrlResponseDto responseDto = s3Service.getAdsPresignedDownloadUrl(title);
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    @GetMapping("/ads/download")
+    public ResponseEntity<DownloadSignedUrlResponseDto> getSignedDownloadUrl(
+            @RequestParam(required = true) String title
+    ) {
+        DownloadSignedUrlResponseDto responseDto = cloudFrontSignedUrlService.generateAdsSignedUrl(title);
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }

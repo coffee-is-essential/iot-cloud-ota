@@ -27,7 +27,25 @@ public interface AdsMetadataJpaRepository extends JpaRepository<AdsMetadata, Lon
             """)
     Page<AdsMetadata> searchWithNullableKeyword(@Param("keyword") String keyword, Pageable pageable);
 
+    /**
+     * ID로 광고 메타데이터를 조회하고, 존재하지 않으면 404 예외를 발생시킵니다.
+     *
+     * @param id 광고 ID
+     * @return 조회된 광고 메타데이터
+     * @throws ResponseStatusException 광고가 존재하지 않을 경우 404 상태 코드와 함께 예외 발생
+     */
     default AdsMetadata findByIdOrElseThrow(Long id) {
         return findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ID '" + id + "'에 해당하는 광고가 존재하지 않습니다."));
+    }
+
+    /**
+     * 제목으로 광고 메타데이터를 조회하고, 존재하지 않으면 404 예외를 발생시킵니다.
+     *
+     * @param title 광고 제목
+     * @return 조회된 광고 메타데이터
+     * @throws ResponseStatusException 광고가 존재하지 않을 경우 404 상태 코드와 함께 예외 발생
+     */
+    default AdsMetadata findByTitleOrElseThrow(String title) {
+        return findByTitle(title).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제목 '" + title + "'에 해당하는 광고가 존재하지 않습니다."));
     }
 }

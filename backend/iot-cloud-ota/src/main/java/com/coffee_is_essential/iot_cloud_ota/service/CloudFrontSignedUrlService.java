@@ -1,6 +1,9 @@
 package com.coffee_is_essential.iot_cloud_ota.service;
 
 import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
+import com.coffee_is_essential.iot_cloud_ota.dto.DownloadSignedUrlResponseDto;
+import com.coffee_is_essential.iot_cloud_ota.entity.AdsMetadata;
+import com.coffee_is_essential.iot_cloud_ota.repository.AdsMetadataJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -13,6 +16,8 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRespon
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 
@@ -24,8 +29,10 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class CloudFrontSignedUrlService {
+    private final static int TIMEOUT = 10;
 
     private final SecretsManagerClient secretsManagerClient;
+    private final AdsMetadataJpaRepository adsMetadataJpaRepository;
 
     @Value("${cloudfront.key.id}")
     private String keyPairId;
@@ -89,5 +96,22 @@ public class CloudFrontSignedUrlService {
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
 
         return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
+    }
+
+
+    /**
+     * 광고 제목에 해당하는 광고의 원본 S3 경로에 대해 CloudFront Signed URL을 생성합니다.
+     * URL은 현재 시간으로부터 10분 동안 유효합니다.
+     *
+     * @param title 광고 제목
+     * @return 서명된 CloudFront URL을 담은 응답 DTO
+     * @throws ResponseStatusException 광고 제목이 존재하지 않거나 URL 생성 실패 시
+     */
+    public DownloadSignedUrlResponseDto generateAdsSignedUrl(String title) {
+        Date expiresAt = Date.from(Instant.now().plus(Duration.ofMinutes(TIMEOUT)));
+        AdsMetadata ads = adsMetadataJpaRepository.findByTitleOrElseThrow(title);
+        String signedUrl = generateSignedUrl(ads.getOriginalS3Path(), expiresAt);
+
+        return new DownloadSignedUrlResponseDto(signedUrl);
     }
 }

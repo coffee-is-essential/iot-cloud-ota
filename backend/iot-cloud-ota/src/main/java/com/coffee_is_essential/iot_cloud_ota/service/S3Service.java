@@ -55,21 +55,31 @@ public class S3Service {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 버전과 파일 이름의 펌웨어가 이미 존재합니다.");
         }
 
-        String path = createPath(version, fileName);
+        String path = UUID.randomUUID().toString();
         GeneratePresignedUrlRequest generatedPresignedUrlRequest = generatePresignedUploadUrl(bucketName, path);
         String url = amazonS3.generatePresignedUrl(generatedPresignedUrlRequest).toString();
 
         return new UploadPresignedUrlResponseDto(url, path);
     }
 
+    /**
+     * 광고 업로드를 위한 S3 Presigned URL을 생성합니다.
+     * 광고 제목이 이미 존재하면 400 에러 발생
+     * 원본 파일과 바이너리 파일 각각에 대해 UUID 기반의 고유 경로 생성
+     * 두 개의 Presigned URL 생성 후 DTO로 반환
+     *
+     * @param title 광고 제목
+     * @return 업로드용 Presigned URL을 포함한 응답 DTO
+     */
     @Transactional
     public AdsUploadPresignedUrlResponseDto getAdsPresignedUploadUrl(String title) {
         if (adsMetadataJpaRepository.findByTitle(title).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 제목의 광고가 이미 존재합니다.");
         }
 
-        String originalPath = createOriginalFilePath(title);
-        String binaryPath = createBinaryFilePath(title);
+        String originalPath = UUID.randomUUID().toString();
+        String binaryPath = UUID.randomUUID().toString();
+
         GeneratePresignedUrlRequest originUrlRequest = generatePresignedUploadUrl(bucketName, originalPath);
         GeneratePresignedUrlRequest binaryUrlRequest = generatePresignedUploadUrl(bucketName, binaryPath);
 
@@ -174,31 +184,6 @@ public class S3Service {
     }
 
     /**
-     * 파일버전, UUID, 파일명을 결합하여 S3 경로를 생성합니다.
-     *
-     * @param version  파일 버전
-     * @param fileName 파일 이름
-     * @return 결합된 경로 문자열 (예: "v1.0.0/uuid/firmware.zip")
-     */
-    private String createPath(String version, String fileName) {
-        String uuid = UUID.randomUUID().toString();
-
-        return String.format("%s/%s/%s", version, uuid, fileName);
-    }
-
-    private String createOriginalFilePath(String title) {
-        String uuid = UUID.randomUUID().toString();
-
-        return String.format("ads/origin/%s/%s", uuid, title);
-    }
-
-    private String createBinaryFilePath(String title) {
-        String uuid = UUID.randomUUID().toString();
-
-        return String.format("ads/binary/%s/%s", uuid, title);
-    }
-
-    /**
      * 지정된 S3 객체의 SHA-256 해시값과 파일 크기를 계산합니다.
      *
      * @param path S3 버킷 내 객체의 경로 (예: "folder/file.txt")
@@ -245,4 +230,5 @@ public class S3Service {
 
         return sb.toString();
     }
+
 }
