@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotBlank;
  * @param originalS3Path 원본 파일의 S3 경로
  * @param binaryS3Path   변환된 바이너리 파일의 S3 경로
  */
-public record AdvertisementMetadataRequestDto(
+public record AdsMetadataRequestDto(
         @NotBlank(message = "광고 제목은 비어있을 수 없습니다.")
         String title,
         @NotBlank(message = "설명은 비어있을 수 없습니다.")

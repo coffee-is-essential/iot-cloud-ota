@@ -9,8 +9,8 @@ import java.util.List;
  * @param items          광고 메타데이터 응답 DTO 리스트
  * @param paginationMeta 페이지네이션 메타데이터 (현재 페이지, 전체 페이지 수, 아이템 개수 등)
  */
-public record AdvertisementMetadataWithPageResponseDto(
-        List<AdvertisementMetadataResponseDto> items,
+public record AdsMetadataWithPageResponseDto(
+        List<AdsMetadataResponseDto> items,
         PaginationMetadataDto paginationMeta
 ) {
 }

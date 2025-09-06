@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
-@Table(name = "advertisement_metadata")
-public class AdvertisementMetadata extends BaseEntity {
+@Table(name = "ads_metadata")
+public class AdsMetadata extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,7 +32,7 @@ public class AdvertisementMetadata extends BaseEntity {
     @Column(nullable = false)
     private long fileSize;
 
-    public AdvertisementMetadata(String title, String description, String originalS3Path, String binaryS3Path, String fileHash, long fileSize) {
+    public AdsMetadata(String title, String description, String originalS3Path, String binaryS3Path, String fileHash, long fileSize) {
         this.title = title;
         this.description = description;
         this.originalS3Path = originalS3Path;

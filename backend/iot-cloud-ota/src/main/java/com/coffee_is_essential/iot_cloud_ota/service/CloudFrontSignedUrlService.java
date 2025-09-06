@@ -55,6 +55,7 @@ public class CloudFrontSignedUrlService {
                     expiresAt
             );
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CloudFront 서명 URL 생성 실패", e);
         }
     }

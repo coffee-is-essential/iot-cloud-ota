@@ -2,10 +2,11 @@ package com.coffee_is_essential.iot_cloud_ota.controller;
 
 
 import com.coffee_is_essential.iot_cloud_ota.domain.PaginationInfo;
-import com.coffee_is_essential.iot_cloud_ota.dto.AdvertisementMetadataRequestDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.AdvertisementMetadataWithPageResponseDto;
+import com.coffee_is_essential.iot_cloud_ota.dto.AdsDetailResponseDto;
+import com.coffee_is_essential.iot_cloud_ota.dto.AdsMetadataRequestDto;
+import com.coffee_is_essential.iot_cloud_ota.dto.AdsMetadataWithPageResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.SaveAdvertisementMetadataResponseDto;
-import com.coffee_is_essential.iot_cloud_ota.service.AdvertisementService;
+import com.coffee_is_essential.iot_cloud_ota.service.AdsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,8 +16,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/ads")
-public class AdvertisementController {
-    private final AdvertisementService advertisementService;
+public class AdsController {
+    private final AdsService adsService;
 
     /**
      * 광고 메타데이터를 저장합니다.
@@ -25,8 +26,8 @@ public class AdvertisementController {
      * @return 저장된 광고 메타데이터 응답 DTO
      */
     @PostMapping("/metadata")
-    public ResponseEntity<SaveAdvertisementMetadataResponseDto> saveAdvertisementMetadata(@Valid @RequestBody AdvertisementMetadataRequestDto requestDto) {
-        SaveAdvertisementMetadataResponseDto responseDto = advertisementService.saveAdvertisementMetadata(requestDto);
+    public ResponseEntity<SaveAdvertisementMetadataResponseDto> saveAdvertisementMetadata(@Valid @RequestBody AdsMetadataRequestDto requestDto) {
+        SaveAdvertisementMetadataResponseDto responseDto = adsService.saveAdvertisementMetadata(requestDto);
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
@@ -41,19 +42,26 @@ public class AdvertisementController {
      * @return 페이지네이션 정보와 광고 메타데이터 목록을 담은 응답 DTO
      */
     @GetMapping("/metadata")
-    public ResponseEntity<AdvertisementMetadataWithPageResponseDto> findAllWithPagination(
+    public ResponseEntity<AdsMetadataWithPageResponseDto> findAllWithPagination(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(required = false) String search
     ) {
         PaginationInfo paginationInfo = new PaginationInfo(page, limit, search);
-        AdvertisementMetadataWithPageResponseDto responseDto = advertisementService.findAllWithPagination(paginationInfo);
+        AdsMetadataWithPageResponseDto responseDto = adsService.findAllWithPagination(paginationInfo);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    @PostMapping("/metadata/{id}/deploy")
-    public ResponseEntity<Void> deploy(@PathVariable Long id) {
+    /**
+     * ID로 광고 메타데이터를 조회합니다.
+     *
+     * @param id 광고 메타데이터 ID
+     * @return 광고 메타데이터 상세 정보를 담은 응답 DTO
+     */
+    @GetMapping("/metadata/{id}")
+    public ResponseEntity<AdsDetailResponseDto> findById(@PathVariable Long id) {
+        AdsDetailResponseDto responseDto = adsService.findById(id);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 }

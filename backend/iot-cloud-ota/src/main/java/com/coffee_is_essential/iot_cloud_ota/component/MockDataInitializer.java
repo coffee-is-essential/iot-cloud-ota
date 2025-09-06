@@ -1,15 +1,14 @@
 //package com.coffee_is_essential.iot_cloud_ota.component;
 //
-//import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareMetadata;
-//import com.coffee_is_essential.iot_cloud_ota.entity.Division;
-//import com.coffee_is_essential.iot_cloud_ota.entity.Region;
-//import com.coffee_is_essential.iot_cloud_ota.repository.FirmwareMetadataJpaRepository;
-//import com.coffee_is_essential.iot_cloud_ota.repository.DivisionJpaRepository;
-//import com.coffee_is_essential.iot_cloud_ota.repository.RegionJpaRepository;
+//import com.coffee_is_essential.iot_cloud_ota.entity.*;
+//import com.coffee_is_essential.iot_cloud_ota.repository.*;
 //import com.coffee_is_essential.iot_cloud_ota.service.DeviceService;
 //import lombok.RequiredArgsConstructor;
 //import org.springframework.boot.CommandLineRunner;
 //import org.springframework.stereotype.Component;
+//
+//import java.time.OffsetDateTime;
+//import java.util.List;
 //
 ///**
 // * 애플리케이션 시작 시 테스트용 펌웨어 메타데이터를 DB에 삽입하는 컴포넌트입니다.
@@ -20,7 +19,11 @@
 //    private final FirmwareMetadataJpaRepository firmwareMetadataJpaRepository;
 //    private final RegionJpaRepository regionJpaRepository;
 //    private final DivisionJpaRepository divisionJpaRepository;
+//    private final FirmwareMetadataJpaRepository firmwareMetadataRepository;
+//    private final DeviceAdsJpaRepository deviceAdsJpaRepository;
 //    private final DeviceService deviceService;
+//    private final AdsMetadataJpaRepository adsMetadataJpaRepository;
+//    private final DeviceJpaRepository deviceJpaRepository;
 //
 //    @Override
 //    public void run(String... args) throws Exception {
@@ -28,6 +31,7 @@
 //        saveRegion();
 //        saveGroup();
 //        saveDevice();
+//        saveDeviceAds();
 //    }
 //
 //    private void saveFirmwareMetadata() {
@@ -72,5 +76,66 @@
 //        deviceService.saveDevice("bartooler-005", 3L, 3L);
 //        deviceService.saveDevice("bartooler-006", 3L, 3L);
 //        deviceService.saveDevice("bartooler-007", 3L, 3L);
+//    }
+//
+//    private void saveDeviceAds() {
+//        List<AdsMetadata> list = adsMetadataJpaRepository.findAll();
+//        Device device1 = deviceJpaRepository.findById(1L).get();
+//        Device device2 = deviceJpaRepository.findById(2L).get();
+//        List<DeviceAds> deviceAds = List.of(
+//                new DeviceAds(
+//                        device1,
+//                        list.get(1),
+//                        OffsetDateTime.now(),
+//                        null,
+//                        true
+//                ),
+//                new DeviceAds(
+//                        device1,
+//                        list.get(2),
+//                        OffsetDateTime.now(),
+//                        null,
+//                        true
+//                ),
+//                new DeviceAds(
+//                        device1,
+//                        list.get(3),
+//                        OffsetDateTime.now(),
+//                        null,
+//                        true
+//                ),
+//                new DeviceAds(
+//                        device1,
+//                        list.get(4),
+//                        OffsetDateTime.now(),
+//                        OffsetDateTime.now(),
+//                        false
+//                ),
+//
+//
+//                new DeviceAds(
+//                        device2,
+//                        list.get(2),
+//                        OffsetDateTime.now(),
+//                        null,
+//                        true
+//                ),
+//                new DeviceAds(
+//                        device2,
+//                        list.get(3),
+//                        OffsetDateTime.now(),
+//                        null,
+//                        true
+//                ),
+//                new DeviceAds(
+//                        device2,
+//                        list.get(4),
+//                        OffsetDateTime.now(),
+//                        null,
+//                        true
+//                )
+//        );
+//
+//        deviceAdsJpaRepository.saveAll(deviceAds);
 //    }
 //}

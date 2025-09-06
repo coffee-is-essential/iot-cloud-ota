@@ -1,6 +1,6 @@
 package com.coffee_is_essential.iot_cloud_ota.dto;
 
-import com.coffee_is_essential.iot_cloud_ota.entity.AdvertisementMetadata;
+import com.coffee_is_essential.iot_cloud_ota.entity.AdsMetadata;
 
 import java.time.OffsetDateTime;
 
@@ -15,7 +15,7 @@ import java.time.OffsetDateTime;
  * @param createdAt        생성 시각
  * @param modifiedAt       수정 시각
  */
-public record AdvertisementMetadataResponseDto(
+public record AdsMetadataResponseDto(
         Long id,
         String title,
         String description,
@@ -23,14 +23,14 @@ public record AdvertisementMetadataResponseDto(
         OffsetDateTime createdAt,
         OffsetDateTime modifiedAt
 ) {
-    public static AdvertisementMetadataResponseDto from(AdvertisementMetadata advertisementMetadata, String originalSignedUrl) {
-        return new AdvertisementMetadataResponseDto(
-                advertisementMetadata.getId(),
-                advertisementMetadata.getTitle(),
-                advertisementMetadata.getDescription(),
+    public static AdsMetadataResponseDto from(AdsMetadata adsMetadata, String originalSignedUrl) {
+        return new AdsMetadataResponseDto(
+                adsMetadata.getId(),
+                adsMetadata.getTitle(),
+                adsMetadata.getDescription(),
                 originalSignedUrl,
-                advertisementMetadata.getCreatedAt(),
-                advertisementMetadata.getModifiedAt()
+                adsMetadata.getCreatedAt(),
+                adsMetadata.getModifiedAt()
         );
     }
 }

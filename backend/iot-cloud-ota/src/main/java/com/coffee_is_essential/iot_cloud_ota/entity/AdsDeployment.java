@@ -23,6 +23,6 @@ public class AdsDeployment extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "advertisement_id", nullable = false)
-    AdvertisementMetadata advertisementMetadata;
+    AdsMetadata adsMetadata;
 
 }

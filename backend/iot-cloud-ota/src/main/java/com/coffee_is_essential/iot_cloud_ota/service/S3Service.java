@@ -9,9 +9,9 @@ import com.coffee_is_essential.iot_cloud_ota.domain.S3FileHashResult;
 import com.coffee_is_essential.iot_cloud_ota.dto.AdsUploadPresignedUrlResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.DownloadPresignedUrlResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.UploadPresignedUrlResponseDto;
-import com.coffee_is_essential.iot_cloud_ota.entity.AdvertisementMetadata;
+import com.coffee_is_essential.iot_cloud_ota.entity.AdsMetadata;
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareMetadata;
-import com.coffee_is_essential.iot_cloud_ota.repository.AdvertisementMetadataJpaRepository;
+import com.coffee_is_essential.iot_cloud_ota.repository.AdsMetadataJpaRepository;
 import com.coffee_is_essential.iot_cloud_ota.repository.FirmwareMetadataJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +40,7 @@ public class S3Service {
 
     private final AmazonS3 amazonS3;
     private final FirmwareMetadataJpaRepository firmwareMetadataJpaRepository;
-    private final AdvertisementMetadataJpaRepository advertisementMetadataJpaRepository;
+    private final AdsMetadataJpaRepository adsMetadataJpaRepository;
 
     /**
      * 지정한 버전과 파일 이름을 기반으로 S3에 업로드할 수 있는 Presigned URL을 생성합니다.
@@ -64,7 +64,7 @@ public class S3Service {
 
     @Transactional
     public AdsUploadPresignedUrlResponseDto getAdsPresignedUploadUrl(String title) {
-        if (advertisementMetadataJpaRepository.findByTitle(title).isPresent()) {
+        if (adsMetadataJpaRepository.findByTitle(title).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 제목의 광고가 이미 존재합니다.");
         }
 
@@ -130,7 +130,7 @@ public class S3Service {
      */
     @Transactional
     public DownloadPresignedUrlResponseDto getAdsPresignedDownloadUrl(String title) {
-        Optional<AdvertisementMetadata> findAds = advertisementMetadataJpaRepository.findByTitle(title);
+        Optional<AdsMetadata> findAds = adsMetadataJpaRepository.findByTitle(title);
 
         if (findAds.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 광고 정보를 찾을 수 없습니다.");

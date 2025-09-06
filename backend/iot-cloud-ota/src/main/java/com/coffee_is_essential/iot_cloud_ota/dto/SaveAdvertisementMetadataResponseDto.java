@@ -1,6 +1,6 @@
 package com.coffee_is_essential.iot_cloud_ota.dto;
 
-import com.coffee_is_essential.iot_cloud_ota.entity.AdvertisementMetadata;
+import com.coffee_is_essential.iot_cloud_ota.entity.AdsMetadata;
 
 import java.time.OffsetDateTime;
 
@@ -20,13 +20,13 @@ public record SaveAdvertisementMetadataResponseDto(
         OffsetDateTime createdAt,
         OffsetDateTime modifiedAt
 ) {
-    public static SaveAdvertisementMetadataResponseDto from(AdvertisementMetadata advertisementMetadata) {
+    public static SaveAdvertisementMetadataResponseDto from(AdsMetadata adsMetadata) {
         return new SaveAdvertisementMetadataResponseDto(
-                advertisementMetadata.getId(),
-                advertisementMetadata.getTitle(),
-                advertisementMetadata.getDescription(),
-                advertisementMetadata.getCreatedAt(),
-                advertisementMetadata.getModifiedAt()
+                adsMetadata.getId(),
+                adsMetadata.getTitle(),
+                adsMetadata.getDescription(),
+                adsMetadata.getCreatedAt(),
+                adsMetadata.getModifiedAt()
         );
     }
 }
