@@ -85,7 +85,7 @@ public class AdsService {
         );
 
         List<AdsMetadataResponseDto> ads = findAds.getContent().stream()
-                .map(ad -> AdsMetadataResponseDto.from(ad, s3Service.getAdsPresignedDownloadUrl(ad.getTitle()).url()))
+                .map(ad -> AdsMetadataResponseDto.from(ad, cloudFrontSignedUrlService.generateAdsSignedUrl(ad.getTitle()).url()))
                 .toList();
 
         PaginationMetadataDto metadataDto = new PaginationMetadataDto(

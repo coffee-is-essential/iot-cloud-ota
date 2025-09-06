@@ -33,23 +33,6 @@ public class S3Controller {
     }
 
     /**
-     * 주어진 버전과 파일 이름에 해당하는 펌웨어 파일의 S3 Presigned 다운로드 URL을 반환합니다.
-     *
-     * @param version  다운로드할 펌웨어의 버전 (예: "v1.0.0")
-     * @param fileName 다운로드할 펌웨어의 파일 이름 (예: "firmware.bin")
-     * @return 다운로드 가능한 S3 Presigned URL을 담은 응답 DTO
-     */
-    @GetMapping("/presigned_download")
-    public ResponseEntity<DownloadPresignedUrlResponseDto> getPresignedDownloadUrl(
-            @RequestParam(required = true) String version,
-            @RequestParam(required = true) String fileName
-    ) {
-        DownloadPresignedUrlResponseDto responseDto = s3Service.getPresignedDownloadUrl(version, fileName);
-
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
-    }
-
-    /**
      * 광고 업로드를 위한 S3 Presigned URL을 생성합니다.
      *
      * @param requestDto 업로드할 광고의 제목 정보를 담은 요청 DTO
@@ -58,21 +41,6 @@ public class S3Controller {
     @PostMapping("/ads/presigned_upload")
     public ResponseEntity<AdsUploadPresignedUrlResponseDto> getAdsPresignedUploadUrl(@Valid @RequestBody AdsPresignedUrlRequestDto requestDto) {
         AdsUploadPresignedUrlResponseDto responseDto = s3Service.getAdsPresignedUploadUrl(requestDto.title());
-
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
-    }
-
-    /**
-     * 광고 파일 다운로드를 위한 S3 Presigned URL을 반환합니다.
-     *
-     * @param title 광고 제목
-     * @return Presigned URL을 담은 응답 DTO
-     */
-    @GetMapping("/ads/presigned_download")
-    public ResponseEntity<DownloadPresignedUrlResponseDto> getPresignedDownloadUrl(
-            @RequestParam(required = true) String title
-    ) {
-        DownloadPresignedUrlResponseDto responseDto = s3Service.getAdsPresignedDownloadUrl(title);
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
