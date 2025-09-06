@@ -6,5 +6,5 @@ export interface Device {
   deviceName: string;
   regionName: string;
   groupName: string;
-  isActive: boolean;
+  isActive?: boolean;
 }

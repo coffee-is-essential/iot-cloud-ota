@@ -25,10 +25,10 @@ type Config struct {
 func NewConfig() *Config {
 	conf := new(Config)
 
-	conf.Server.Port = getEnv("SERVER_PORT", ":8080")
-	conf.MqttBroker.Url = getEnv("MQTT_BROKER_URL", "tcp://localhost:1883")
-	conf.MqttBroker.ClientId = getEnv("MQTT_CLIENT_ID", "mqtt-handler")
-	conf.QuestDB.Conf = getEnv("QUESTDB_CONF", "http::addr=localhost:9000")
+	conf.Server.Port = getEnv("SERVER_PORT", ":8000")
+	conf.MqttBroker.Url = getEnv("MQTT_BROKER_URL", "tcp://emqx-nlb-bfefab8efb8db52f.elb.ap-northeast-2.amazonaws.com:1883")
+	conf.MqttBroker.ClientId = getEnv("MQTT_CLIENT_ID", "mqtt-handler-junwoo")
+	conf.QuestDB.Conf = getEnv("QUESTDB_CONF", "http::addr=localhost:19000")
 
 	return conf
 }

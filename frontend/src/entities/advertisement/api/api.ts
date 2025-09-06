@@ -1,6 +1,6 @@
 import { apiClient } from "../../../shared/api/client";
 import { PaginatedApiResponse } from "../../../shared/api/types";
-import { Ad, PaginatedAds } from "../model/types";
+import { Ad, AdDetails, PaginatedAds } from "../model/types";
 
 /**
  * 광고 관련 API 요청을 처리하는 서비스
@@ -40,6 +40,26 @@ export const adApiService = {
         modifiedAt: new Date(item.modifiedAt),
       })),
       paginationMeta: data.paginationMeta,
+    };
+  },
+
+  /**
+   * 특정 ID의 광고 정보를 조회합니다.
+   * @async
+   * @param {number} id - 조회할 광고의 고유 ID
+   * @returns {Promise<AdDetails>} - 해당 광고 정보와 관련된 기기 목록을 반환합니다.
+   * @example
+   * const adDetails = await adApiService.getAd(1);
+   */
+  getAdDetail: async (id: number): Promise<AdDetails> => {
+    const { data } = await apiClient.get<AdDetails>(`/api/ads/metadata/${id}`);
+    return {
+      adsMetadata: {
+        ...data.adsMetadata,
+        createdAt: new Date(data.adsMetadata.createdAt),
+        modifiedAt: new Date(data.adsMetadata.modifiedAt),
+      },
+      devices: data.devices,
     };
   },
 };

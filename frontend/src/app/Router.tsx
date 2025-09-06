@@ -8,6 +8,7 @@ import { FirmwareDetailPage } from "../pages/FirmwareDetailPage";
 import { DevicePage } from "../pages/DevicePage";
 import { FirmwareDeploymentPage } from "../pages/FirmwareDeploymentPage";
 import { FirmwareDeploymentDetailPage } from "../pages/FirmwareDeploymentDetailPage";
+import { AdDetailPage } from "../pages/AdDetailPage";
 
 export const Router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ export const Router = createBrowserRouter([
       },
       { path: "device", element: <DevicePage /> },
       { path: "ads", element: <AdListPage /> },
+      { path: "ads/:id", element: <AdDetailPage /> },
       { path: "monitoring", element: <MonitoringPage /> },
     ],
   },
