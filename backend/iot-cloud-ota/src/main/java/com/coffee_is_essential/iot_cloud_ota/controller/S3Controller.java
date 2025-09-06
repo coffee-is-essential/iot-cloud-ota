@@ -9,10 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
-
 /**
  * AWS S3 관련 요청을 처리하는 REST 컨트롤러 입니다.
  */
@@ -81,11 +77,34 @@ public class S3Controller {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
+    /**
+     * 광고 파일 다운로드를 위한 CloudFront 서명된 URL을 반환합니다.
+     *
+     * @param title 광고 제목
+     * @return 서명된 URL을 담은 응답 DTO
+     */
     @GetMapping("/ads/download")
-    public ResponseEntity<DownloadSignedUrlResponseDto> getSignedDownloadUrl(
+    public ResponseEntity<DownloadSignedUrlResponseDto> getAdsSignedDownloadUrl(
             @RequestParam(required = true) String title
     ) {
         DownloadSignedUrlResponseDto responseDto = cloudFrontSignedUrlService.generateAdsSignedUrl(title);
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    /**
+     * 펌웨어 파일 다운로드를 위한 CloudFront 서명된 URL을 반환합니다.
+     *
+     * @param version  펌웨어 버전
+     * @param fileName 펌웨어 파일 이름
+     * @return 서명된 URL을 담은 응답 DTO
+     */
+    @GetMapping("/firmware/download")
+    public ResponseEntity<DownloadSignedUrlResponseDto> getFirmwareSignedDownloadUrl(
+            @RequestParam(required = true) String version,
+            @RequestParam(required = true) String fileName
+    ) {
+        DownloadSignedUrlResponseDto responseDto = cloudFrontSignedUrlService.generateFirmwareSignedUrl(version, fileName);
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }

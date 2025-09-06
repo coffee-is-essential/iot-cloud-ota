@@ -3,7 +3,9 @@ package com.coffee_is_essential.iot_cloud_ota.service;
 import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
 import com.coffee_is_essential.iot_cloud_ota.dto.DownloadSignedUrlResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.entity.AdsMetadata;
+import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareMetadata;
 import com.coffee_is_essential.iot_cloud_ota.repository.AdsMetadataJpaRepository;
+import com.coffee_is_essential.iot_cloud_ota.repository.FirmwareMetadataJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -33,6 +35,7 @@ public class CloudFrontSignedUrlService {
 
     private final SecretsManagerClient secretsManagerClient;
     private final AdsMetadataJpaRepository adsMetadataJpaRepository;
+    private final FirmwareMetadataJpaRepository firmwareMetadataJpaRepository;
 
     @Value("${cloudfront.key.id}")
     private String keyPairId;
@@ -111,6 +114,23 @@ public class CloudFrontSignedUrlService {
         Date expiresAt = Date.from(Instant.now().plus(Duration.ofMinutes(TIMEOUT)));
         AdsMetadata ads = adsMetadataJpaRepository.findByTitleOrElseThrow(title);
         String signedUrl = generateSignedUrl(ads.getOriginalS3Path(), expiresAt);
+
+        return new DownloadSignedUrlResponseDto(signedUrl);
+    }
+
+    /**
+     * 펌웨어 버전과 파일 이름에 해당하는 펌웨어의 S3 경로에 대해 CloudFront Signed URL을 생성합니다.
+     * URL은 현재 시간으로부터 10분 동안 유효합니다.
+     *
+     * @param version  펌웨어 버전
+     * @param fileName 펌웨어 파일 이름
+     * @return 서명된 CloudFront URL을 담은 응답 DTO
+     * @throws ResponseStatusException 펌웨어 버전 또는 파일 이름이 존재하지 않거나 URL 생성 실패 시
+     */
+    public DownloadSignedUrlResponseDto generateFirmwareSignedUrl(String version, String fileName) {
+        Date expiresAt = Date.from(Instant.now().plus(Duration.ofMinutes(TIMEOUT)));
+        FirmwareMetadata metadata = firmwareMetadataJpaRepository.findByVersionAndFileNameOrElseThrow(version, fileName);
+        String signedUrl = generateSignedUrl(metadata.getS3Path(), expiresAt);
 
         return new DownloadSignedUrlResponseDto(signedUrl);
     }

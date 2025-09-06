@@ -36,6 +36,19 @@ public interface FirmwareMetadataJpaRepository extends JpaRepository<FirmwareMet
     Optional<FirmwareMetadata> findByVersionAndFileName(String version, String fileName);
 
     /**
+     * 주어진 버전과 파일 이름에 해당하는 펌웨어 메타데이터를 조회합니다.
+     * 존재하지 않을 경우 404 NOT_FOUND 예외를 발생시킵니다.
+     *
+     * @param version  펌웨어 버전
+     * @param fileName 펌웨어 파일 이름
+     * @return 조회된 {@link FirmwareMetadata} 엔티티
+     */
+    default FirmwareMetadata findByVersionAndFileNameOrElseThrow(String version, String fileName) {
+        return findByVersionAndFileName(version, fileName)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "[Version: " + version + ", FileName: " + fileName + "] 펌웨어를 찾을 수 없습니다."));
+    }
+
+    /**
      * 지정된 S3 경로에 해당하는 펌웨어 메타데이터가 이미 존재하는지 확인합니다.
      *
      * @param s3Path 확인할 S3 경로
