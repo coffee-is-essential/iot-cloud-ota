@@ -1,0 +1,15 @@
+apiVersion: 1
+
+datasources:
+  - name: QuestDB
+    type: questdb-questdb-datasource
+    jsonData:
+      server: ${QUESTDB_URL}
+      port: ${QUESTDB_PORT}
+      username: ${QUESTDB_USER}
+      tlsMode: disable
+      maxOpenConnections: 100
+      maxIdleConnections: 100
+      maxConnectionLifetime: 14400
+    secureJsonData:
+      password: ${QUESTDB_PASSWORD}
