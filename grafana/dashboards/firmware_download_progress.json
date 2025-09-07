@@ -88,7 +88,7 @@
         "namePlacement": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [],
+          "calcs": ["mean"],
           "fields": "/^progress$/",
           "values": false
         },
@@ -113,7 +113,7 @@
             }
           },
           "queryType": "sql",
-          "rawSql": "SELECT\n  progress\nFROM\n  download_events\nWHERE\n  command_id = '${command_id}' AND device_id = '${device_id}' AND status = 'IN_PROGRESS'\nLATEST ON timestamp PARTITION BY device_id;",
+          "rawSql": "SELECT progress FROM download_events WHERE command_id = '${command_id}' AND device_id IN (${device_id:csv}) AND status = 'IN_PROGRESS' LATEST ON timestamp PARTITION BY device_id;",
           "refId": "A",
           "selectedFormat": 2
         }
@@ -144,11 +144,14 @@
       },
       {
         "current": {
-          "text": "1",
-          "value": "1"
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
         },
         "definition": "SELECT DISTINCT device_id FROM download_events WHERE command_id = '${command_id}';",
         "description": "",
+        "includeAll": true,
+        "multi": true,
         "name": "device_id",
         "options": [],
         "query": "SELECT DISTINCT device_id FROM download_events WHERE command_id = '${command_id}';",
@@ -169,3 +172,4 @@
   "uid": "659f92f9-5f7c-48b9-9e86-8ae7ed59ca1c",
   "version": 6
 }
+
