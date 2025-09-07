@@ -35,7 +35,7 @@
 | `DEVICE_ID`           | 시뮬레이션된 디바이스의 고유 식별자입니다.      | `1`                  |
 | `BROKER_URL`          | MQTT 브로커의 URL입니다.                        | `test.mosquitto.org` |
 | `BROKER_PORT`         | MQTT 브로커의 포트입니다.                       | `1883`               |
-| `DOWNLOAD_CHUNK_SIZE` | 펌웨어 다운로드를 위한 청크 크기(바이트)입니다. | `1024` (1KB)         |
+| `DOWNLOAD_CHUNK_SIZE` | 펌웨어 다운로드를 위한 청크 크기(바이트)입니다. | `10240` (10KB)       |
 
 **예시:**
 
@@ -72,15 +72,15 @@ python main.py
   {
     "command_id": "550e8400-e29b-41d4-a716-446655440000",
     "content": {
-        "signed_url": {
-              "url": "https://firmware.example.com/v1.2.3.bin?token=...",
-              "timeout": 10
-          },
-          "file_info": {
-              "id": 18,
-              "file_hash": "abcd1234...",
-              "size": 1048576
-          }
+      "signed_url": {
+        "url": "https://firmware.example.com/v1.2.3.bin?token=...",
+        "timeout": 10
+      },
+      "file_info": {
+        "id": 18,
+        "file_hash": "abcd1234...",
+        "size": 1048576
+      }
     },
     "timestamp": "2025-07-03T10:30:45Z"
   }

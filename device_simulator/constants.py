@@ -1,6 +1,6 @@
 from enum import Enum
 
-DEFAULT_DOWNLOAD_CHUNK_SIZE = 1024  # 1KB
+DEFAULT_DOWNLOAD_CHUNK_SIZE = 1024 * 10  # 10KB
 
 # MQTT Topics
 BASE_TOPIC = "v1/{device_id}"
