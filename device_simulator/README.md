@@ -65,17 +65,24 @@ python main.py
 
 서버가 이 토픽으로 메시지를 보내 디바이스에 새 펌웨어 버전을 다운로드하도록 명령합니다.
 
-- **토픽**: `v1/{device_id}/firmware/download/request`
+- **토픽**: `v1/{device_id}/update/request/firmware`
 - **페이로드 (JSON)**:
 
   ```json
   {
-    "command_id": "cmd-12345",
-    "signed_url": "https://your-s3-bucket.s3.amazonaws.com/firmware.bin?AWSAccessKeyId=...",
-    "version": "1.1.0",
-    "checksum": "sha256:f2ca1bb6c7e907d06dafe4687e579fce76b37e4e93b7605022da52e6ccc26fd2",
-    "size": 1048576,
-    "timeout": 600
+    "command_id": "550e8400-e29b-41d4-a716-446655440000",
+    "content": {
+        "signed_url": {
+              "url": "https://firmware.example.com/v1.2.3.bin?token=...",
+              "timeout": 10
+          },
+          "file_info": {
+              "id": 18,
+              "file_hash": "abcd1234...",
+              "size": 1048576
+          }
+    },
+    "timestamp": "2025-07-03T10:30:45Z"
   }
   ```
 
@@ -83,15 +90,14 @@ python main.py
 
 다운로드 요청을 받은 후 디바이스가 승인을 보냅니다.
 
-- **토픽**: `v1/{device_id}/firmware/download/request/ack`
+- **토픽**: `v1/{device_id}/update/request/ack`
 - **페이로드 (JSON)**:
 
   ```json
   {
-    "command_id": "cmd-12345",
+    "command_id": "550e8400-e29b-41d4-a716-446655440000",
     "status": "ACKNOWLEDGED",
-    "message": "펌웨어 다운로드 요청을 수신했습니다",
-    "timestamp": "2023-10-27T10:00:00Z"
+    "timestamp": "2025-07-03T10:30:46Z"
   }
   ```
 
@@ -99,18 +105,17 @@ python main.py
 
 다운로드 중에 디바이스가 주기적으로 진행 상황 업데이트를 보냅니다.
 
-- **토픽**: `v1/{device_id}/firmware/download/progress`
+- **토픽**: `v1/{device_id}/update/progress`
 - **페이로드 (JSON)**:
 
   ```json
   {
-    "command_id": "cmd-12345",
-    "progress": 50,
-    "downloaded_bytes": 524288,
+    "command_id": "550e8400-e29b-41d4-a716-446655440000",
+    "progress": 65,
+    "downloaded_bytes": 681574,
     "total_bytes": 1048576,
-    "speed_kbps": 512.5,
-    "eta_seconds": 1,
-    "timestamp": "2023-10-27T10:00:05Z"
+    "speed_kbps": 256,
+    "timestamp": "2025-07-03T10:31:20Z"
   }
   ```
 
@@ -118,16 +123,16 @@ python main.py
 
 다운로드가 완료된 후 (또는 실패한 후) 디바이스가 최종 결과를 보냅니다.
 
-- **토픽**: `v1/{device_id}/firmware/download/result`
+- **토픽**: `v1/{device_id}/update/result`
 - **페이로드 (JSON)**:
 
   ```json
   {
-    "command_id": "cmd-12345",
-    "status": "SUCCESS", // SUCCESS, FAILED, CANCELLED, TIMEOUT
-    "message": "다운로드가 성공적으로 완료되었습니다",
+    "command_id": "550e8400-e29b-41d4-a716-446655440000",
+    "status": "SUCCESS|ERROR|TIMEOUT",
+    "message": "Download completed successfully",
     "checksum_verified": true,
-    "download_time": 10.5,
-    "timestamp": "2023-10-27T10:00:10Z"
+    "download_seconds": 180,
+    "timestamp": "2025-07-03T10:33:45Z"
   }
   ```

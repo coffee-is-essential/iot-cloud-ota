@@ -20,15 +20,10 @@ class FirmwareDownloadRequest:
 
     command_id: str
     signed_url: str
-    version: str
     checksum: str
     size: int
-    timeout: int = 300  # 기본 타임아웃 300초
-    timestamp: str = dataclasses.field(
-        default_factory=lambda: datetime.now(timezone.utc)
-        .isoformat()
-        .replace("+00:00", "Z")
-    )
+    timeout: int
+    timestamp: str
 
 
 @dataclasses.dataclass
@@ -106,7 +101,18 @@ class FirmwareManager:
         logger.info("Received firmware download request on topic '%s'", topic)
         try:
             data = json.loads(payload)
-            download_request = FirmwareDownloadRequest(**data)
+            content = data["content"]
+            signed_url_info = content["signed_url"]
+            file_info = content["file_info"]
+
+            download_request = FirmwareDownloadRequest(
+                command_id=data["command_id"],
+                signed_url=signed_url_info["url"],
+                checksum=file_info["file_hash"],
+                size=file_info["size"],
+                timeout=signed_url_info["timeout"],
+                timestamp=data["timestamp"],
+            )
         except (json.JSONDecodeError, TypeError, KeyError) as e:
             logger.info("Invalid download request payload: %s", e)
             return
