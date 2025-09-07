@@ -1,18 +1,24 @@
 from enum import Enum
 
-DEFAULT_DOWNLOAD_CHUNK_SIZE = 1024 * 100  # 100KB
+DEFAULT_DOWNLOAD_CHUNK_SIZE = 1024  # 1KB
+
+# MQTT Topics
+BASE_TOPIC = "v1/{device_id}"
+FIRMWARE_DOWNLOAD_REQUEST_TOPIC = BASE_TOPIC + "/update/request/firmware"
+FIRMWARE_DOWNLOAD_ACK_TOPIC = BASE_TOPIC + "/update/request/ack"
+FIRMWARE_DOWNLOAD_PROGRESS_TOPIC = BASE_TOPIC + "/update/progress"
+FIRMWARE_DOWNLOAD_RESULT_TOPIC = BASE_TOPIC + "/update/result"
+
+# Firmware
+FIRMWARE_VERSION = "1.0.0"
+DOWNLOAD_PATH = "downloads"
 
 
 class RequestStatus(Enum):
-    """펌웨어 다운로드 요청 상태"""
-
     ACKNOWLEDGED = "ACKNOWLEDGED"
 
 
 class ResultStatus(Enum):
-    """펌웨어 다운로드 결과 상태"""
-
     SUCCESS = "SUCCESS"
-    FAILED = "FAILED"
-    CANCELLED = "CANCELLED"
+    FAILED = "ERROR"
     TIMEOUT = "TIMEOUT"

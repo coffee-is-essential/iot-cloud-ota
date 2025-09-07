@@ -6,6 +6,7 @@ import threading
 import time
 from datetime import datetime, timezone
 
+import constants
 import http_client as http
 import mqtt_client as mqtt
 from constants import RequestStatus, ResultStatus
@@ -15,12 +16,59 @@ logger = logging.getLogger(__name__)
 
 @dataclasses.dataclass
 class FirmwareDownloadRequest:
+    """펌웨어 다운로드 요청 메시지 스키마 (Subscribe)"""
+
     command_id: str
     signed_url: str
     version: str
     checksum: str
     size: int
     timeout: int = 300  # 기본 타임아웃 300초
+    timestamp: str = dataclasses.field(
+        default_factory=lambda: datetime.now(timezone.utc)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
+
+
+@dataclasses.dataclass
+class FirmwareDownloadAck:
+    """펌웨어 다운로드 요청 ACK 메시지 스키마 (Publish)"""
+
+    command_id: str
+    status: str
+    timestamp: str = dataclasses.field(
+        default_factory=lambda: datetime.now(timezone.utc)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
+
+
+@dataclasses.dataclass
+class FirmwareDownloadProgress:
+    """펌웨어 다운로드 진행 상태 메시지 스키마 (Publish)"""
+
+    command_id: str
+    progress: int
+    downloaded_bytes: int
+    total_bytes: int
+    speed_kbps: float
+    timestamp: str = dataclasses.field(
+        default_factory=lambda: datetime.now(timezone.utc)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
+
+
+@dataclasses.dataclass
+class FirmwareDownloadResult:
+    """펌웨어 다운로드 결과 메시지 스키마 (Publish)"""
+
+    command_id: str
+    status: str
+    message: str
+    checksum_verified: bool
+    download_seconds: float
     timestamp: str = dataclasses.field(
         default_factory=lambda: datetime.now(timezone.utc)
         .isoformat()
@@ -82,14 +130,14 @@ class FirmwareManager:
 
     def _send_ack(self, command_id: str) -> None:
         """펌웨어 다운로드 요청에 대한 ACK 메시지를 MQTT로 발행합니다."""
-        topic = f"v1/{self._device_id}/firmware/download/request/ack"
-        payload = {
-            "command_id": command_id,
-            "status": RequestStatus.ACKNOWLEDGED.value,
-            "message": "Firmware download request received",
-            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-        }
-        self._mqtt_client.publish(topic, json.dumps(payload))
+        ack_message = FirmwareDownloadAck(
+            command_id=command_id,
+            status=RequestStatus.ACKNOWLEDGED.value,
+        )
+        self._mqtt_client.publish(
+            constants.FIRMWARE_DOWNLOAD_ACK_TOPIC.format(device_id=self._device_id),
+            json.dumps(dataclasses.asdict(ack_message)),
+        )
 
     def _send_progress(
         self,
@@ -116,21 +164,23 @@ class FirmwareManager:
         elapsed_time = time.time() - start_time
         speed_bps = (downloaded_bytes / elapsed_time) if elapsed_time > 0 else 0
         speed_kbps = speed_bps / 1024
-        eta_seconds = (
-            ((total_bytes - downloaded_bytes) / speed_bps) if speed_bps > 0 else 0
-        )
+        # eta_seconds = (
+        #     ((total_bytes - downloaded_bytes) / speed_bps) if speed_bps > 0 else 0
+        # )
 
-        topic = f"v1/{self._device_id}/firmware/download/progress"
-        payload = {
-            "command_id": command_id,
-            "progress": progress,
-            "downloaded_bytes": downloaded_bytes,
-            "total_bytes": total_bytes,
-            "speed_kbps": round(speed_kbps, 2),
-            "eta_seconds": int(eta_seconds),
-            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-        }
-        self._mqtt_client.publish(topic, json.dumps(payload))
+        progress_message = FirmwareDownloadProgress(
+            command_id=command_id,
+            progress=progress,
+            downloaded_bytes=downloaded_bytes,
+            total_bytes=total_bytes,
+            speed_kbps=round(speed_kbps, 2),
+        )
+        self._mqtt_client.publish(
+            constants.FIRMWARE_DOWNLOAD_PROGRESS_TOPIC.format(
+                device_id=self._device_id
+            ),
+            json.dumps(dataclasses.asdict(progress_message)),
+        )
 
     def _send_result(
         self,
@@ -138,7 +188,7 @@ class FirmwareManager:
         status: ResultStatus,
         message: str,
         checksum_verified: bool,
-        download_time: float,
+        download_seconds: float,
     ) -> None:
         """펌웨어 다운로드 최종 결과를 MQTT로 발행합니다.
 
@@ -147,18 +197,19 @@ class FirmwareManager:
             status: 다운로드 상태 ("success", "failed", "timeout" 등).
             message: 상태에 대한 상세 메시지.
             checksum_verified: 체크섬 검증 결과 (True/False).
-            download_time: 다운로드에 소요된 시간 (초).
+            download_seconds: 다운로드에 소요된 시간 (초).
         """
-        topic = f"v1/{self._device_id}/firmware/download/result"
-        payload = {
-            "command_id": command_id,
-            "status": status.value,
-            "message": message,
-            "checksum_verified": checksum_verified,
-            "download_time": round(download_time, 2),
-            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-        }
-        self._mqtt_client.publish(topic, json.dumps(payload))
+        result_message = FirmwareDownloadResult(
+            command_id=command_id,
+            status=status.value,
+            message=message,
+            checksum_verified=checksum_verified,
+            download_seconds=download_seconds,
+        )
+        self._mqtt_client.publish(
+            constants.FIRMWARE_DOWNLOAD_RESULT_TOPIC.format(device_id=self._device_id),
+            json.dumps(dataclasses.asdict(result_message)),
+        )
 
     def _verify_checksum(
         self,
@@ -250,11 +301,11 @@ class FirmwareManager:
             message = f"An unexpected error occurred: {e}"
         finally:
             # 성공, 실패, 타임아웃 등 모든 경우에 마지막에 한번만 결과 전송
-            download_time = time.time() - start_time
+            download_seconds = time.time() - start_time
             self._send_result(
                 download_request.command_id,
                 status,
                 message,
                 checksum_verified,
-                download_time,
+                download_seconds,
             )

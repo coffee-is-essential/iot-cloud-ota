@@ -35,7 +35,7 @@
 | `DEVICE_ID`           | 시뮬레이션된 디바이스의 고유 식별자입니다.      | `1`                  |
 | `BROKER_URL`          | MQTT 브로커의 URL입니다.                        | `test.mosquitto.org` |
 | `BROKER_PORT`         | MQTT 브로커의 포트입니다.                       | `1883`               |
-| `DOWNLOAD_CHUNK_SIZE` | 펌웨어 다운로드를 위한 청크 크기(바이트)입니다. | `102400` (100KB)     |
+| `DOWNLOAD_CHUNK_SIZE` | 펌웨어 다운로드를 위한 청크 크기(바이트)입니다. | `1024` (1KB)         |
 
 **예시:**
 
