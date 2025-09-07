@@ -85,11 +85,10 @@ func (m *MQTTClient) Connect(brokerURL string, clientId string) {
 
 // 전체 구독 시작 - 모든 관련 토픽을 한 번에 등록
 func (m *MQTTClient) SubscribeAllTopics() {
-	m.subscribe("v1/+/firmware/download/request/ack", parseDownloadRequestAck, "[ACK]")
-	m.subscribe("v1/+/firmware/download/progress", parseDownloadProgress, "[PROGRESS]")
-	m.subscribe("v1/+/firmware/download/result", parseDownloadResult, "[RESULT]")
-	m.subscribe("v1/+/firmware/download/cancel/ack", parseDownloadCancelAck, "[CANCEL ACK]")
+	m.subscribe("v1/+/update/request/ack", parseDownloadRequestAck, "[ACK]")
+	m.subscribe("v1/+/update/progress", parseDownloadProgress, "[PROGRESS]")
+	m.subscribe("v1/+/update/result", parseDownloadResult, "[RESULT]")
+	m.subscribe("v1/+/update/cancel/ack", parseDownloadCancelAck, "[CANCEL ACK]")
 	m.subscribeSystemStatus("v1/+/status/system", parseSystemStatus, "[SYSTEM STATUS]")
-	m.subscribeNetworkStatus("v1/+/status/network", parseNetworkStatus, "[NETWORK STATUS]")
-	m.subscribeHealthStatus("v1/+/status/health", parseHealthStatus, "HEALTH STATUS")
+	m.subscribeErrorLog("v1/+/status/error_log", parseErrorLog, "[ERROR LOG]")
 }

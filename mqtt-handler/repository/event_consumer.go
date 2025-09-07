@@ -9,7 +9,7 @@ import (
 func (c *DBClient) StartEventConsumer() {
 	for event := range DownloadInsertChan {
 		ctx := context.TODO()
-		err := c.sender.Table("firmware_download_events").
+		err := c.sender.Table("download_events").
 			Symbol("command_id", event.CommandID).
 			Symbol("message", event.Message).
 			Symbol("status", event.Status).
@@ -19,7 +19,7 @@ func (c *DBClient) StartEventConsumer() {
 			Int64Column("download_bytes", event.DownloadBytes).
 			Float64Column("speed_kbps", event.SpeedKbps).
 			BoolColumn("checksum_verified", event.ChecksumVerified).
-			Float64Column("download_time", event.DownloadTime).
+			Int64Column("download_seconds", event.DownloadSeconds).
 			At(ctx, event.Timestamp.UTC())
 
 		if err != nil {
@@ -38,37 +38,68 @@ func (c *DBClient) StartEventConsumer() {
 func (c *DBClient) StartSystemStatusConsumer() {
 	for event := range SystemStatusInsertChan {
 		ctx := context.TODO()
-		err := c.sender.Table("system_status").
-			Int64Column("device_id", event.DeviceId).
-			Float64Column("cpu_usage", event.CpuUsage).
-			Float64Column("memory_usage", event.MemoryUsage).
-			Float64Column("disk_usage", event.DiskUsage).
-			Int64Column("uptime", event.Uptime).
-			At(ctx, event.Timestamp.UTC())
 
-		if err != nil {
-			log.Printf("[ERROR] QuestDB Insert 실패: %v", err)
-			continue
+		// 1. system_status 저장
+		if err := c.sender.Table("system_status").
+			Int64Column("device_id", event.DeviceId).
+			Float64Column("cpu_core_0", event.System.CpuUsage.Core0).
+			Float64Column("cpu_core_1", event.System.CpuUsage.Core1).
+			Float64Column("memory_usage", event.System.MemoryUsage).
+			Float64Column("storage_usage", event.System.StorageUsage).
+			Int64Column("uptime", event.System.Uptime).
+			At(ctx, event.Timestamp.UTC()); err != nil {
+			log.Printf("[ERROR] system_status Insert 실패: %v", err)
 		}
+
+		// 2. network_status 저장
+		if err := c.sender.Table("network_status").
+			Int64Column("device_id", event.DeviceId).
+			StringColumn("connection_type", event.Network.ConnectionType).
+			Int64Column("signal_strength", event.Network.SignalStrength).
+			StringColumn("local_ip", event.Network.LocalIp).
+			StringColumn("gateway_ip", event.Network.GatewayIp).
+			At(ctx, event.Timestamp.UTC()); err != nil {
+			log.Printf("[ERROR] network_status Insert 실패: %v", err)
+		}
+
+		// 3. advertisement_status 저장
+		for _, ad := range event.Advertisements {
+			err := c.sender.Table("advertisement_status").
+				Int64Column("device_id", event.DeviceId).
+				Int64Column("ad_id", ad.Id).
+				At(ctx, event.Timestamp.UTC())
+			if err != nil {
+				log.Printf("[ERROR] advertisement_status Insert 실패: %v", err)
+			}
+		}
+
+		// 4. firmware_status 저장
+		if err := c.sender.Table("firmware_status").
+			Int64Column("device_id", event.DeviceId).
+			Int64Column("firmware_id", event.FirmwareId).
+			At(ctx, event.Timestamp.UTC()); err != nil {
+			log.Printf("[ERROR] firmware_status Insert 실패: %v", err)
+		}
+
+		// 최종 flush
 		if err := c.sender.Flush(ctx); err != nil {
 			log.Printf("[ERROR] QuestDB Flush 실패: %v", err)
 		} else {
-			log.Printf("[DB] Insert 성공 - device_id: %d, cpu_usage: %f, memory_usage: %f, disk_usage: %f, uptime: %d", event.DeviceId, event.CpuUsage, event.MemoryUsage, event.DiskUsage, event.Uptime)
+			log.Printf("[DB] Insert 성공 - device_id: %d (system + network + %d ads)",
+				event.DeviceId, len(event.Advertisements))
 		}
 	}
 }
 
-// InsertChan 채널로부터 네트워크 상태 이벤트를 지속적으로 수신하여 QuestDB에 기록하는 백그라운드 consumer 함수입니다.
-func (c *DBClient) StartNetworkStatusConsumer() {
-	for event := range NetworkStatusInsertChan {
+// InsertChan 채널로부터 에러 로그 이벤트를 지속적으로 수신하여 QuestDB에 기록하는 백그라운드 consumer 함수입니다.
+func (c *DBClient) StartErrorLogConsumer() {
+	for event := range ErrorLogInsertChan {
 		ctx := context.TODO()
-		err := c.sender.Table("network_status").
-			Symbol("connection_type", event.ConnectionType).
-			Symbol("ip_address", event.IpAddress).
-			Symbol("gateway", event.Gateway).
+		err := c.sender.Table("error_logs").
 			Int64Column("device_id", event.DeviceId).
-			Int64Column("signal_strength", event.SignalStrength).
-			At(ctx, event.Timestamp.UTC())
+			StringColumn("error_tag", event.ErrorLog.ErrorTag).
+			StringColumn("log", event.ErrorLog.Log).
+			At(ctx, event.ErrorLog.Timestamp.UTC())
 
 		if err != nil {
 			log.Printf("[ERROR] QuestDB Insert 실패: %v", err)
@@ -77,33 +108,7 @@ func (c *DBClient) StartNetworkStatusConsumer() {
 		if err := c.sender.Flush(ctx); err != nil {
 			log.Printf("[ERROR] QuestDB Flush 실패: %v", err)
 		} else {
-			log.Printf("[DB] Insert 성공 - device_id: %d, connection_type: %s, signal_strenght: %d, ip_address: %s, gateway: %s, timestamp: %s", event.DeviceId, event.ConnectionType, event.SignalStrength, event.IpAddress, event.Gateway, event.Timestamp)
-		}
-	}
-}
-
-// InsertChan 채널로부터 health 상태 이벤트를 지속적으로 수신하여 QuestDB에 기록하는 백그라운드 consumer 함수입니다.
-func (c *DBClient) StartHealthStatusConsumer() {
-	for event := range HealthStatusInsertChan {
-		ctx := context.TODO()
-		err := c.sender.Table("health_status").
-			Symbol("overall_status", event.OverallStatus).
-			Symbol("firmware_version", event.FirmwareVersion).
-			Int64Column("device_id", event.DeviceId).
-			Int64Column("error_count", event.ErrorCount).
-			Int64Column("warning_count", event.WarningCount).
-			TimestampColumn("last_reboot", event.LastReboot.UTC()).
-			At(ctx, event.Timestamp.UTC())
-
-		if err != nil {
-			log.Printf("[ERROR] QuestDB Insert 실패: %v", err)
-			continue
-		}
-		if err := c.sender.Flush(ctx); err != nil {
-			log.Printf("[ERROR] QuestDB Flush 실패: %v", err)
-		} else {
-			log.Printf("[DB] Insert 성공 - device_id: %d, overall_status: %s, firmware_version: %s, error_count %d, warning_count: %d, last_reboot: %s, timestamp: %s",
-				event.DeviceId, event.OverallStatus, event.FirmwareVersion, event.ErrorCount, event.WarningCount, event.LastReboot, event.Timestamp)
+			log.Printf("[DB] Insert 성공 - device_id: %d, error_tag: %s", event.DeviceId, event.ErrorLog.ErrorTag)
 		}
 	}
 }
@@ -111,6 +116,5 @@ func (c *DBClient) StartHealthStatusConsumer() {
 func (c *DBClient) StartAllConsumer() {
 	go c.StartEventConsumer()
 	go c.StartSystemStatusConsumer()
-	go c.StartNetworkStatusConsumer()
-	go c.StartHealthStatusConsumer()
+	go c.StartErrorLogConsumer()
 }
