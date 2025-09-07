@@ -1,4 +1,3 @@
-# Dockerfile
 FROM grafana/grafana-oss:latest
 
 # QuestDB 플러그인 설치
