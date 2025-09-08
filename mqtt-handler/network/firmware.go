@@ -47,7 +47,7 @@ func (f *firmwareRouter) firmwareDeploy(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if req.SignedUrl == "" || req.FileInfo.Version == "" || len(req.Devices) == 0 {
+	if req.CommandId == "" || len(req.Devices) == 0 {
 		f.router.failedResponse(w, types.FirmwareDeployResponse{
 			ApiResponse: types.NewApiResponse("필수 필드 누락"),
 		})
@@ -64,7 +64,7 @@ func (f *firmwareRouter) firmwareDeploy(w http.ResponseWriter, r *http.Request) 
 
 // 클라이언트의 펌웨어 배포 취소 요청을 처리하는 엔드포인트입니다.
 func (f *firmwareRouter) cancelFirmwareDeploy(w http.ResponseWriter, r *http.Request) {
-	var req types.FirmwareDeployCancelRequest
+	var req types.DeployCancelRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		f.router.failedResponse(w, types.FirmwareDeployResponse{
 			ApiResponse: types.NewApiResponse("파싱 오류"),
@@ -105,13 +105,13 @@ func (n *Network) firmwareDeployPOST(path string, handler http.HandlerFunc) {
 // 디버깅용 요청 로그 출력 함수
 func PrintDownloadLog(req *types.FirmwareDeployRequest) {
 	log.Println("========== Received Firmware Deploy ==========")
-	log.Println("Signed URL: ", req.SignedUrl)
-	log.Println("Deployment ID: ", req.FileInfo.DeploymentId)
-	log.Println("Version: ", req.FileInfo.Version)
-	log.Println("hash: ", req.FileInfo.FileHash)
-	log.Println("FileSize", req.FileInfo.FileSize)
-	log.Println("Expired At", req.FileInfo.ExpiresAt)
-	log.Println("deployed At", req.FileInfo.DeployedAt)
+	log.Println("Signed URL: ", req.Content.SignedUrl)
+	log.Println("Deployment Id: ", req.CommandId)
+	log.Println("Firmware Id: ", req.Content.FileInfo.Id)
+	log.Println("hash: ", req.Content.FileInfo.FileHash)
+	log.Println("FileSize", req.Content.FileInfo.Size)
+	log.Println("Timeout (minutes): ", req.Content.SignedUrl.Timeout)
+	log.Println("deployed At", req.Timestamp)
 	for _, device := range req.Devices {
 		log.Printf("Device ID: %d\n", device.DeviceId)
 	}
@@ -119,7 +119,7 @@ func PrintDownloadLog(req *types.FirmwareDeployRequest) {
 }
 
 // 디버깅용 요청 로그 출력 함수
-func PrintDownloadCancelLog(req *types.FirmwareDeployCancelRequest) {
+func PrintDownloadCancelLog(req *types.DeployCancelRequest) {
 	log.Println("Command ID: ", req.CommandID)
 	log.Println("Reason: ", req.Reason)
 	for _, device := range req.Devices {

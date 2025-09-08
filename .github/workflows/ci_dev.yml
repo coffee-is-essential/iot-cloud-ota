@@ -11,6 +11,7 @@ env:
   ECR_EMQX_REPOSITORY: emqx
   ECR_PRIVATE_CA_REPOSITORY: private-ca
   ECR_MQTT_HANDLER_REPOSITORY: mqtt-handler
+  ECR_GRAFANA_REPOSITORY: grafana
 
 jobs:
   detect-changes-by-component:
@@ -20,6 +21,7 @@ jobs:
       emqx: ${{ steps.filter.outputs.emqx }}
       private_ca: ${{ steps.filter.outputs.private_ca }}
       mqtt-handler: ${{ steps.filter.outputs.mqtt-handler }}
+      grafana: ${{ steps.filter.outputs.grafana }}
     steps:
       - uses: actions/checkout@v2
       - uses: dorny/paths-filter@v2
@@ -34,6 +36,8 @@ jobs:
               - 'private_ca/**'
             mqtt-handler:
               - 'mqtt-handler/**'
+            grafana:
+              - 'grafana/**'
 
   ci-backend-dev:
     needs: [detect-changes-by-component]
@@ -171,6 +175,40 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_MQTT_HANDLER_REPOSITORY:latest
           echo "tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
+  ci-grafana-dev:
+    needs: [detect-changes-by-component]
+    if: ${{ needs.detect-changes-by-component.outputs.grafana == 'true' }}
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.build-image.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_GRAFANA_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_GRAFANA_REPOSITORY:latest \
+            -f grafana/Dockerfile grafana
+          docker push $ECR_REGISTRY/$ECR_GRAFANA_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_GRAFANA_REPOSITORY:latest
+          echo "tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+
   terraform-apply:
     needs: [ci-backend-dev, ci-emqx-dev, ci-private-ca-dev, ci-mqtt-handler-dev]
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
@@ -201,6 +239,7 @@ jobs:
           EMQX_IMAGE: ${{ needs.ci-emqx-dev.outputs.tag }}
           PRIVATE_CA_IMAGE: ${{ needs.ci-private-ca-dev.outputs.tag }}
           MQTT_HANDLER_IMAGE: ${{ needs.ci-mqtt-handler-dev.outputs.tag }}
+          GRAFANA_IMAGE: ${{ needs.ci-grafana-dev.outputs.tag }}
         run: |
           image_tags=""
           if [ -n "$BACKEND_IMAGE" ]; then
@@ -214,6 +253,9 @@ jobs:
           fi
           if [ -n "$MQTT_HANDLER_IMAGE" ]; then
             image_tags="$image_tags -var mqtt_handler_image_tag=$MQTT_HANDLER_IMAGE"
+          fi
+          if [ -n "$GRAFANA_IMAGE" ]; then
+            image_tags="$image_tags -var grafana_image_tag=$GRAFANA_IMAGE"
           fi
 
           echo "Applying Terraform with images: $image_tags"

@@ -21,3 +21,9 @@ variable "mqtt_handler_image_tag" {
   type        = string
   default     = "latest"
 }
+
+variable "grafana_image_tag" {
+  description = "The tag of the Grafana image to use."
+  type        = string
+  default     = "latest"
+}

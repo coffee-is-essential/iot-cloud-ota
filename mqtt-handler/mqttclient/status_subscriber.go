@@ -8,7 +8,6 @@ import (
 	"mqtt-handler/types"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // 시스템 상태 토픽에 대해 메시지를 처리하는 핸들러를 등록
@@ -42,21 +41,20 @@ func parseSystemStatus(msg mqtt.Message) (*types.SystemStatusEvent, error) {
 		return nil, err
 	}
 
-	return buildSystemStatusEvent(msg.Topic(), status.CpuUsage, status.MemoryUsage, status.DiskUsage, status.Temperature, status.Uptime, status.Timestamp), nil
+	return buildSystemStatusEvent(msg.Topic(), status), nil
 }
 
 // 이벤트 빌더 - 토픽에서 ID 추출 + 이벤트 생성
-func buildSystemStatusEvent(topic string, cpuUsage float64, memoryUsage float64, diskUsage float64, temperature float64, upTime int64, timestamp time.Time) *types.SystemStatusEvent {
+func buildSystemStatusEvent(topic string, status types.SystemStatus) *types.SystemStatusEvent {
 	topicParts := strings.Split(topic, "/")
 	deviceId, _ := strconv.ParseInt(topicParts[1], 10, 64)
 
 	return &types.SystemStatusEvent{
-		DeviceId:    deviceId,
-		CpuUsage:    cpuUsage,
-		MemoryUsage: memoryUsage,
-		DiskUsage:   diskUsage,
-		Temperature: temperature,
-		Uptime:      upTime,
-		Timestamp:   timestamp,
+		DeviceId:       deviceId,
+		FirmwareId:     status.FirmwareId,
+		Advertisements: status.Advertisements,
+		System:         status.System,
+		Network:        status.Network,
+		Timestamp:      status.Timestamp,
 	}
 }

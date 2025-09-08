@@ -2,7 +2,7 @@ import logging
 import os
 import time
 
-from constants import DEFAULT_DOWNLOAD_CHUNK_SIZE
+import constants
 from firmware_manager import FirmwareManager
 from http_client import HttpClient
 from mqtt_client import MqttClient
@@ -22,7 +22,7 @@ class Config:
     BROKER_URL = os.getenv("BROKER_URL", "test.mosquitto.org")
     BROKER_PORT = int(os.getenv("BROKER_PORT", 1883))
     DOWNLOAD_CHUNK_SIZE = int(
-        os.getenv("DOWNLOAD_CHUNK_SIZE", DEFAULT_DOWNLOAD_CHUNK_SIZE)
+        os.getenv("DOWNLOAD_CHUNK_SIZE", constants.DEFAULT_DOWNLOAD_CHUNK_SIZE)
     )
 
 
@@ -54,7 +54,9 @@ class Simulator:
 
         # 펌웨어 다운로드 요청 토픽 구독
         self._mqtt_client.subscribe(
-            f"v1/{self._config.DEVICE_ID}/firmware/download/request",
+            constants.FIRMWARE_DOWNLOAD_REQUEST_TOPIC.format(
+                device_id=self._config.DEVICE_ID
+            ),
             callback=self._firmware_manager.handle_download_request,
         )
 
@@ -85,8 +87,8 @@ if __name__ == "__main__":
     logger.info("Broker Port: %d", config.BROKER_PORT)
     logger.info("=======================================")
     logger.info(
-        "Listening for messages on topic: v1/%s/firmware/download/request",
-        config.DEVICE_ID,
+        "Listening for messages on topic: %s",
+        constants.FIRMWARE_DOWNLOAD_REQUEST_TOPIC.format(device_id=config.DEVICE_ID),
     )
     logger.info("Press Ctrl+C to exit.")
 

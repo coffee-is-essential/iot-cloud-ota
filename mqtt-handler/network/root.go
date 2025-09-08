@@ -18,6 +18,7 @@ func NewNetwork() *Network {
 	}
 
 	newFirmwareRouter(net)
+	newAdsRouter(net)
 	return net
 }
 

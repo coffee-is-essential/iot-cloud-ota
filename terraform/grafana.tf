@@ -53,7 +53,7 @@ resource "aws_ecs_task_definition" "grafana" {
   container_definitions = jsonencode([
     {
       name      = "grafana"
-      image     = "grafana/grafana:latest"
+      image     = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-2.amazonaws.com/grafana:${var.grafana_image_tag}"
       essential = true
 
       portMappings = [
@@ -64,6 +64,10 @@ resource "aws_ecs_task_definition" "grafana" {
         { name = "GF_SECURITY_ALLOW_EMBEDDING", value = "true" },
         { name = "GF_AUTH_ANONYMOUS_ENABLED", value = "true" },
         { name = "GF_AUTH_ANONYMOUS_ORG_ROLE", value = "Viewer" },
+        { name = "QUESTDB_URL", value = aws_instance.questdb.private_ip },
+        { name = "QUESTDB_PORT", value = "8812" },
+        { name = "QUESTDB_USER", value = local.questdb_credentials.username },
+        { name = "QUESTDB_PASSWORD", value = local.questdb_credentials.password },
       ]
 
       logConfiguration = {

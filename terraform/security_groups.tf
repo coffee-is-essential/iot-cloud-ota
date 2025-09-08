@@ -232,14 +232,14 @@ resource "aws_security_group" "questdb" {
     from_port       = 8812
     to_port         = 8812
     protocol        = "tcp"
-    security_groups = [aws_security_group.bastion_sg.id, aws_security_group.backend.id]
+    security_groups = [aws_security_group.bastion_sg.id, aws_security_group.backend.id, aws_security_group.grafana.id]
   }
 
   ingress {
     from_port       = 9000
     to_port         = 9000
     protocol        = "tcp"
-    security_groups = [aws_security_group.bastion_sg.id, aws_security_group.mqtt_handler.id, ]
+    security_groups = [aws_security_group.bastion_sg.id, aws_security_group.mqtt_handler.id, aws_security_group.grafana.id]
   }
 
   ingress {
