@@ -21,4 +21,6 @@ public interface FirmwareDeploymentRepository extends JpaRepository<FirmwareDepl
     default FirmwareDeployment findByCommandIdOrElseThrow(String commandId) {
         return findByCommandId(commandId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "[commandId: " + commandId + "] 배포 정보를 찾을 수 없습니다."));
     }
+
+    Page<FirmwareDeployment> findAllByFirmwareMetadataIsNotNull(Pageable pageable);
 }

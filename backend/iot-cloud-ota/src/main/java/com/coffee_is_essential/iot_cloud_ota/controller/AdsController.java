@@ -2,11 +2,9 @@ package com.coffee_is_essential.iot_cloud_ota.controller;
 
 
 import com.coffee_is_essential.iot_cloud_ota.domain.PaginationInfo;
-import com.coffee_is_essential.iot_cloud_ota.dto.AdsDetailResponseDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.AdsMetadataRequestDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.AdsMetadataWithPageResponseDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.SaveAdvertisementMetadataResponseDto;
+import com.coffee_is_essential.iot_cloud_ota.dto.*;
 import com.coffee_is_essential.iot_cloud_ota.service.AdsService;
+import com.coffee_is_essential.iot_cloud_ota.service.DeploymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/ads")
 public class AdsController {
     private final AdsService adsService;
+    private final DeploymentService deploymentService;
 
     /**
      * 광고 메타데이터를 저장합니다.
@@ -62,6 +61,18 @@ public class AdsController {
     public ResponseEntity<AdsDetailResponseDto> findById(@PathVariable Long id) {
         AdsDetailResponseDto responseDto = adsService.findById(id);
 
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    /**
+     * 광고를 디바이스에 배포합니다.
+     *
+     * @param requestDto 광고 ID, 그룹 ID, 지역 ID, 디바이스 ID를 담은 요청 DTO
+     * @return 배포된 광고 정보와 대상 디바이스 정보를 담은 응답 DTO
+     */
+    @PostMapping("/deployment")
+    public ResponseEntity<AdsDeploymentDto> deployAds(@RequestBody AdsDeploymentRequestDto requestDto) {
+        AdsDeploymentDto responseDto = deploymentService.deployAds(requestDto);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 }

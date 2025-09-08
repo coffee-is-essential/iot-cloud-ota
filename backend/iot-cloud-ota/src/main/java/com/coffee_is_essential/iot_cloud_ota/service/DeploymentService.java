@@ -1,10 +1,7 @@
 package com.coffee_is_essential.iot_cloud_ota.service;
 
 import com.coffee_is_essential.iot_cloud_ota.domain.*;
-import com.coffee_is_essential.iot_cloud_ota.dto.DetailDeploymentResponseDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareDeploymentDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareDeploymentListDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.FirmwareDeploymentRequestDto;
+import com.coffee_is_essential.iot_cloud_ota.dto.*;
 import com.coffee_is_essential.iot_cloud_ota.entity.*;
 import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentStatus;
 import com.coffee_is_essential.iot_cloud_ota.enums.DeploymentType;
@@ -25,13 +22,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class FirmwareDeploymentService {
+public class DeploymentService {
     private final ObjectMapper objectMapper;
     @Value("${mqtt.handler.base.url}")
     private String mqttHandlerBaseUrl;
@@ -39,6 +39,8 @@ public class FirmwareDeploymentService {
     private final FirmwareMetadataJpaRepository firmwareMetadataJpaRepository;
     private final FirmwareDeploymentRepository firmwareDeploymentRepository;
     private final FirmwareDeploymentDeviceRepository firmwareDeploymentDeviceRepository;
+    private final AdsDeploymentJpaRepository adsDeploymentJpaRepository;
+    private final AdsMetadataJpaRepository adsMetadataJpaRepository;
     private final DeviceJpaRepository deviceJpaRepository;
     private final OverallDeploymentStatusRepository overallDeploymentStatusRepository;
     private final RestClient restClient;
@@ -63,6 +65,7 @@ public class FirmwareDeploymentService {
      */
     @Transactional
     public FirmwareDeploymentDto deployFirmware(Long firmwareId, FirmwareDeploymentRequestDto requestDto) {
+        String url = mqttHandlerBaseUrl + "/api/firmwares/deployment";
         FirmwareMetadata findFirmware = firmwareMetadataJpaRepository.findByIdOrElseThrow(firmwareId);
 
         if (requestDto.deviceIds().isEmpty() && requestDto.groupIds().isEmpty() && requestDto.regionIds().isEmpty()) {
@@ -77,7 +80,10 @@ public class FirmwareDeploymentService {
 
         Date expiresAt = Date.from(Instant.now().plus(Duration.ofMinutes(TIMEOUT)));
         FirmwareDeployInfo deployInfo = FirmwareDeployInfo.from(findFirmware, expiresAt);
-        String signedUrl = cloudFrontSignedUrlService.generateSignedUrl(findFirmware.getS3Path(), expiresAt);
+        SignedUrlInfo signedUrl = new SignedUrlInfo(
+                cloudFrontSignedUrlService.generateSignedUrl(findFirmware.getS3Path(), expiresAt),
+                TIMEOUT
+        );
 
         FirmwareDeployment firmwareDeployment = new FirmwareDeployment(findFirmware, deployInfo.deploymentId(), requestDto.deploymentType(), deployInfo.deployedAt(), deployInfo.expiresAt());
         firmwareDeploymentRepository.save(firmwareDeployment);
@@ -93,10 +99,86 @@ public class FirmwareDeploymentService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
         }
 
-        FirmwareDeploymentDto deploymentDto = new FirmwareDeploymentDto(signedUrl, deployInfo, deviceInfos, TIMEOUT);
-        sendMqttHandler(deploymentDto);
+        FileInfo fileInfo = new FileInfo(findFirmware.getId(), findFirmware.getFileHash(), findFirmware.getFileSize());
+        DeploymentContent content = new DeploymentContent(signedUrl, fileInfo);
+
+        FirmwareDeploymentDto deploymentDto = new FirmwareDeploymentDto(
+                deployInfo.deploymentId(),
+                content,
+                deviceInfos,
+                OffsetDateTime.now());
+
+        sendMqttHandler(deploymentDto, url);
         deploymentRedisService.addDevices(firmwareDeployment.getCommandId(), deviceInfos);
         deployJudgeScheduler.startScheduler(firmwareDeployment.getCommandId());
+        return deploymentDto;
+    }
+
+    /**
+     * 광고를 지정된 기기/그룹/리전에 배포 요청합니다.
+     * 1. 광고 메타데이터 조회
+     * 2. 배포 대상(Device) 필터링
+     * 3. CloudFront Signed URL 생성
+     * 4. AdsDeployment 엔티티 저장
+     * 5. MQTT Handler에 배포 요청 전송
+     *
+     * @param requestDto 배포 요청 DTO (광고 ID, 대상 장치/그룹/리전)
+     * @return 배포 요청 결과 DTO
+     */
+    @Transactional
+    public AdsDeploymentDto deployAds(AdsDeploymentRequestDto requestDto) {
+        String url = mqttHandlerBaseUrl + "/api/advertisements/deployment";
+        List<Long> adIds = requestDto.adIds();
+
+        if (requestDto.devices().isEmpty() && requestDto.groups().isEmpty() && requestDto.regions().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
+        }
+
+        List<AdsMetadata> adsMetadataList = adsMetadataJpaRepository.findAllById(adIds);
+        List<Device> devices = deviceJpaRepository.findByFilterDynamic(
+                requestDto.devices(),
+                requestDto.groups(),
+                requestDto.regions()
+        );
+
+        List<DeploymentContent> contents = new ArrayList<>();
+        Date expiresAt = Date.from(Instant.now().plus(Duration.ofMinutes(TIMEOUT)));
+        OffsetDateTime expiresAtUtc = expiresAt.toInstant()
+                .atZone(ZoneId.of("UTC"))
+                .toOffsetDateTime();
+
+        AdsDeploymentDto deploymentDto = new AdsDeploymentDto(
+                "AD-" + UUID.randomUUID().toString(),
+                contents,
+                devices.stream().map(DeployTargetDeviceInfo::from).toList(),
+                OffsetDateTime.now()
+        );
+
+        FirmwareDeployment firmwareDeployment = new FirmwareDeployment(deploymentDto.commandId(), requestDto.deploymentType(), OffsetDateTime.now(), expiresAtUtc);
+        firmwareDeploymentRepository.save(firmwareDeployment);
+        overallDeploymentStatusRepository.save(new OverallDeploymentStatus(firmwareDeployment, OverallStatus.IN_PROGRESS));
+
+        for (AdsMetadata adsMetadata : adsMetadataList) {
+            String signedUrl = cloudFrontSignedUrlService.generateSignedUrl(adsMetadata.getBinaryS3Path(), expiresAt);
+            contents.add(new DeploymentContent(
+                    new SignedUrlInfo(signedUrl, TIMEOUT),
+                    new FileInfo(adsMetadata.getId(), adsMetadata.getFileHash(), adsMetadata.getFileSize())
+            ));
+            adsDeploymentJpaRepository.save(new AdsDeployment(firmwareDeployment, adsMetadata));
+        }
+
+        List<DeployTargetDeviceInfo> deviceInfos = devices
+                .stream()
+                .map(DeployTargetDeviceInfo::from)
+                .toList();
+
+        if (deviceInfos.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
+        }
+
+        sendMqttHandler(deploymentDto, url);
+        deploymentRedisService.addDevices(deploymentDto.commandId(), deviceInfos);
+        deployJudgeScheduler.startScheduler(deploymentDto.commandId());
         return deploymentDto;
     }
 
@@ -115,16 +197,14 @@ public class FirmwareDeploymentService {
     }
 
     /**
-     * MQTT Handler API 호출
-     * 배포 요청 DTO를 JSON 직렬화 후 POST 요청 전송
+     * MQTT Handler에 배포 요청 전송
      *
-     * @param firmwareDeploymentDto 배포 요청 DTO
+     * @param object 전송할 DTO 객체
+     * @param url    MQTT Handler API URL
      */
-    private void sendMqttHandler(FirmwareDeploymentDto firmwareDeploymentDto) {
-        String url = mqttHandlerBaseUrl + "/api/firmwares/deployment";
-
+    private void sendMqttHandler(Object object, String url) {
         try {
-            String templateJson = objectMapper.writeValueAsString(firmwareDeploymentDto);
+            String templateJson = objectMapper.writeValueAsString(object);
 
             String response = restClient.post()
                     .uri(url)
@@ -146,7 +226,7 @@ public class FirmwareDeploymentService {
      */
     public FirmwareDeploymentListDto getFirmwareDeploymentList(PaginationInfo paginationInfo) {
         Pageable pageable = PageRequest.of(paginationInfo.page() - 1, paginationInfo.limit(), Sort.by("createdAt").descending());
-        Page<FirmwareDeployment> deploymentPage = firmwareDeploymentRepository.findAll(pageable);
+        Page<FirmwareDeployment> deploymentPage = firmwareDeploymentRepository.findAllByFirmwareMetadataIsNotNull(pageable);
         List<FirmwareDeployment> deployments = deploymentPage.getContent();
         List<FirmwareDeploymentMetadata> list = new ArrayList<>();
 

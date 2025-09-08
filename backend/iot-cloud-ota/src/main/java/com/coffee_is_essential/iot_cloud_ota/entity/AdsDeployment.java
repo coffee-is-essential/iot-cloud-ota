@@ -25,4 +25,8 @@ public class AdsDeployment extends BaseEntity {
     @JoinColumn(name = "advertisement_id", nullable = false)
     AdsMetadata adsMetadata;
 
+    public AdsDeployment(FirmwareDeployment firmwareDeployment, AdsMetadata adsMetadata) {
+        this.firmwareDeployment = firmwareDeployment;
+        this.adsMetadata = adsMetadata;
+    }
 }

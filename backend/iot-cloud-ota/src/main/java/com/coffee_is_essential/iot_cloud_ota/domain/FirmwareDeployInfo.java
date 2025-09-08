@@ -31,7 +31,7 @@ public record FirmwareDeployInfo(
                 .toOffsetDateTime();
 
         return new FirmwareDeployInfo(
-                UUID.randomUUID().toString(),
+                "FW-" + UUID.randomUUID().toString(),
                 firmwareMetadata.getVersion(),
                 firmwareMetadata.getFileHash(),
                 firmwareMetadata.getFileSize(),

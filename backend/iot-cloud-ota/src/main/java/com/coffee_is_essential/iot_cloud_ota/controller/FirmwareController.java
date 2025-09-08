@@ -2,7 +2,7 @@ package com.coffee_is_essential.iot_cloud_ota.controller;
 
 import com.coffee_is_essential.iot_cloud_ota.domain.PaginationInfo;
 import com.coffee_is_essential.iot_cloud_ota.dto.*;
-import com.coffee_is_essential.iot_cloud_ota.service.FirmwareDeploymentService;
+import com.coffee_is_essential.iot_cloud_ota.service.DeploymentService;
 import com.coffee_is_essential.iot_cloud_ota.service.FirmwareMetadataService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/firmwares")
 public class FirmwareController {
     private final FirmwareMetadataService firmwareMetadataService;
-    private final FirmwareDeploymentService firmwareDeploymentService;
+    private final DeploymentService deploymentService;
 
     /**
      * 펌웨어 메타데이터를 저장합니다.
@@ -75,7 +75,7 @@ public class FirmwareController {
      */
     @PostMapping("/metadata/{id}/deployment")
     public ResponseEntity<FirmwareDeploymentDto> deploy(@PathVariable Long id, @RequestBody FirmwareDeploymentRequestDto requestDto) {
-        FirmwareDeploymentDto dto = firmwareDeploymentService.deployFirmware(id, requestDto);
+        FirmwareDeploymentDto dto = deploymentService.deployFirmware(id, requestDto);
 
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
@@ -93,7 +93,7 @@ public class FirmwareController {
             @RequestParam(defaultValue = "10") int limit
     ) {
         PaginationInfo paginationInfo = PaginationInfo.of(page, limit);
-        FirmwareDeploymentListDto list = firmwareDeploymentService.getFirmwareDeploymentList(paginationInfo);
+        FirmwareDeploymentListDto list = deploymentService.getFirmwareDeploymentList(paginationInfo);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
@@ -107,7 +107,7 @@ public class FirmwareController {
      */
     @GetMapping("/deployment/{id}")
     public ResponseEntity<DetailDeploymentResponseDto> findDetailDeploymentById(@PathVariable Long id) {
-        DetailDeploymentResponseDto dto = firmwareDeploymentService.findFirmwareDeploymentById(id);
+        DetailDeploymentResponseDto dto = deploymentService.findFirmwareDeploymentById(id);
 
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }

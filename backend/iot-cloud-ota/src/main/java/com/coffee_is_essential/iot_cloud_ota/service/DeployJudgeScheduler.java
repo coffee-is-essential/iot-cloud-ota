@@ -196,6 +196,7 @@ public class DeployJudgeScheduler {
         firmwareDeploymentDeviceRepository.saveAll(list);
         deploymentRedisService.deleteDevices(commandId, completedEvents);
     }
+    
 
     /**
      * 이벤트 상태가 완료 상태(SUCCESS, FAILED, CANCELLED, TIMEOUT)인지 여부를 판별한다.

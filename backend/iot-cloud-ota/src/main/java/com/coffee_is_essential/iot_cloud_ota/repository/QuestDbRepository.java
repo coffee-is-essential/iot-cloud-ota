@@ -32,7 +32,7 @@ public class QuestDbRepository {
                 FROM (
                     SELECT f.*,
                            ROW_NUMBER() OVER (PARTITION BY device_id ORDER BY "timestamp" DESC) AS rn
-                    FROM firmware_download_events f
+                    FROM download_events f
                     WHERE command_id = ?
                 ) t
                 WHERE rn = 1
@@ -50,7 +50,7 @@ public class QuestDbRepository {
                 FROM (
                     SELECT f.*,
                            ROW_NUMBER() OVER (PARTITION BY device_id ORDER BY "timestamp" DESC) rn
-                    FROM firmware_download_events f
+                    FROM download_events f
                     WHERE command_id = :cmd
                       AND device_id IN (:ids)
                 ) t
@@ -77,7 +77,7 @@ public class QuestDbRepository {
             e.setDownloadBytes(rs.getLong("download_bytes"));
             e.setSpeedKbps(rs.getDouble("speed_kbps"));
             e.setChecksumVerified(rs.getBoolean("checksum_verified"));
-            e.setDownloadTime(rs.getDouble("download_time"));
+            e.setDownloadTime(rs.getDouble("download_seconds"));
             e.setTimestamp(rs.getTimestamp("timestamp"));
 
             return e;
@@ -86,7 +86,7 @@ public class QuestDbRepository {
 
     public void saveTimeoutDevice(String commandId, Long deviceId) {
         jdbcTemplate.update(
-                "INSERT INTO firmware_download_events (command_id, message, status, device_id, timestamp) VALUES (?, ?, ?, ?, NOW())",
+                "INSERT INTO download_events (command_id, message, status, device_id, timestamp) VALUES (?, ?, ?, ?, NOW())",
                 commandId, "Timeout", "TIMEOUT", deviceId
         );
     }
