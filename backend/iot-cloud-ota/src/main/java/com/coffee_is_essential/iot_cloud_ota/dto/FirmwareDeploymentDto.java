@@ -8,10 +8,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 public record FirmwareDeploymentDto(
-//        String signedUrl,
-//        FirmwareDeployInfo fileInfo,
-//        List<DeployTargetDeviceInfo> devices,
-//        int timeout
         @JsonProperty("command_id")
         String commandId,
         DeploymentContent content,

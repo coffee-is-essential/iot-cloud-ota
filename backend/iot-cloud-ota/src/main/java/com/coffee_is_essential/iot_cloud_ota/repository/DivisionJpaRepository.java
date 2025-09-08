@@ -2,6 +2,8 @@ package com.coffee_is_essential.iot_cloud_ota.repository;
 
 import com.coffee_is_essential.iot_cloud_ota.domain.DivisionSummary;
 import com.coffee_is_essential.iot_cloud_ota.entity.Division;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
@@ -37,4 +39,22 @@ public interface DivisionJpaRepository extends JpaRepository<Division, Long> {
             ORDER BY di.id;
             """, nativeQuery = true)
     List<DivisionSummary> findDivisionSummary();
+
+    /**
+     * 키워드로 디비전을 검색합니다.
+     * 키워드가 null이거나 빈 문자열인 경우 모든 디비전을 반환합니다.
+     * 그렇지 않으면 divisionCode 또는 divisionName에 키워드가 포함된 디비전을 반환합니다.
+     *
+     * @param keyword  검색 키워드 (null 또는 빈 문자열 가능)
+     * @param pageable 페이지네이션 정보
+     * @return 검색된 디비전의 페이지
+     */
+    @Query("""
+            SELECT d
+            FROM Division d
+            WHERE (:keyword IS NULL OR :keyword = '' OR
+                   d.divisionCode LIKE %:keyword% OR
+                   d.divisionName LIKE %:keyword%)
+            """)
+    Page<Division> searchWithNullableKeyword(String keyword, Pageable pageable);
 }

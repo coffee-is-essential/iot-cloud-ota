@@ -1,5 +1,7 @@
 package com.coffee_is_essential.iot_cloud_ota.controller;
 
+import com.coffee_is_essential.iot_cloud_ota.domain.PaginationInfo;
+import com.coffee_is_essential.iot_cloud_ota.dto.DeviceResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.DeviceSummaryResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.service.DeviceService;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -28,8 +31,21 @@ public class DeviceController {
      */
     @GetMapping
     public ResponseEntity<List<DeviceSummaryResponseDto>> findDeviceSummary() {
-        List<DeviceSummaryResponseDto> list = deviceService.findDeviceSummary();
+        List<DeviceSummaryResponseDto> responseDtos = deviceService.findDeviceSummary();
 
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        return new ResponseEntity<>(responseDtos, HttpStatus.OK);
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<List<DeviceResponseDto>> findAllDevices(
+            @RequestParam(required = false) Long regionId,
+            @RequestParam(required = false) Long groupId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit
+    ) {
+        PaginationInfo paginationInfo = PaginationInfo.of(page, limit);
+        List<DeviceResponseDto> responseDtos = deviceService.findAllDevices(regionId, groupId, paginationInfo);
+
+        return new ResponseEntity<>(responseDtos, HttpStatus.OK);
     }
 }

@@ -1,5 +1,6 @@
 package com.coffee_is_essential.iot_cloud_ota.controller;
 
+import com.coffee_is_essential.iot_cloud_ota.dto.RegionResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.RegionSummaryResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.service.RegionService;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +32,17 @@ public class RegionController {
         List<RegionSummaryResponseDto> list = regionService.findRegionSummary();
 
         return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    /**
+     * 전체 리전의 상세 정보를 조회합니다.
+     *
+     * @return 리전 ID, 리전 코드, 리전 이름을 포함한 리스트와 HTTP 200 OK 응답
+     */
+    @GetMapping("/list")
+    public ResponseEntity<RegionResponseDto> findAllRegions() {
+        List<RegionResponseDto> responseDtos = regionService.findAllRegions();
+
+        return new ResponseEntity(responseDtos, HttpStatus.OK);
     }
 }

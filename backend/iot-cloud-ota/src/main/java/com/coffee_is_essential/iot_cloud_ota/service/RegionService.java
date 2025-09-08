@@ -1,5 +1,6 @@
 package com.coffee_is_essential.iot_cloud_ota.service;
 
+import com.coffee_is_essential.iot_cloud_ota.dto.RegionResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.RegionSummaryResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.repository.RegionJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +20,20 @@ public class RegionService {
      */
     public List<RegionSummaryResponseDto> findRegionSummary() {
 
-        return regionJpaRepository.findRegionSummary()
-                .stream()
+        return regionJpaRepository.findRegionSummary().stream()
                 .map(RegionSummaryResponseDto::from)
+                .toList();
+    }
+
+    /**
+     * 모든 리전의 상세 정보를 조회합니다.
+     *
+     * @return RegionResponseDto 리스트 (regionId, regionCode, regionName 포함)
+     */
+    public List<RegionResponseDto> findAllRegions() {
+
+        return regionJpaRepository.findAll().stream()
+                .map(RegionResponseDto::from)
                 .toList();
     }
 }

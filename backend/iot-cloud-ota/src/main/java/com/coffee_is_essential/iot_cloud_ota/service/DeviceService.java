@@ -1,10 +1,16 @@
 package com.coffee_is_essential.iot_cloud_ota.service;
 
+import com.coffee_is_essential.iot_cloud_ota.domain.PaginationInfo;
+import com.coffee_is_essential.iot_cloud_ota.dto.DeviceResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.DeviceSummaryResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.entity.*;
 import com.coffee_is_essential.iot_cloud_ota.repository.*;
 import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -125,4 +131,10 @@ public class DeviceService {
         }
     }
 
+    public List<DeviceResponseDto> findAllDevices(Long regionId, Long groupId, PaginationInfo paginationInfo) {
+        Pageable pageable = PageRequest.of(paginationInfo.page() - 1, paginationInfo.limit(), Sort.by("createdAt").descending());
+        Page<Device> devicesPage = deviceJpaRepository.findByRegionAndGroup(regionId, groupId, pageable);
+
+        return null;
+    }
 }
