@@ -1,5 +1,6 @@
 package com.coffee_is_essential.iot_cloud_ota.controller;
 
+import com.coffee_is_essential.iot_cloud_ota.dto.DivisionResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.DivisionSummaryResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.service.DivisionService;
 import lombok.RequiredArgsConstructor;
@@ -32,4 +33,11 @@ public class DivisionController {
 
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
+
+    @GetMapping("/list")
+    public ResponseEntity<List<DivisionResponseDto>> getAllDivisions() {
+        List<DivisionResponseDto> responseDtos = divisionService.findAllDivisions();
+        return new ResponseEntity<>(responseDtos, HttpStatus.OK);
+    }
+
 }

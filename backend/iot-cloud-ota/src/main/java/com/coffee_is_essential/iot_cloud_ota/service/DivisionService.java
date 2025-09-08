@@ -1,5 +1,6 @@
 package com.coffee_is_essential.iot_cloud_ota.service;
 
+import com.coffee_is_essential.iot_cloud_ota.dto.DivisionResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.DivisionSummaryResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.repository.DivisionJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,18 @@ public class DivisionService {
         return divisionJpaRepository.findDivisionSummary()
                 .stream()
                 .map(DivisionSummaryResponseDto::from)
+                .toList();
+    }
+
+    /**
+     * 모든 그룹의 기본 정보를 조회합니다.
+     *
+     * @return DivisionResponseDto 리스트 (groupId, groupCode, groupName)
+     */
+    public List<DivisionResponseDto> findAllDivisions() {
+
+        return divisionJpaRepository.findAll().stream()
+                .map(DivisionResponseDto::from)
                 .toList();
     }
 }

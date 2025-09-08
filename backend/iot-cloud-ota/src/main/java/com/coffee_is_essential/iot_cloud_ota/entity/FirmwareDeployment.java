@@ -43,7 +43,7 @@ public class FirmwareDeployment extends BaseEntity {
 
     public FirmwareDeployment(String commandId, DeploymentType deploymentType, OffsetDateTime deployedAt, OffsetDateTime expiresAt) {
         this.commandId = commandId;
-        this.deploymentType = deploymentType;
+        this.deploymentType = deploymentType.name().equals("GROUP") ? DeploymentType.DIVISION : deploymentType;
         this.deployedAt = deployedAt;
         this.expiresAt = expiresAt;
     }
