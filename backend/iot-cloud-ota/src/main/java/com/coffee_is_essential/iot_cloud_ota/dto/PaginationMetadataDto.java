@@ -1,5 +1,7 @@
 package com.coffee_is_essential.iot_cloud_ota.dto;
 
+import org.springframework.data.domain.Page;
+
 /**
  * 페이지네이션에 대한 메타데이터 정보를 포한한 DTO 입니다.
  *
@@ -14,4 +16,12 @@ public record PaginationMetadataDto(
         int totalPage,
         long totalCount
 ) {
+    public static PaginationMetadataDto from(Page<?> pageData) {
+        return new PaginationMetadataDto(
+                pageData.getPageable().getPageNumber() + 1,
+                pageData.getPageable().getPageSize(),
+                pageData.getTotalPages(),
+                pageData.getTotalElements()
+        );
+    }
 }
