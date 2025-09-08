@@ -15,13 +15,13 @@ var (
 	questDBClientInstance *DBClient
 )
 
-// 다운로드 이벤트 처리를 위한 비동기 채널 (버퍼: 1000개)
+// 다운로드 이벤트 처리를 위한 비동기 채널
 var DownloadInsertChan = make(chan types.DownloadEvent, 1000)
 
-// 기기 상태 이벤트 처리를 위한 비동기 채널 (버퍼: 1000개)
+// 기기 상태 이벤트 처리를 위한 비동기 채널
 var SystemStatusInsertChan = make(chan types.SystemStatusEvent, 1000)
 
-// 에러 로그 이벤트 처리를 위한 비동기 채널 (버퍼: 1000개)
+// 에러 로그 이벤트 처리를 위한 비동기 채널
 var ErrorLogInsertChan = make(chan types.ErrorLogEvent, 1000)
 
 // DBClient는 QuestDB와 통신하기 위한 객체입니다.
