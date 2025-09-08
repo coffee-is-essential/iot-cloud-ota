@@ -20,7 +20,7 @@ public class QuestDbRepository {
     private final @Qualifier("questDbNamedJdbc") NamedParameterJdbcTemplate namedJdbc;
 
     /**
-     * 주어진 commandId에 해당하는 펌웨어 다운로드 이벤트 중
+     * 주어진 commandId에 해당하는 다운로드 이벤트 중
      * 디바이스별 최신 이벤트를 조회합니다.
      *
      * @param commandId 조회할 대상 command_id
@@ -41,6 +41,14 @@ public class QuestDbRepository {
         return jdbcTemplate.query(sql, new Object[]{commandId}, mapper);
     }
 
+    /**
+     * 주어진 commandId와 디바이스 ID 목록에 해당하는 다운로드 이벤트 중
+     * 디바이스별 최신 이벤트를 조회합니다.
+     *
+     * @param commandId 조회할 대상 command_id
+     * @param deviceIds 조회할 대상 디바이스 ID 목록
+     * @return 디바이스별 최신 펌웨어 다운로드 이벤트 리스트
+     */
     public List<FirmwareDownloadEvents> findLatestPerDeviceByCommandIdAndDeviceIds(
             String commandId, List<Long> deviceIds) {
         if (deviceIds == null || deviceIds.isEmpty()) return List.of();
@@ -62,7 +70,7 @@ public class QuestDbRepository {
     }
 
     /**
-     * FirmwareDownloadEvents 엔티티로 결과를 매핑하는 RowMapper 구현체입니다.
+     * DownloadEvents 엔티티로 결과를 매핑하는 RowMapper 구현체입니다.
      */
     private final RowMapper<FirmwareDownloadEvents> mapper = new RowMapper<>() {
         @Override
@@ -77,13 +85,19 @@ public class QuestDbRepository {
             e.setDownloadBytes(rs.getLong("download_bytes"));
             e.setSpeedKbps(rs.getDouble("speed_kbps"));
             e.setChecksumVerified(rs.getBoolean("checksum_verified"));
-            e.setDownloadTime(rs.getDouble("download_seconds"));
+            e.setDownloadTime(rs.getLong("download_seconds"));
             e.setTimestamp(rs.getTimestamp("timestamp"));
 
             return e;
         }
     };
 
+    /**
+     * 특정 디바이스에 대해 타임아웃 이벤트를 저장합니다.
+     *
+     * @param commandId 타임아웃이 발생한 command_id
+     * @param deviceId  타임아웃이 발생한 디바이스 ID
+     */
     public void saveTimeoutDevice(String commandId, Long deviceId) {
         jdbcTemplate.update(
                 "INSERT INTO download_events (command_id, message, status, device_id, timestamp) VALUES (?, ?, ?, ?, NOW())",

@@ -17,6 +17,6 @@ public class FirmwareDownloadEvents {
     private Long downloadBytes;
     private double speedKbps;
     private boolean checksumVerified;
-    private double downloadTime;
+    private Long downloadTime;
     private Timestamp timestamp;
 }
