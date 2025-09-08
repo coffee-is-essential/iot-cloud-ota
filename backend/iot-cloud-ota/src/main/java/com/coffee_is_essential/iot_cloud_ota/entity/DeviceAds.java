@@ -3,6 +3,7 @@ package com.coffee_is_essential.iot_cloud_ota.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.OffsetDateTime;
 
@@ -13,6 +14,7 @@ import java.time.OffsetDateTime;
  */
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "device_ads")
 public class DeviceAds {

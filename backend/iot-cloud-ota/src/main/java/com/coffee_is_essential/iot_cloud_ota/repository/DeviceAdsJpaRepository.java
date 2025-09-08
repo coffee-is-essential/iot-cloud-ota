@@ -1,7 +1,6 @@
 package com.coffee_is_essential.iot_cloud_ota.repository;
 
 import com.coffee_is_essential.iot_cloud_ota.entity.ActiveDeviceInfo;
-import com.coffee_is_essential.iot_cloud_ota.entity.AdsMetadata;
 import com.coffee_is_essential.iot_cloud_ota.entity.DeviceAds;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,14 +11,6 @@ import java.util.List;
 
 @Repository
 public interface DeviceAdsJpaRepository extends JpaRepository<DeviceAds, Long> {
-    @Query("""
-                SELECT da.device.id
-                FROM DeviceAds da
-                WHERE da.adsMetadata = :adsMetadata
-                  AND da.endedAt IS NULL
-            """)
-    List<Long> findActiveDevicesByAds(@Param("adsMetadata") AdsMetadata adsMetadata);
-
     @Query("""
                 SELECT new com.coffee_is_essential.iot_cloud_ota.entity.ActiveDeviceInfo(
                     d.id,

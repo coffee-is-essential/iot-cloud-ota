@@ -1,15 +1,17 @@
 package com.coffee_is_essential.iot_cloud_ota.service;
 
 import com.coffee_is_essential.iot_cloud_ota.dto.DeviceSummaryResponseDto;
-import com.coffee_is_essential.iot_cloud_ota.entity.Device;
-import com.coffee_is_essential.iot_cloud_ota.entity.Division;
-import com.coffee_is_essential.iot_cloud_ota.entity.Region;
+import com.coffee_is_essential.iot_cloud_ota.entity.*;
+import com.coffee_is_essential.iot_cloud_ota.repository.AdsMetadataJpaRepository;
 import com.coffee_is_essential.iot_cloud_ota.repository.DeviceJpaRepository;
 import com.coffee_is_essential.iot_cloud_ota.repository.DivisionJpaRepository;
 import com.coffee_is_essential.iot_cloud_ota.repository.RegionJpaRepository;
+import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Service
@@ -18,6 +20,8 @@ public class DeviceService {
     private final RegionJpaRepository regionJpaRepository;
     private final DivisionJpaRepository divisionJpaRepository;
     private final DeviceJpaRepository deviceJpaRepository;
+    private final AdsMetadataJpaRepository adsMetadataJpaRepository;
+    private final EntityManager em;
 
     /**
      * 새로운 디바이스를 생성하고 저장합니다.
@@ -46,5 +50,42 @@ public class DeviceService {
                 .stream()
                 .map(DeviceSummaryResponseDto::from)
                 .toList();
+    }
+
+    /**
+     * 특정 commandId에 대해 완료된 펌웨어 다운로드 이벤트를 기반으로
+     * 각 디바이스의 광고 상태(DeviceAds)를 업데이트합니다.
+     * 기존에 활성화된 광고는 종료 처리하고, 새로운 광고 메타데이터를 기반으로
+     * 새로운 광고 상태를 생성하여 저장합니다.
+     *
+     * @param commandId       펌웨어 배포 명령 식별자
+     * @param completedEvents 완료된 펌웨어 다운로드 이벤트 리스트
+     */
+    @Transactional
+    public void updateDeviceAds(String commandId, List<FirmwareDownloadEvents> completedEvents) {
+        List<AdsMetadata> metadataList = adsMetadataJpaRepository.findByCommandId(commandId);
+        OffsetDateTime now = OffsetDateTime.now();
+
+        for (FirmwareDownloadEvents event : completedEvents) {
+            Long deviceId = event.getDeviceId();
+
+            em.createQuery("""
+                                UPDATE DeviceAds da
+                                SET da.endedAt = :now
+                                WHERE da.device.id = :deviceId
+                                  AND da.endedAt IS NULL
+                            """)
+                    .setParameter("now", now)
+                    .setParameter("deviceId", deviceId)
+                    .executeUpdate();
+
+            for (AdsMetadata ads : metadataList) {
+                DeviceAds newAds = new DeviceAds();
+                newAds.setDevice(em.getReference(Device.class, deviceId));
+                newAds.setAdsMetadata(ads);
+                newAds.setStartedAt(now);
+                em.persist(newAds);
+            }
+        }
     }
 }

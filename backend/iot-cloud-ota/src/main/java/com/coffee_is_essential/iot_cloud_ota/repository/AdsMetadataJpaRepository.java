@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -48,4 +49,24 @@ public interface AdsMetadataJpaRepository extends JpaRepository<AdsMetadata, Lon
     default AdsMetadata findByTitleOrElseThrow(String title) {
         return findByTitle(title).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "제목 '" + title + "'에 해당하는 광고가 존재하지 않습니다."));
     }
+
+    /**
+     * 특정 commandId와 연관된 광고 메타데이터를 조회합니다.
+     * 내부적으로 네이티브 SQL 쿼리를 사용하여, ads_deployment 테이블과 firmware_deployment 테이블을 조인하여
+     * 해당 commandId에 연결된 광고 메타데이터를 가져옵니다.
+     *
+     * @param commandId 조회할 commandId
+     * @return 해당 commandId와 연관된 광고 메타데이터 리스트
+     */
+    @Query(value = """
+            SELECT * FROM ads_metadata 
+            WHERE id IN (
+                SELECT advertisement_id 
+                FROM ads_deployment ad 
+                WHERE ad.deployment_id = (
+                    SELECT id FROM firmware_deployment WHERE command_id = :commandId
+                )
+            )
+            """, nativeQuery = true)
+    List<AdsMetadata> findByCommandId(@Param("commandId") String commandId);
 }
