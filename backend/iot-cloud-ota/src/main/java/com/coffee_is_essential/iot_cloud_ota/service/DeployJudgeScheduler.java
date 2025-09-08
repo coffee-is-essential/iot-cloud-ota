@@ -132,8 +132,11 @@ public class DeployJudgeScheduler {
 
         if (!completedEvents.isEmpty()) {
             processCompletedEvents(commandId, completedEvents, firmwareDeployment);
-            if ("AD".equals(commandId.split("-")[0])) {
+            String type = commandId.split("-")[0];
+            if ("AD".equals(type)) {
                 deviceService.updateDeviceAds(commandId, completedEvents);
+            } else if ("FW".equals(type)) {
+                deviceService.updateDeviceFirmware(commandId, completedEvents);
             }
         }
 
