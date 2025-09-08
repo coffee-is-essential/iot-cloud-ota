@@ -2,7 +2,6 @@ package com.coffee_is_essential.iot_cloud_ota.controller;
 
 import com.coffee_is_essential.iot_cloud_ota.domain.PaginationInfo;
 import com.coffee_is_essential.iot_cloud_ota.dto.DivisionListResponseDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.DivisionResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.DivisionSummaryResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.service.DivisionService;
 import lombok.RequiredArgsConstructor;
@@ -54,8 +53,8 @@ public class DivisionController {
             @RequestParam(required = false) String search
     ) {
         PaginationInfo paginationInfo = new PaginationInfo(page, limit, search);
-        DivisionListResponseDto responseDtos = divisionService.findAllDivisions(paginationInfo);
+        DivisionListResponseDto responseDto = divisionService.findAllDivisions(paginationInfo);
 
-        return new ResponseEntity<>(responseDtos, HttpStatus.OK);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 }

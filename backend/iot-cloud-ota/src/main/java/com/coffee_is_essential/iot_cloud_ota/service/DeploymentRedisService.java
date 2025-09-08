@@ -2,7 +2,7 @@ package com.coffee_is_essential.iot_cloud_ota.service;
 
 import com.coffee_is_essential.iot_cloud_ota.domain.DeployTargetDeviceInfo;
 import com.coffee_is_essential.iot_cloud_ota.entity.FirmwareDownloadEvents;
-import com.coffee_is_essential.iot_cloud_ota.repository.QuestDbRepository;
+import com.coffee_is_essential.iot_cloud_ota.repository.DownloadEventsJdbcRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DeploymentRedisService {
     private final StringRedisTemplate srt;
-    private final QuestDbRepository questDbRepository;
+    private final DownloadEventsJdbcRepository downloadEventsJdbcRepository;
 
     /**
      * 배포 대상 디바이스들을 Redis Set에 추가한다.
@@ -81,7 +81,7 @@ public class DeploymentRedisService {
     @Transactional
     public void saveTimeoutDevices(String commandId, List<Long> deviceIds) {
         for (Long deviceId : deviceIds) {
-            questDbRepository.saveTimeoutDevice(commandId, deviceId);
+            downloadEventsJdbcRepository.saveTimeoutDevice(commandId, deviceId);
         }
     }
 }

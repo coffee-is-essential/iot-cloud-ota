@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
-public class QuestDbRepository {
+public class DownloadEventsJdbcRepository {
     private final @Qualifier("questDbJdbcTemplate") JdbcTemplate jdbcTemplate;
     private final @Qualifier("questDbNamedJdbc") NamedParameterJdbcTemplate namedJdbc;
 

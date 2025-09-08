@@ -6,8 +6,8 @@ public record DeviceResponseDto(
         Long deviceId,
         String deviceName,
         OffsetDateTime createdAt,
-        RegionResponseDto region,
-        DivisionResponseDto group,
-        OffsetDateTime lastActive
+        String regionName,
+        String groupName,
+        OffsetDateTime lastActiveAt
 ) {
 }

@@ -36,7 +36,7 @@ public class DeployJudgeScheduler {
     private final OverallDeploymentStatusRepository overallDeploymentStatusRepository;
     private final DeploymentRedisService deploymentRedisService;
     private final EntityManager em;
-    private final QuestDbRepository questDbRepository;
+    private final DownloadEventsJdbcRepository downloadEventsJdbcRepository;
     private final DeviceService deviceService;
 
     private final ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
@@ -125,7 +125,7 @@ public class DeployJudgeScheduler {
                 deviceIds
         );
 
-        List<FirmwareDownloadEvents> downloadEvents = questDbRepository.findLatestPerDeviceByCommandIdAndDeviceIds(commandId, deviceIds);
+        List<FirmwareDownloadEvents> downloadEvents = downloadEventsJdbcRepository.findLatestPerDeviceByCommandIdAndDeviceIds(commandId, deviceIds);
         List<FirmwareDownloadEvents> completedEvents = downloadEvents.stream()
                 .filter(e -> isCompleted(e.getStatus()))
                 .toList();

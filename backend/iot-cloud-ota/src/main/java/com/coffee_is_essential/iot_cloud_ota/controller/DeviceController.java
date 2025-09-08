@@ -1,7 +1,7 @@
 package com.coffee_is_essential.iot_cloud_ota.controller;
 
 import com.coffee_is_essential.iot_cloud_ota.domain.PaginationInfo;
-import com.coffee_is_essential.iot_cloud_ota.dto.DeviceResponseDto;
+import com.coffee_is_essential.iot_cloud_ota.dto.DeviceListResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.DeviceSummaryResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.service.DeviceService;
 import lombok.RequiredArgsConstructor;
@@ -37,15 +37,15 @@ public class DeviceController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<DeviceResponseDto>> findAllDevices(
+    public ResponseEntity<DeviceListResponseDto> findAllDevices(
             @RequestParam(required = false) Long regionId,
             @RequestParam(required = false) Long groupId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit
     ) {
         PaginationInfo paginationInfo = PaginationInfo.of(page, limit);
-        List<DeviceResponseDto> responseDtos = deviceService.findAllDevices(regionId, groupId, paginationInfo);
+        DeviceListResponseDto responseDto = deviceService.findAllDevices(regionId, groupId, paginationInfo);
 
-        return new ResponseEntity<>(responseDtos, HttpStatus.OK);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 }

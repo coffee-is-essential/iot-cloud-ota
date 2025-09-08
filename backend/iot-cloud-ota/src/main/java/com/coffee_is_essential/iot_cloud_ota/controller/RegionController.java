@@ -2,7 +2,6 @@ package com.coffee_is_essential.iot_cloud_ota.controller;
 
 import com.coffee_is_essential.iot_cloud_ota.domain.PaginationInfo;
 import com.coffee_is_essential.iot_cloud_ota.dto.RegionListResponseDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.RegionResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.RegionSummaryResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.service.RegionService;
 import lombok.RequiredArgsConstructor;
@@ -53,8 +52,8 @@ public class RegionController {
             @RequestParam(required = false) String search
     ) {
         PaginationInfo paginationInfo = new PaginationInfo(page, limit, search);
-        RegionListResponseDto responseDtos = regionService.findAllRegions(paginationInfo);
+        RegionListResponseDto responseDto = regionService.findAllRegions(paginationInfo);
 
-        return new ResponseEntity(responseDtos, HttpStatus.OK);
+        return new ResponseEntity(responseDto, HttpStatus.OK);
     }
 }

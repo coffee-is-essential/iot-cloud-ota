@@ -44,7 +44,7 @@ public class DeploymentService {
     private final DeviceJpaRepository deviceJpaRepository;
     private final OverallDeploymentStatusRepository overallDeploymentStatusRepository;
     private final RestClient restClient;
-    private final QuestDbRepository questDbRepository;
+    private final DownloadEventsJdbcRepository downloadEventsJdbcRepository;
     private final CloudFrontSignedUrlService cloudFrontSignedUrlService;
     private final DeploymentRedisService deploymentRedisService;
     private final DeployJudgeScheduler deployJudgeScheduler;
@@ -279,7 +279,7 @@ public class DeploymentService {
         OverallDeploymentStatus status = overallDeploymentStatusRepository.findLatestByDeploymentIdOrElseThrow(id);
         List<Target> targetInfo = getTargetList(deployment);
         ProgressCount progressCount = getProgressCount(id);
-        List<DeviceDeploymentStatus> downloadEvents = questDbRepository.findLatestPerDeviceByCommandId(deployment.getCommandId()).stream()
+        List<DeviceDeploymentStatus> downloadEvents = downloadEventsJdbcRepository.findLatestPerDeviceByCommandId(deployment.getCommandId()).stream()
                 .map(DeviceDeploymentStatus::from)
                 .toList();
 

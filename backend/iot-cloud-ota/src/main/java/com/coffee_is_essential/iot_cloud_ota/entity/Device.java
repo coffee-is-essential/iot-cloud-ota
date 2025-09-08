@@ -43,4 +43,16 @@ public class Device extends BaseEntity {
     public Long getRegionId() {
         return region.getId();
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public Division getDivision() {
+        return division;
+    }
+
+    public Region getRegion() {
+        return region;
+    }
 }

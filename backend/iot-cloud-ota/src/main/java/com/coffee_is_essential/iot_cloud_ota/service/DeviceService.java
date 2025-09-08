@@ -1,8 +1,10 @@
 package com.coffee_is_essential.iot_cloud_ota.service;
 
 import com.coffee_is_essential.iot_cloud_ota.domain.PaginationInfo;
+import com.coffee_is_essential.iot_cloud_ota.dto.DeviceListResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.DeviceResponseDto;
 import com.coffee_is_essential.iot_cloud_ota.dto.DeviceSummaryResponseDto;
+import com.coffee_is_essential.iot_cloud_ota.dto.PaginationMetadataDto;
 import com.coffee_is_essential.iot_cloud_ota.entity.*;
 import com.coffee_is_essential.iot_cloud_ota.repository.*;
 import jakarta.persistence.EntityManager;
@@ -26,6 +28,7 @@ public class DeviceService {
     private final AdsMetadataJpaRepository adsMetadataJpaRepository;
     private final EntityManager em;
     private final FirmwareDeploymentRepository firmwareDeploymentRepository;
+    private final DeviceStatusJdbcRepository deviceStatusJdbcRepository;
 
     /**
      * 새로운 디바이스를 생성하고 저장합니다.
@@ -131,10 +134,34 @@ public class DeviceService {
         }
     }
 
-    public List<DeviceResponseDto> findAllDevices(Long regionId, Long groupId, PaginationInfo paginationInfo) {
-        Pageable pageable = PageRequest.of(paginationInfo.page() - 1, paginationInfo.limit(), Sort.by("createdAt").descending());
+    /**
+     * 특정 리전과 그룹에 속한 디바이스 목록을 페이지네이션하여 조회합니다.
+     * 각 디바이스에 대해 최신 시스템 상태의 타임스탬프를 포함한 정보를 DTO 형태로 반환합니다.
+     *
+     * @param regionId       조회할 리전의 ID
+     * @param groupId        조회할 그룹의 ID
+     * @param paginationInfo 페이지네이션 정보 (페이지 번호, 페이지 크기 등)
+     * @return DeviceListResponseDto (디바이스 목록과 페이지 메타데이터)
+     */
+    public DeviceListResponseDto findAllDevices(Long regionId, Long groupId, PaginationInfo paginationInfo) {
+        Pageable pageable = PageRequest.of(paginationInfo.page() - 1, paginationInfo.limit(), Sort.by("createdAt").ascending());
         Page<Device> devicesPage = deviceJpaRepository.findByRegionAndGroup(regionId, groupId, pageable);
+        List<Device> content = devicesPage.getContent();
 
-        return null;
+        List<DeviceResponseDto> deviceResponseDtos = content.stream()
+                .map(d -> {
+                    SystemStatus status = deviceStatusJdbcRepository.findLatestByDeviceId(d.getDeviceId());
+                    return new DeviceResponseDto(
+                            d.getDeviceId(),
+                            d.getName(),
+                            d.getCreatedAt(),
+                            d.getRegion().getRegionName(),
+                            d.getDivision().getDivisionName(),
+                            status != null ? status.getTimestamp() : null
+                    );
+                })
+                .toList();
+
+        return DeviceListResponseDto.of(deviceResponseDtos, PaginationMetadataDto.from(devicesPage));
     }
 }
