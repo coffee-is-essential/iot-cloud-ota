@@ -6,6 +6,7 @@ import { MainTile } from "../widgets/layout/ui/MainTile";
 import { TitleTile } from "../widgets/layout/ui/TitleTile";
 import ReactPaginate from "react-paginate";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { DeviceFilter } from "../features/device_filter/ui/DeviceFilter";
 
 /**
  * DevicePage 컴포넌트는 디바이스 관리 페이지를 렌더링합니다.
@@ -19,6 +20,7 @@ export const DevicePage = (): JSX.Element => {
     pagination,
     handleSearch,
     handlePageChange,
+    handleFilterChange,
   } = useDeviceSearch();
 
   const handlePageClick = (event: { selected: number }) => {
@@ -29,9 +31,6 @@ export const DevicePage = (): JSX.Element => {
   // pagination 객체가 없을 경우를 대비하여 기본값을 설정합니다.
   const pageCount = pagination?.totalPage ?? 0;
   const currentPage = pagination?.page ?? 1;
-
-  console.log("pageCount:", pageCount);
-  console.log("currentPage:", currentPage);
 
   return (
     <div className="flex flex-col">
@@ -44,7 +43,12 @@ export const DevicePage = (): JSX.Element => {
       <div>
         <MainTile
           title="등록된 디바이스"
-          rightElement={<SearchBar onSearch={handleSearch} />}
+          rightElement={
+            <div className="flex items-center space-x-2">
+              <DeviceFilter onFilterChange={handleFilterChange} />
+              <SearchBar onSearch={handleSearch} />
+            </div>
+          }
         >
           <DeviceList devices={devices} isLoading={isLoading} error={error} />
 
