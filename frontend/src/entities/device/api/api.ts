@@ -1,6 +1,11 @@
 import { apiClient } from "../../../shared/api/client";
 import { PaginatedApiResponse } from "../../../shared/api/types";
-import { Device, PaginatedDevice } from "../model/types";
+import {
+  Device,
+  DeviceDetail,
+  DeviceDetailResponse,
+  PaginatedDevice,
+} from "../model/types";
 
 /**
  * API로부터 디바이스(Device) 데이터를 가져오는 서비스입니다.
@@ -60,6 +65,31 @@ export const deviceApiService = {
         lastActiveAt: new Date(device.lastActiveAt!),
       })),
       paginationMeta: data.paginationMeta,
+    };
+  },
+
+  /**
+   * 특정 디바이스(Device)의 상세 정보를 조회합니다.
+   * @async
+   * @param {number} deviceId - 조회할 디바이스의 ID
+   * @returns {Promise<DeviceDetail>} 디바이스 상세 정보 객체를 반환합니다.
+   * @example
+   * const deviceDetail = await deviceApiService.getDeviceDetail(1);
+   */
+  getDeviceDetail: async (deviceId: number): Promise<DeviceDetail> => {
+    const { data } = await apiClient.get<DeviceDetailResponse>(
+      `/api/devices/${deviceId}`,
+    );
+
+    return {
+      ...data,
+      createdAt: new Date(data.createdAt),
+      modifiedAt: new Date(data.modifiedAt),
+      lastActiveAt: data.lastActiveAt ? new Date(data.lastActiveAt) : null,
+      advertisements: data.advertisements.map((ad) => ({
+        ...ad,
+        deployedAt: new Date(ad.deployedAt),
+      })),
     };
   },
 };
