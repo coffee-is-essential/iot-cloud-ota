@@ -44,8 +44,9 @@ source venv/bin/activate  # macOS/Linux
 pip install -r requirements.txt
 
 # 4. FastAPI 서버 실행
-# 서버는 http://127.0.0.1:8000 에서 실행됩니다.
-uvicorn app.main:app --host 0.0.0.0 --port 8000
+# 포트는 필요에 따라 변경할 수 있습니다.
+cd app/
+uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
 서버가 시작되면, 프로젝트 루트 디렉토리에 `ca_key.pem`과 `ca_cert.pem` 파일이 자동으로 생성됩니다.
