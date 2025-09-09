@@ -3,7 +3,7 @@ import { TitleTile } from "../widgets/layout/ui/TitleTile";
 import { MainTile } from "../widgets/layout/ui/MainTile";
 import { AdDetail } from "../entities/advertisement/ui/AdDetail";
 import { useAdDetail } from "../entities/advertisement/api/useAdDetail";
-import { DeviceList } from "../entities/device/ui/DeviceList";
+import { AdDeviceList } from "../entities/device/ui/AdDeviceList";
 import { JSX } from "react";
 
 /**
@@ -50,7 +50,7 @@ export const AdDetailPage = (): JSX.Element => {
       </div>
       <div>
         <MainTile title="광고가 표시되고 있는 디바이스 목록">
-          <DeviceList devices={adDetail.devices} />
+          <AdDeviceList devices={adDetail.devices} />
         </MainTile>
       </div>
     </div>

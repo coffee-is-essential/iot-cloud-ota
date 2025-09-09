@@ -1,77 +1,45 @@
 import { JSX } from "react";
+import { DeviceCard } from "./DeviceCard";
 import { Device } from "../model/types";
 
 /**
  * DeviceList 컴포넌트 Props
  */
-interface DeviceListProps {
+export interface DeviceListProps {
   devices: Device[];
+  isLoading: boolean;
+  error: string | null;
 }
 
 /**
- * DeviceList 컴포넌트는 기기 목록을 테이블 형식으로 표시합니다.
+ * DeviceList 컴포넌트는 디바이스 목록을 표시합니다.
  * @param {DeviceListProps} props - 컴포넌트 Props
- * @returns {JSX.Element} 기기 목록을 포함하는 JSX 요소
+ * @returns {JSX.Element} 디바이스 목록을 포함하는 JSX 요소
  */
-export const DeviceList = ({ devices }: DeviceListProps): JSX.Element => {
-  if (!devices || devices.length === 0) {
-    return (
-      <div className="text-center py-4 text-neutral-600 border-t">
-        표시할 디바이스가 없습니다.
-      </div>
-    );
+export const DeviceList = ({
+  devices,
+  isLoading,
+  error,
+}: DeviceListProps): JSX.Element => {
+  if (isLoading) {
+    return <div className="flex justify-center py-8">로딩 중...</div>;
+  }
+
+  if (error) {
+    return <div className="flex justify-center py-8 text-red-500">{error}</div>;
   }
 
   return (
-    <div className="overflow-x-auto border-t">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider"
-            >
-              기기 ID
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider"
-            >
-              리전명
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider"
-            >
-              그룹명
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider"
-            >
-              기기 이름
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+    <div>
+      {devices.length === 0 ? (
+        <div className="p-8 text-center">검색 결과가 없습니다.</div>
+      ) : (
+        <div className="flex flex-col gap-4">
           {devices.map((device) => (
-            <tr key={device.deviceId}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {device.deviceId}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                {device.regionName}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                {device.groupName}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                {device.deviceName}
-              </td>
-            </tr>
+            <DeviceCard key={device.deviceId} device={device} />
           ))}
-        </tbody>
-      </table>
+        </div>
+      )}
     </div>
   );
 };
