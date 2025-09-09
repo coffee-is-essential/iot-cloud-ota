@@ -14,7 +14,7 @@ export const GroupApiService = {
    * const groups = await GroupApiService.getGroups();
    */
   getGroups: async (): Promise<Group[]> => {
-    const { data } = await apiClient.get<Group[]>(`/api/divisions`);
+    const { data } = await apiClient.get<Group[]>(`/api/groups`);
     return data;
   },
 };
