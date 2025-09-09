@@ -1,4 +1,5 @@
 import { JSX } from "react";
+import { useNavigate } from "react-router";
 import { Device } from "../model/types";
 
 /**
@@ -14,12 +15,20 @@ export interface DeviceCardProps {
  * @returns {JSX.Element} 디바이스 정보를 포함하는 JSX 요소
  */
 export const DeviceCard = ({ device }: DeviceCardProps): JSX.Element => {
+  const navigate = useNavigate();
   const lastActive = device.lastActiveAt
     ? new Date(device.lastActiveAt).toLocaleString()
     : "N/A";
 
+  const handleCardClick = () => {
+    navigate(`/device/${device.deviceId}`);
+  };
+
   return (
-    <div className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-lg transition-shadow duration-300 flex items-center space-x-4">
+    <div
+      className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-lg transition-shadow duration-300 flex items-center space-x-4 cursor-pointer"
+      onClick={handleCardClick}
+    >
       <div className="flex-shrink-0">
         <img className="h-24 w-24" src="/robot.png" alt="robot" />
       </div>
