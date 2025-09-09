@@ -1,10 +1,7 @@
 package com.coffee_is_essential.iot_cloud_ota.service;
 
 import com.coffee_is_essential.iot_cloud_ota.domain.PaginationInfo;
-import com.coffee_is_essential.iot_cloud_ota.dto.DeviceListResponseDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.DeviceResponseDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.DeviceSummaryResponseDto;
-import com.coffee_is_essential.iot_cloud_ota.dto.PaginationMetadataDto;
+import com.coffee_is_essential.iot_cloud_ota.dto.*;
 import com.coffee_is_essential.iot_cloud_ota.entity.*;
 import com.coffee_is_essential.iot_cloud_ota.repository.*;
 import jakarta.persistence.EntityManager;
@@ -18,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -29,6 +27,9 @@ public class DeviceService {
     private final EntityManager em;
     private final FirmwareDeploymentRepository firmwareDeploymentRepository;
     private final DeviceStatusJdbcRepository deviceStatusJdbcRepository;
+    private final DeviceFirmwareJpaRepository deviceFirmwareJpaRepository;
+    private final DeviceAdsJpaRepository deviceAdsJpaRepository;
+    private final CloudFrontSignedUrlService cloudFrontSignedUrlService;
 
     /**
      * 새로운 디바이스를 생성하고 저장합니다.
@@ -163,5 +164,40 @@ public class DeviceService {
                 .toList();
 
         return DeviceListResponseDto.of(deviceResponseDtos, PaginationMetadataDto.from(devicesPage));
+    }
+
+    /**
+     * 특정 디바이스의 상세 정보를 조회합니다.
+     * 디바이스의 기본 정보, 최신 시스템 상태, 현재 활성화된 펌웨어 및 광고 정보를 포함한 상세 데이터를 DTO 형태로 반환합니다.
+     *
+     * @param id 조회할 디바이스의 ID
+     * @return DeviceDetailResponseDto (디바이스 상세 정보)
+     */
+    public DeviceDetailResponseDto findDetailByDeviceId(Long id) {
+        Device device = deviceJpaRepository.findByIdOrElseThrow(id);
+        SystemStatus status = deviceStatusJdbcRepository.findLatestByDeviceId(device.getDeviceId());
+        Optional<DeviceFirmware> deviceFirmware = deviceFirmwareJpaRepository.findByDeviceIdAndEndedAtIsNull(device.getDeviceId());
+        List<DeviceAds> deviceAds = deviceAdsJpaRepository.findByDeviceIdAndEndedAtIsNull(device.getDeviceId());
+
+        return new DeviceDetailResponseDto(
+                device.getDeviceId(),
+                device.getName(),
+                device.getCreatedAt(),
+                device.getModifiedAt(),
+                status != null ? status.getTimestamp() : null,
+                DeviceDetailRegionDto.from(device.getRegion()),
+                DeviceDetailDivisionDto.from(device.getDivision()),
+                deviceFirmware.map(FirmwareResponseDto::from).orElse(null),
+                deviceAds.stream()
+                        .map(da ->
+                                new AdsResponseDto(
+                                        da.getAdsMetadata().getId(),
+                                        da.getAdsMetadata().getTitle(),
+                                        da.getStartedAt(),
+                                        cloudFrontSignedUrlService.generateAdsSignedUrl(da.getAdsMetadata().getTitle()).url()
+                                )
+                        )
+                        .toList()
+        );
     }
 }

@@ -7,8 +7,8 @@ public record RegionResponseDto(
         String regionCode,
         String regionName
 ) {
-    public static RegionResponseDto from(Region r) {
+    public static RegionResponseDto from(Region region) {
 
-        return new RegionResponseDto(r.getId(), r.getRegionCode(), r.getRegionName());
+        return new RegionResponseDto(region.getId(), region.getRegionCode(), region.getRegionName());
     }
 }

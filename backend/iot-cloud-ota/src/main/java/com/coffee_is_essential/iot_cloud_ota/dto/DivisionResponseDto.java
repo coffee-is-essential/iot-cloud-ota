@@ -7,7 +7,7 @@ public record DivisionResponseDto(
         String groupCode,
         String groupName
 ) {
-    public static DivisionResponseDto from(Division d) {
-        return new DivisionResponseDto(d.getId(), d.getDivisionCode(), d.getDivisionName());
+    public static DivisionResponseDto from(Division division) {
+        return new DivisionResponseDto(division.getId(), division.getDivisionCode(), division.getDivisionName());
     }
 }
