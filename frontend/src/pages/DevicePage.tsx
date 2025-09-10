@@ -89,7 +89,9 @@ export const DevicePage = (): JSX.Element => {
           isOpen={deviceRegisterModalOpen}
           onRequestClose={() => setDeviceRegisterModalOpen(false)}
           contentLabel="디바이스 등록 모달"
-          className="max-w-lg mx-auto mt-20 bg-white p-6 rounded-lg shadow-lg outline-none"
+          className={
+            "bg-white w-1/2 max-w-2xl h-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-lg p-6 shadow-xl"
+          }
           overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
         >
           <DeviceRegisterForm
