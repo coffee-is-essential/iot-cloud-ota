@@ -17,4 +17,17 @@ export const GroupApiService = {
     const { data } = await apiClient.get<Group[]>(`/api/groups`);
     return data;
   },
+
+  /**
+   * 새로운 그룹(Group)을 등록합니다.
+   * @async
+   * @param {string} groupName - 등록할 그룹의 이름
+   * @returns {Promise<Group>} 등록된 그룹 정보 객체를 반환합니다.
+   * @example
+   * const newGroup = await GroupApiService.registerGroup('New Group');
+   */
+  registerGroup: async (groupName: string): Promise<Group> => {
+    const { data } = await apiClient.post<Group>(`/api/groups`, { groupName });
+    return data;
+  },
 };

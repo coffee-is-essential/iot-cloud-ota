@@ -17,4 +17,19 @@ export const RegionApiService = {
     const { data } = await apiClient.get<Region[]>(`/api/regions`);
     return data;
   },
+
+  /**
+   * 새로운 지역(Region)을 등록합니다.
+   * @async
+   * @param {string} regionName - 등록할 지역의 이름
+   * @returns {Promise<Region>} 등록된 지역 정보 객체를 반환합니다.
+   * @example
+   * const newRegion = await RegionApiService.registerRegion('New Region');
+   */
+  registerRegion: async (regionName: string): Promise<Region> => {
+    const { data } = await apiClient.post<Region>(`/api/regions`, {
+      regionName,
+    });
+    return data;
+  },
 };

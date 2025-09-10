@@ -3,7 +3,8 @@ import { Group } from "../../../entities/group/model/types";
 import { Region } from "../../../entities/region/model/types";
 import { GroupApiService } from "../../../entities/group/api/api";
 import { RegionApiService } from "../../../entities/region/api/regionApi";
-import { Filter, X } from "lucide-react";
+import { Filter, X, Plus } from "lucide-react";
+import { toast } from "react-toastify";
 
 /**
  * DeviceFilter 컴포넌트 Props
@@ -30,6 +31,11 @@ export const DeviceFilter = ({
   const regionRef = useRef<HTMLDivElement>(null);
   const groupRef = useRef<HTMLDivElement>(null);
 
+  const [isAddingRegion, setIsAddingRegion] = useState(false);
+  const [newRegionName, setNewRegionName] = useState("");
+  const [isAddingGroup, setIsAddingGroup] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -53,12 +59,16 @@ export const DeviceFilter = ({
         !regionRef.current.contains(event.target as Node)
       ) {
         setShowRegionFilter(false);
+        setIsAddingRegion(false);
+        setNewRegionName("");
       }
       if (
         groupRef.current &&
         !groupRef.current.contains(event.target as Node)
       ) {
         setShowGroupFilter(false);
+        setIsAddingGroup(false);
+        setNewGroupName("");
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -77,6 +87,34 @@ export const DeviceFilter = ({
     setSelectedGroupId(groupId);
     onFilterChange({ regionId: selectedRegionId, groupId: groupId });
     setShowGroupFilter(false);
+  };
+
+  const handleRegisterRegion = async () => {
+    if (newRegionName.trim() === "") return;
+    try {
+      const newRegion = await RegionApiService.registerRegion(
+        newRegionName.trim(),
+      );
+      setRegions((prev) => [...prev, newRegion]);
+      setNewRegionName("");
+      setIsAddingRegion(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("리전 등록에 실패했습니다.");
+    }
+  };
+
+  const handleRegisterGroup = async () => {
+    if (newGroupName.trim() === "") return;
+    try {
+      const newGroup = await GroupApiService.registerGroup(newGroupName.trim());
+      setGroups((prev) => [...prev, newGroup]);
+      setNewGroupName("");
+      setIsAddingGroup(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("그룹 등록에 실패했습니다.");
+    }
   };
 
   const selectedRegionName = regions.find(
@@ -126,6 +164,33 @@ export const DeviceFilter = ({
                   {region.regionName}
                 </li>
               ))}
+              {isAddingRegion ? (
+                <li className="p-2">
+                  <input
+                    type="text"
+                    value={newRegionName}
+                    onChange={(e) => setNewRegionName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleRegisterRegion();
+                      if (e.key === "Escape") {
+                        setIsAddingRegion(false);
+                        setNewRegionName("");
+                      }
+                    }}
+                    className="w-full border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="새 리전 이름"
+                    autoFocus
+                  />
+                </li>
+              ) : (
+                <li
+                  className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm text-blue-600"
+                  onClick={() => setIsAddingRegion(true)}
+                >
+                  <Plus size={14} className="mr-2" />
+                  새로 만들기
+                </li>
+              )}
             </ul>
           </div>
         )}
@@ -169,6 +234,33 @@ export const DeviceFilter = ({
                   {group.groupName}
                 </li>
               ))}
+              {isAddingGroup ? (
+                <li className="p-2">
+                  <input
+                    type="text"
+                    value={newGroupName}
+                    onChange={(e) => setNewGroupName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleRegisterGroup();
+                      if (e.key === "Escape") {
+                        setIsAddingGroup(false);
+                        setNewGroupName("");
+                      }
+                    }}
+                    className="w-full border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="새 그룹 이름"
+                    autoFocus
+                  />
+                </li>
+              ) : (
+                <li
+                  className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm text-blue-600"
+                  onClick={() => setIsAddingGroup(true)}
+                >
+                  <Plus size={14} className="mr-2" />
+                  새로 만들기
+                </li>
+              )}
             </ul>
           </div>
         )}
@@ -176,4 +268,3 @@ export const DeviceFilter = ({
     </div>
   );
 };
-

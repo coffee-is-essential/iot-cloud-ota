@@ -144,7 +144,7 @@ export const firmwareApiService = {
     fileName: string,
   ): Promise<string> => {
     const { data } = await apiClient.get<PresignedDownloadUrlResponse>(
-      `/api/s3/presigned_download`,
+      `/api/s3/firmware/download`,
       {
         params: {
           version,
