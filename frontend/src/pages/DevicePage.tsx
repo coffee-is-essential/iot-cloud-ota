@@ -1,4 +1,4 @@
-import { JSX } from "react";
+import { JSX, useState } from "react";
 import { useDeviceSearch } from "../entities/device/api/useDeviceSearch";
 import { DeviceList } from "../entities/device/ui/DeviceList";
 import { SearchBar } from "../shared/ui/SearchBar";
@@ -7,6 +7,9 @@ import { TitleTile } from "../widgets/layout/ui/TitleTile";
 import ReactPaginate from "react-paginate";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DeviceFilter } from "../features/device_filter/ui/DeviceFilter";
+import ReactModal from "react-modal";
+import { Button } from "../shared/ui/Button";
+import { DeviceRegisterForm } from "../features/device_register/ui/DeviceRegisterForm";
 
 /**
  * DevicePage 컴포넌트는 디바이스 관리 페이지를 렌더링합니다.
@@ -22,6 +25,8 @@ export const DevicePage = (): JSX.Element => {
     handlePageChange,
     handleFilterChange,
   } = useDeviceSearch();
+
+  const [deviceRegisterModalOpen, setDeviceRegisterModalOpen] = useState(false);
 
   const handlePageClick = (event: { selected: number }) => {
     const newPage = event.selected + 1;
@@ -52,7 +57,8 @@ export const DevicePage = (): JSX.Element => {
         >
           <DeviceList devices={devices} isLoading={isLoading} error={error} />
 
-          <div className="flex items-center justify-center mt-6 text-neutral-500">
+          <div className="flex items-center justify-between mt-6 text-neutral-500">
+            <div></div>
             {/* 페이지가 있을 때만 페이지네이션을 렌더링합니다. */}
             {pageCount > 0 && (
               <ReactPaginate
@@ -72,8 +78,24 @@ export const DevicePage = (): JSX.Element => {
                 breakClassName="px-2"
               />
             )}
+            <Button
+              title="디바이스 등록"
+              onClick={() => setDeviceRegisterModalOpen(true)}
+            />
           </div>
         </MainTile>
+
+        <ReactModal
+          isOpen={deviceRegisterModalOpen}
+          onRequestClose={() => setDeviceRegisterModalOpen(false)}
+          contentLabel="디바이스 등록 모달"
+          className="max-w-lg mx-auto mt-20 bg-white p-6 rounded-lg shadow-lg outline-none"
+          overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+        >
+          <DeviceRegisterForm
+            onClose={() => setDeviceRegisterModalOpen(false)}
+          />
+        </ReactModal>
       </div>
     </div>
   );
